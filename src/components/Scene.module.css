@@ -1,0 +1,13 @@
+.container {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: #020205;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent, rgba(2, 2, 5, 0.5), #020205);
+    pointer-events: none;
+}

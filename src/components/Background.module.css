@@ -1,0 +1,40 @@
+.container {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background-color: var(--bg-color);
+}
+
+.orb1 {
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background-color: rgba(30, 58, 138, 0.3);
+    /* blue-900/30 */
+    border-radius: 50%;
+    filter: blur(120px);
+}
+
+.orb2 {
+    position: absolute;
+    bottom: -10%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background-color: rgba(88, 28, 135, 0.2);
+    /* purple-900/20 */
+    border-radius: 50%;
+    filter: blur(100px);
+}
+
+.noise {
+    position: absolute;
+    inset: 0;
+    background-image: url('/noise.svg');
+    opacity: 0.2;
+    filter: brightness(100%) contrast(150%);
+    mix-blend-mode: overlay;
+}
