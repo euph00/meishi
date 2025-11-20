@@ -8,46 +8,45 @@ export const content = {
         logoAlt: "Logo"
     },
     about: {
-        heading: "About Me",
-        bio1: "I'm a passionate developer who loves to build immersive digital experiences. My journey started with a curiosity for how things work on the web, and it has evolved into a career of crafting high-performance applications.",
-        bio2: "When I'm not coding, you can find me exploring new technologies, contributing to open source, or gaming.",
-        skillsHeading: "Skills",
-        skillsDescription: "I specialize in the modern JavaScript stack, with a focus on React, Node.js, and Three.js. I believe in writing clean, maintainable code and designing interfaces that are intuitive and accessible.",
-        skills: ['React / Next.js', 'TypeScript', 'Three.js / R3F', 'Node.js', 'Tailwind / CSS', 'PostgreSQL']
+        heading: "自己紹介/About",
+        bio1: "初星学園プロデューサー科のユーフです。担当は世界で一番かわいい藤田ことねです。",
+        bio2: "入学したての新米ですが、担当の魅力を世界に伝え、トップアイドルに導けるよう精進します。どうぞよろしくお願いします！",
+        skillsHeading: "活動/Activities",
+        skillsDescription: "主に学園アイドルマスターをやっています。イベント参加などの情報もこちらに載せます。",
+        skills: ['NEXT | MOIW2025 / C107', 'Pランキング | 難しいね', 'NIAマスラン | ことね41位', 'maimai/オンゲキ']
     },
     projects: {
-        heading: "Selected Works",
+        heading: "寄せ書き",
         list: [
             {
                 id: 1,
-                title: "Nebula Dashboard",
-                category: "Data Visualization"
+                title: "メッセージを書く",
+                category: "Leave a message!"
             },
             {
                 id: 2,
-                title: "Quantum E-Commerce",
-                category: "Web Application"
+                title: "メッセージ一覧",
+                category: "See all messages!"
             },
-            {
-                id: 3,
-                title: "Stellar Portfolio",
-                category: "Creative Design"
-            },
-            {
-                id: 4,
-                title: "Void Chat",
-                category: "Real-time Communication"
-            }
+            // {
+            //     id: 3,
+            //     title: "Stellar Portfolio",
+            //     category: "Creative Design"
+            // },
+            // {
+            //     id: 4,
+            //     title: "Void Chat",
+            //     category: "Real-time Communication"
+            // }
         ]
     },
     social: {
-        heading: "Get in Touch",
+        heading: "Remove this header",
         links: [
-            { icon: Github, href: 'https://github.com', label: 'GitHub' },
-            { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-            { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-            { icon: Mail, href: 'mailto:hello@example.com', label: 'Email' },
-            { icon: Globe, href: 'https://example.com', label: 'Website' },
+            { icon: Github, href: 'https://github.com/euph00', label: 'GitHub' },
+            { icon: Twitter, href: 'https://x.com/e_uph00', label: 'Twitter' },
+            { icon: Mail, href: 'mailto:euph.f1eur@gmail.com', label: 'Email' },
+
         ]
     }
 };
