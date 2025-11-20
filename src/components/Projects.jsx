@@ -2,35 +2,11 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import styles from './Projects.module.css';
 
-const projects = [
-    {
-        id: 1,
-        title: "Nebula Dashboard",
-        category: "Data Visualization",
-        image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop"
-    },
-    {
-        id: 2,
-        title: "Quantum E-Commerce",
-        category: "Web Application",
-        image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop"
-    },
-    {
-        id: 3,
-        title: "Stellar Portfolio",
-        category: "Creative Design",
-        image: "https://images.unsplash.com/photo-1534972195531-d756b9bfa9f2?q=80&w=2070&auto=format&fit=crop"
-    },
-    {
-        id: 4,
-        title: "Void Chat",
-        category: "Real-time Communication",
-        image: "https://images.unsplash.com/photo-1614728853913-1e22ba234666?q=80&w=2070&auto=format&fit=crop"
-    }
-];
+import { content } from '../data/content';
 
 const Projects = () => {
     const [hoveredProject, setHoveredProject] = useState(null);
+    const { projects } = content;
 
     return (
         <section className={styles.section}>
@@ -41,11 +17,11 @@ const Projects = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                 >
-                    Selected Works
+                    {projects.heading}
                 </motion.h2>
 
                 <div className={styles.projectList}>
-                    {projects.map((project) => (
+                    {projects.list.map((project) => (
                         <motion.div
                             key={project.id}
                             className={styles.projectItem}

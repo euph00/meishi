@@ -2,7 +2,10 @@ import { motion } from 'framer-motion';
 import styles from './Hero.module.css';
 import { getAnimationDelay } from '../utils/animation';
 
+import { content } from '../data/content';
+
 const Hero = () => {
+    const { hero } = content;
     return (
         <section className={styles.section}>
             <div className={styles.heroLogoWrapper}>
@@ -14,7 +17,7 @@ const Hero = () => {
                     <div className={styles.glow} style={{ animationDelay: getAnimationDelay() }}></div>
                     <img
                         src="/logo_text_or.svg"
-                        alt="Logo"
+                        alt={hero.logoAlt}
                         className={styles.image}
                     />
                 </motion.div>
@@ -25,9 +28,9 @@ const Hero = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
                 className={`${styles.title} ${styles.glitch}`}
-                data-text="LINCH"
+                data-text={hero.title.toUpperCase()}
             >
-                Linch
+                {hero.title}
             </motion.h1>
 
             <motion.p
@@ -36,9 +39,9 @@ const Hero = () => {
                 transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
                 className={styles.subtitle}
             >
-                FULL STACK DEVELOPER & UI/UX ENTHUSIAST
+                {hero.subtitle}
                 <br />
-                <span className="text-white/60 text-lg mt-2 block">Crafting digital experiences that defy gravity.</span>
+                <span className="text-white/60 text-lg mt-2 block">{hero.description}</span>
             </motion.p>
         </section>
     );

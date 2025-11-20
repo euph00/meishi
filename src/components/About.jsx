@@ -1,7 +1,10 @@
 import { motion } from 'framer-motion';
 import styles from './About.module.css';
 
+import { content } from '../data/content';
+
 const About = () => {
+    const { about } = content;
     return (
         <section className={styles.section}>
             <div className={styles.container}>
@@ -12,14 +15,10 @@ const About = () => {
                     viewport={{ once: true }}
                     className={styles.card}
                 >
-                    <h2 className={styles.heading}>About Me</h2>
+                    <h2 className={styles.heading}>{about.heading}</h2>
+                    <p className={styles.text} dangerouslySetInnerHTML={{ __html: about.bio1.replace('immersive digital experiences', '<span class="' + styles.highlight + '">immersive digital experiences</span>') }}></p>
                     <p className={styles.text}>
-                        I'm a passionate developer who loves to build <span className={styles.highlight}>immersive digital experiences</span>.
-                        My journey started with a curiosity for how things work on the web, and it has evolved into a career of crafting
-                        high-performance applications.
-                    </p>
-                    <p className={styles.text}>
-                        When I'm not coding, you can find me exploring new technologies, contributing to open source, or gaming.
+                        {about.bio2}
                     </p>
                 </motion.div>
 
@@ -30,13 +29,10 @@ const About = () => {
                     viewport={{ once: true }}
                     className={styles.card}
                 >
-                    <h2 className={styles.heading}>Skills</h2>
-                    <p className={styles.text}>
-                        I specialize in the modern JavaScript stack, with a focus on <span className={styles.highlight}>React, Node.js, and Three.js</span>.
-                        I believe in writing clean, maintainable code and designing interfaces that are intuitive and accessible.
-                    </p>
+                    <h2 className={styles.heading}>{about.skillsHeading}</h2>
+                    <p className={styles.text} dangerouslySetInnerHTML={{ __html: about.skillsDescription.replace('React, Node.js, and Three.js', '<span class="' + styles.highlight + '">React, Node.js, and Three.js</span>') }}></p>
                     <ul className={styles.skillsGrid}>
-                        {['React / Next.js', 'TypeScript', 'Three.js / R3F', 'Node.js', 'Tailwind / CSS', 'PostgreSQL'].map((skill) => (
+                        {about.skills.map((skill) => (
                             <li key={skill} className={styles.skillItem}>
                                 <span className={styles.skillDot}></span>
                                 {skill}

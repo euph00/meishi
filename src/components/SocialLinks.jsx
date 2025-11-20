@@ -1,16 +1,9 @@
 import { motion } from 'framer-motion';
-import { Github, Linkedin, Twitter, Mail, Globe } from 'lucide-react';
 import styles from './SocialLinks.module.css';
-
-const links = [
-    { icon: Github, href: 'https://github.com', label: 'GitHub' },
-    { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-    { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-    { icon: Mail, href: 'mailto:hello@example.com', label: 'Email' },
-    { icon: Globe, href: 'https://example.com', label: 'Website' },
-];
+import { content } from '../data/content';
 
 const SocialLinks = () => {
+    const { social } = content;
     return (
         <section style={{ padding: '5rem 0', textAlign: 'center' }}>
             <motion.h2
@@ -20,7 +13,7 @@ const SocialLinks = () => {
                 viewport={{ once: true }}
                 style={{ fontSize: '3rem', fontWeight: '700', marginBottom: '2rem', color: '#fff' }}
             >
-                Get in Touch
+                {social.heading}
             </motion.h2>
             <motion.div
                 className={styles.container}
@@ -29,7 +22,7 @@ const SocialLinks = () => {
                 transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
                 viewport={{ once: true }}
             >
-                {links.map((link, index) => (
+                {social.links.map((link, index) => (
                     <motion.a
                         key={link.label}
                         href={link.href}
