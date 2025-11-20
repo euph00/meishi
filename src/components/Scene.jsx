@@ -2,7 +2,6 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars, Sparkles, Cloud } from '@react-three/drei';
 import { useRef } from 'react';
 import * as THREE from 'three';
-
 function MovingStars() {
     const starsRef = useRef();
     useFrame((state) => {
@@ -11,9 +10,8 @@ function MovingStars() {
             starsRef.current.rotation.x += 0.0001;
         }
     });
-    return <Stars ref={starsRef} radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />;
+    return <Stars ref={starsRef} radius={100} depth={50} count={7000} factor={7} saturation={0} fade speed={1} />;
 }
-
 function CameraRig() {
     useFrame((state) => {
         // Subtle camera movement based on mouse
@@ -22,16 +20,14 @@ function CameraRig() {
     });
     return null;
 }
-
 import styles from './Scene.module.css';
-
 const Scene = () => {
     return (
         <div className={styles.container}>
             <Canvas camera={{ position: [0, 0, 1] }}>
                 <MovingStars />
-                <Sparkles count={200} scale={10} size={2} speed={0.4} opacity={0.5} color="#4f46e5" />
-                <Sparkles count={100} scale={15} size={5} speed={0.2} opacity={0.2} color="#a855f7" />
+                <Sparkles count={300} scale={10} size={4} speed={0.4} opacity={0.8} color="#6366f1" />
+                <Sparkles count={150} scale={15} size={6} speed={0.2} opacity={0.6} color="#a855f7" />
                 <Cloud opacity={0.1} speed={0.2} width={10} depth={1.5} segments={20} position={[0, 0, -10]} color="#1e1b4b" />
                 <CameraRig />
             </Canvas>
@@ -39,6 +35,4 @@ const Scene = () => {
         </div>
     );
 };
-
 export default Scene;
-

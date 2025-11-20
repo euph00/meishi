@@ -1,9 +1,7 @@
 import { motion } from 'framer-motion';
 import styles from './Hero.module.css';
 import { getAnimationDelay } from '../utils/animation';
-
 import { content } from '../data/content';
-
 const Hero = () => {
     const { hero } = content;
     return (
@@ -22,7 +20,6 @@ const Hero = () => {
                     />
                 </motion.div>
             </div>
-
             <motion.h1
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -32,19 +29,19 @@ const Hero = () => {
             >
                 {hero.title}
             </motion.h1>
-
-            <motion.p
+            <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-                className={styles.subtitle}
             >
-                {hero.subtitle}
-                <br />
-                <span className="text-white/60 text-lg mt-2 block">{hero.description}</span>
-            </motion.p>
+                <h2 className={`${styles.subtitle} ${styles.shimmer}`}>
+                    {hero.subtitle}
+                </h2>
+                <p className={`${styles.description} ${styles.shimmer}`}>
+                    {hero.description}
+                </p>
+            </motion.div>
         </section>
     );
 };
-
 export default Hero;

@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import styles from './Background.module.css';
-
 const Background = () => {
     return (
         <div className={styles.container}>
@@ -34,5 +33,4 @@ const Background = () => {
         </div>
     );
 };
-
 export default Background;
