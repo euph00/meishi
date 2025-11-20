@@ -1,14 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Lenis from 'lenis';
+import { AnimatePresence } from 'framer-motion';
 import Scene from './components/Scene';
 import Hero from './components/Hero';
 import About from './components/About';
 import Projects from './components/Projects';
 import SocialLinks from './components/SocialLinks';
 import Cursor from './components/Cursor';
+import Loader from './components/Loader';
 import styles from './App.module.css';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2,
@@ -28,6 +32,11 @@ function App() {
 
     requestAnimationFrame(raf);
 
+    // Simulate loading time
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2500); // Slightly longer to see the initial fade in
+
     return () => {
       lenis.destroy();
     };
@@ -37,17 +46,24 @@ function App() {
     <main className={styles.main}>
       <Cursor />
       <Scene />
-      <div className={styles.content}>
-        <Hero />
-        <About />
-        <Projects />
-        <SocialLinks />
-        <div style={{ height: '20vh' }}></div>
-      </div>
+      <AnimatePresence>
+        {isLoading && <Loader key="loader" />}
+      </AnimatePresence>
+
+      {!isLoading && (
+        <div className={styles.content}>
+          <Hero />
+          <About />
+          <Projects />
+          <SocialLinks />
+          <div style={{ height: '20vh' }}></div>
+        </div>
+      )}
     </main>
   );
 }
 
 export default App;
+
 
 

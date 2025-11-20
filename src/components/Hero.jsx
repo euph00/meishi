@@ -1,26 +1,24 @@
 import { motion } from 'framer-motion';
-import MagneticButton from './MagneticButton';
 import styles from './Hero.module.css';
+import { getAnimationDelay } from '../utils/animation';
 
 const Hero = () => {
     return (
         <section className={styles.section}>
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1, ease: "easeOut" }}
-            >
-                <MagneticButton>
-                    <div className={styles.imageContainer}>
-                        <div className={styles.glow}></div>
-                        <img
-                            src="/logo_text_or.svg"
-                            alt="Logo"
-                            className={styles.image}
-                        />
-                    </div>
-                </MagneticButton>
-            </motion.div>
+            <div className={styles.heroLogoWrapper}>
+                <motion.div
+                    className={styles.imageContainer}
+                    layoutId="shared-logo-wrapper"
+                    transition={{ duration: 1.5, ease: [0.6, 0.01, -0.05, 0.9] }}
+                >
+                    <div className={styles.glow} style={{ animationDelay: getAnimationDelay() }}></div>
+                    <img
+                        src="/logo_text_or.svg"
+                        alt="Logo"
+                        className={styles.image}
+                    />
+                </motion.div>
+            </div>
 
             <motion.h1
                 initial={{ opacity: 0, y: 50 }}

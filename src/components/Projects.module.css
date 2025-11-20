@@ -1,5 +1,7 @@
 .section {
     padding: 10rem 2rem;
+    position: relative;
+    /* Ensure mouse tracking works relative to viewport if using fixed, or section if absolute */
 }
 
 .container {
@@ -10,9 +12,13 @@
 .heading {
     font-size: 4rem;
     font-weight: 800;
-    margin-bottom: 4rem;
-    text-align: center;
+    margin-bottom: 6rem;
+    /* Increased margin */
+    text-align: left;
+    /* Left align for cleaner look */
     color: #fff;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
 }
 
 .projectList {
@@ -21,15 +27,17 @@
 }
 
 .projectItem {
-    padding: 4rem 2rem;
+    padding: 3rem 0;
+    /* Reduced side padding, increased vertical */
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
+    z-index: 10;
+    /* Ensure text is above image */
 }
 
 .projectItem:last-child {
@@ -37,42 +45,56 @@
 }
 
 .projectItem:hover {
-    background-color: rgba(255, 255, 255, 0.02);
+    padding-left: 2rem;
+    /* Subtle shift */
+    background-color: transparent;
+    /* Remove bg color change */
 }
 
 .projectInfo {
-    z-index: 10;
+    display: flex;
+    align-items: baseline;
+    gap: 2rem;
+    width: 100%;
 }
 
 .projectTitle {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 0.5rem;
-    transition: transform 0.3s ease;
+    font-size: 3.5rem;
+    /* Larger title */
+    font-weight: 400;
+    /* Thinner weight for elegance */
+    color: rgba(255, 255, 255, 0.5);
+    /* Dimmed by default */
+    margin: 0;
+    transition: color 0.3s ease;
 }
 
 .projectItem:hover .projectTitle {
-    transform: translateX(10px);
-    color: var(--accent-color);
+    color: #fff;
+    /* Bright on hover */
 }
 
 .projectCategory {
     font-size: 1rem;
-    color: var(--text-secondary);
+    color: var(--accent-color);
     text-transform: uppercase;
     letter-spacing: 0.1em;
-}
-
-.projectLink {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-10px);
     transition: all 0.3s ease;
-    color: #fff;
-    font-size: 1.2rem;
 }
 
-.projectItem:hover .projectLink {
+.projectItem:hover .projectCategory {
     opacity: 1;
     transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+    .projectTitle {
+        font-size: 2rem;
+    }
+
+    .projectItem:hover {
+        padding-left: 1rem;
+    }
 }
