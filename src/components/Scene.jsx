@@ -27,17 +27,53 @@ function TwinklingStars({ count = 5000 }) {
         return rnd;
     }, [count]);
 
+    const colors = useMemo(() => {
+        const cols = new Float32Array(count * 3);
+        const palette = [
+            new THREE.Color('#f39800'),
+            new THREE.Color('#e30f25'),
+            new THREE.Color('#0c7bbb'),
+            new THREE.Color('#f8c112'),
+            new THREE.Color('#7f1184'),
+            new THREE.Color('#eafdff'),
+            new THREE.Color('#f68b1f'),
+            new THREE.Color('#7cfc00'),
+            new THREE.Color('#00afcc'),
+            new THREE.Color('#f6adc6'),
+            new THREE.Color('#ea533a'),
+            new THREE.Color('#7a99cf'),
+            new THREE.Color('#f6ae54'),
+            new THREE.Color('#7b68ee'),
+            new THREE.Color('#f0f8ff'),
+        ];
+
+        for (let i = 0; i < count; i++) {
+            let color;
+            if (Math.random() > 0.95) { // 5% chance of being colored
+                color = palette[Math.floor(Math.random() * palette.length)];
+            } else {
+                color = new THREE.Color('#ffffff'); // Mostly white
+            }
+            cols[i * 3] = color.r;
+            cols[i * 3 + 1] = color.g;
+            cols[i * 3 + 2] = color.b;
+        }
+        return cols;
+    }, [count]);
+
     const shaderArgs = useMemo(
         () => ({
             uniforms: {
                 uTime: { value: 0 },
-                uColor: { value: new THREE.Color('#ffffff') },
             },
             vertexShader: `
         attribute float aRandom;
+        attribute vec3 aColor;
         varying float vRandom;
+        varying vec3 vColor;
         void main() {
           vRandom = aRandom;
+          vColor = aColor;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mvPosition;
           // Increased size: base 4.0, random up to +6.0, distance scale 100.0
@@ -46,8 +82,8 @@ function TwinklingStars({ count = 5000 }) {
       `,
             fragmentShader: `
         uniform float uTime;
-        uniform vec3 uColor;
         varying float vRandom;
+        varying vec3 vColor;
         void main() {
           vec2 uv = gl_PointCoord.xy - 0.5;
           
@@ -61,7 +97,7 @@ function TwinklingStars({ count = 5000 }) {
           if (alpha <= 0.0) discard;
           
           float twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + vRandom) + vRandom * 10.0);
-          gl_FragColor = vec4(uColor, alpha * twinkle * vRandom);
+          gl_FragColor = vec4(vColor, alpha * twinkle * vRandom);
         }
       `,
             transparent: true,
@@ -95,6 +131,12 @@ function TwinklingStars({ count = 5000 }) {
                     array={randoms}
                     itemSize={1}
                 />
+                <bufferAttribute
+                    attach="attributes-aColor"
+                    count={count}
+                    array={colors}
+                    itemSize={3}
+                />
             </bufferGeometry>
             <shaderMaterial attach="material" args={[shaderArgs]} />
         </points>
@@ -114,8 +156,8 @@ const Scene = () => {
         <div className={styles.container}>
             <Canvas camera={{ position: [0, 0, 1] }}>
                 <TwinklingStars />
-                <Sparkles count={300} scale={10} size={4} speed={0.4} opacity={0.8} color="#6366f1" />
-                <Sparkles count={150} scale={15} size={6} speed={0.2} opacity={0.6} color="#a855f7" />
+                {/* <Sparkles count={300} scale={10} size={4} speed={0.4} opacity={0.8} color="#6366f1" /> */}
+                {/* <Sparkles count={150} scale={15} size={6} speed={0.2} opacity={0.6} color="#a855f7" /> */}
                 <Cloud opacity={0.1} speed={0.2} width={10} depth={1.5} segments={20} position={[0, 0, -10]} color="#1e1b4b" />
                 <CameraRig />
             </Canvas>
