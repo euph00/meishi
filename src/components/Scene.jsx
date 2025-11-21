@@ -229,8 +229,11 @@ function SingleShootingStar({ speed, offset, position }) {
         }
     });
 
+    // Calculate exact rotation based on movement vector (-0.02, -0.01)
+    const angle = Math.atan2(-0.01, -0.02);
+
     return (
-        <mesh ref={ref} visible={active} rotation={[0, 0, Math.PI / 6]}>
+        <mesh ref={ref} visible={active} rotation={[0, 0, angle]}>
             <planeGeometry args={[5, 0.1]} />
             <meshBasicMaterial
                 color="#ffffff"
