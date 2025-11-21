@@ -100,7 +100,16 @@ function TwinklingStars({ count = 5000 }) {
           
           if (alpha <= 0.0) discard;
           
-          float twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + vRandom) + vRandom * 10.0);
+          float twinkle;
+          if (vBoost > 1.1) {
+             // Colored stars: Normal speed, but stay bright longer (broad peak)
+             float t = 0.5 + 0.5 * sin(uTime * 1.0 + vRandom * 10.0);
+             twinkle = pow(t, 0.5); // Broaden the curve so it stays close to 1.0 longer
+          } else {
+             // Normal stars: Standard sine wave
+             twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + vRandom) + vRandom * 10.0);
+          }
+
           // Apply boost to intensity
           gl_FragColor = vec4(vColor * vBoost, alpha * twinkle * vRandom);
         }
