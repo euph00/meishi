@@ -44,7 +44,7 @@ function TwinklingStars({ count = 5000 }) {
 
             if (Math.random() > 0.95) { // 5% chance of being colored
                 color = palette[Math.floor(Math.random() * palette.length)];
-                boost = 1.3; // 1.3x size and brightness
+                boost = 3.0; // High brightness boost
                 randomVal = 0.8 + Math.random() * 0.2; // Force large base size (0.8-1.0)
             } else {
                 color = new THREE.Color('#ffffff'); // Mostly white
@@ -79,8 +79,8 @@ function TwinklingStars({ count = 5000 }) {
           vBoost = aBoost;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mvPosition;
-          // Base size * Boost
-          gl_PointSize = (4.0 + aRandom * 6.0) * (100.0 / -mvPosition.z) * aBoost;
+          // Base size only (removed boost multiplier for size)
+          gl_PointSize = (4.0 + aRandom * 6.0) * (100.0 / -mvPosition.z);
         }
       `,
             fragmentShader: `
@@ -101,17 +101,21 @@ function TwinklingStars({ count = 5000 }) {
           if (alpha <= 0.0) discard;
           
           float twinkle;
+          float opacityMult;
+          
           if (vBoost > 1.1) {
              // Colored stars: Normal speed, but stay bright longer (broad peak)
              float t = 0.5 + 0.5 * sin(uTime * 1.0 + vRandom * 10.0);
              twinkle = pow(t, 0.5); // Broaden the curve so it stays close to 1.0 longer
+             opacityMult = 1.0; // No random dimming for colored stars
           } else {
              // Normal stars: Standard sine wave
              twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + vRandom) + vRandom * 10.0);
+             opacityMult = vRandom; // Random dimming for white stars
           }
 
           // Apply boost to intensity
-          gl_FragColor = vec4(vColor * vBoost, alpha * twinkle * vRandom);
+          gl_FragColor = vec4(vColor * vBoost, alpha * twinkle * opacityMult);
         }
       `,
             transparent: true,
