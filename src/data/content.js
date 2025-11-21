@@ -4,7 +4,7 @@ export const content = {
     hero: {
         title: "EUPH",
         subtitle: "今夜 あの空で合流して",
-        description: "朝が満たすまで それぞれの星を探そう",
+        description: "朝が満たすまでそれぞれの星を探そう",
         logoAlt: "Logo"
     },
     about: {

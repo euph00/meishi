@@ -29,7 +29,7 @@ function TwinklingStars({ count = 5000 }) {
         for (let i = 0; i < count; i++) {
             // Positions
             // Volumetric distribution: Random radius between 50 and 150
-            const r = 50 + Math.random() * 100;
+            const r = 80 + Math.random() * 100;
             const theta = 2 * Math.PI * Math.random();
             const phi = Math.acos(2 * Math.random() - 1);
             const x = r * Math.sin(phi) * Math.cos(theta);
