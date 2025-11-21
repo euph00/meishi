@@ -5,8 +5,6 @@ import Scene from './components/Scene';
 import Hero from './components/Hero';
 import About from './components/About';
 import Projects from './components/Projects';
-import SocialLinks from './components/SocialLinks';
-import Cursor from './components/Cursor';
 import Loader from './components/Loader';
 import styles from './App.module.css';
 
@@ -44,7 +42,7 @@ function App() {
 
   return (
     <>
-      {/* <Cursor /> */}
+
       <main className={styles.main}>
         <Scene />
         <AnimatePresence>
