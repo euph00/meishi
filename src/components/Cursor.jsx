@@ -34,12 +34,16 @@ const Cursor = () => {
 };
 
 const Splash = ({ x, y }) => {
-    // Generate 8 particles for the splash
-    const particles = Array.from({ length: 8 }).map((_, i) => {
-        const angle = (i / 8) * 360;
+    // Generate 12 particles for a more organic splash
+    const particles = Array.from({ length: 12 }).map((_, i) => {
+        const angle = Math.random() * 360; // Random angle
+        const distance = 40 + Math.random() * 60; // Random distance between 40 and 100
+        const scale = 0.5 + Math.random() * 0.5; // Random size variation
         return {
             id: i,
             angle,
+            distance,
+            scale,
         };
     });
 
@@ -49,14 +53,14 @@ const Splash = ({ x, y }) => {
                 <motion.div
                     key={p.id}
                     className={styles.particle}
-                    initial={{ x: x, y: y, scale: 1, opacity: 1 }}
+                    initial={{ x: x, y: y, scale: 0, opacity: 1 }}
                     animate={{
-                        x: x + Math.cos((p.angle * Math.PI) / 180) * 100,
-                        y: y + Math.sin((p.angle * Math.PI) / 180) * 100,
-                        scale: 0,
+                        x: x + Math.cos((p.angle * Math.PI) / 180) * p.distance,
+                        y: y + Math.sin((p.angle * Math.PI) / 180) * p.distance,
+                        scale: p.scale, // Animate to random scale then fade
                         opacity: 0,
                     }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
                 />
             ))}
         </>

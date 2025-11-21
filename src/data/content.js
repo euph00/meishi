@@ -8,10 +8,10 @@ export const content = {
         logoAlt: "Logo"
     },
     about: {
-        heading: "自己紹介/About",
+        heading: "自己紹介 / About",
         bio1: "初星学園プロデューサー科のユーフです。担当は世界で一番かわいい藤田ことねです。",
         bio2: "入学したての新米ですが、担当の魅力を世界に伝え、トップアイドルに導けるよう精進します。どうぞよろしくお願いします！",
-        skillsHeading: "活動/Activities",
+        skillsHeading: "活動 / Activities",
         skillsDescription: "主に学園アイドルマスターをやっています。イベント参加などの情報もこちらに載せます。",
         skills: ['NEXT | MOIW2025 / C107', 'Pランキング | 難しいね', 'NIAマスラン | ことね41位', 'maimai/オンゲキ']
     },

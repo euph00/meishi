@@ -43,22 +43,24 @@ function App() {
   }, []);
 
   return (
-    <main className={styles.main}>
-      <Cursor />
-      <Scene />
-      <AnimatePresence>
-        {isLoading && <Loader key="loader" />}
-      </AnimatePresence>
+    <>
+      {/* <Cursor /> */}
+      <main className={styles.main}>
+        <Scene />
+        <AnimatePresence>
+          {isLoading && <Loader key="loader" />}
+        </AnimatePresence>
 
-      {!isLoading && (
-        <div className={styles.content}>
-          <Hero />
-          <About />
-          <Projects />
-          <div style={{ height: '20vh' }}></div>
-        </div>
-      )}
-    </main>
+        {!isLoading && (
+          <div className={styles.content}>
+            <Hero />
+            <About />
+            <Projects />
+            <div style={{ height: '20vh' }}></div>
+          </div>
+        )}
+      </main>
+    </>
   );
 }
 
