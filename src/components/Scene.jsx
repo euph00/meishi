@@ -1,7 +1,8 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars, Sparkles, Cloud } from '@react-three/drei';
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState } from 'react';
 import * as THREE from 'three';
+import styles from './Scene.module.css';
 function TwinklingStars({ count = 5000 }) {
     const { positions, colors, randoms, boosts } = useMemo(() => {
         const pos = new Float32Array(count * 3);
@@ -174,15 +175,196 @@ function CameraRig() {
     });
     return null;
 }
-import styles from './Scene.module.css';
+
+function ShootingStars() {
+    // Create a few shooting stars with different timings/positions
+    const stars = useMemo(() => {
+        return Array.from({ length: 3 }).map((_, i) => ({
+            id: i,
+            speed: 10 + Math.random() * 20,
+            offset: Math.random() * 100,
+            position: [
+                (Math.random() - 0.5) * 100,
+                (Math.random() - 0.5) * 50,
+                -20 - Math.random() * 30
+            ]
+        }));
+    }, []);
+
+    return (
+        <>
+            {stars.map((star) => (
+                <SingleShootingStar key={star.id} {...star} />
+            ))}
+        </>
+    );
+}
+
+function SingleShootingStar({ speed, offset, position }) {
+    const ref = useRef();
+    const [active, setActive] = useState(false);
+
+    useFrame((state) => {
+        const t = state.clock.getElapsedTime();
+        // Trigger every 5-15 seconds randomly
+        if (!active && Math.random() < 0.002) {
+            setActive(true);
+            if (ref.current) {
+                ref.current.position.set(
+                    (Math.random() - 0.5) * 100,
+                    20 + Math.random() * 10,
+                    -30
+                );
+            }
+        }
+
+        if (active && ref.current) {
+            ref.current.position.x -= speed * 0.02;
+            ref.current.position.y -= speed * 0.01;
+
+            // Reset when out of view
+            if (ref.current.position.y < -30) {
+                setActive(false);
+            }
+        }
+    });
+
+    return (
+        <mesh ref={ref} visible={active} rotation={[0, 0, Math.PI / 6]}>
+            <planeGeometry args={[5, 0.1]} />
+            <meshBasicMaterial
+                color="#ffffff"
+                transparent
+                opacity={active ? 0.8 : 0}
+                blending={THREE.AdditiveBlending}
+            />
+        </mesh>
+    );
+}
+
+
+function Nebula() {
+    const shaderArgs = useMemo(
+        () => ({
+            uniforms: {
+                uTime: { value: 0 },
+                uColor1: { value: new THREE.Color('#1e1b4b') }, // Deep Indigo
+                uColor2: { value: new THREE.Color('#4c1d95') }, // Deep Purple
+                uColor3: { value: new THREE.Color('#0c7bbb') }, // Blue
+            },
+            vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+            fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor1;
+        uniform vec3 uColor2;
+        uniform vec3 uColor3;
+        varying vec2 vUv;
+
+        // Simplex 2D noise
+        vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+        float snoise(vec2 v){
+          const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                   -0.577350269189626, 0.024390243902439);
+          vec2 i  = floor(v + dot(v, C.yy) );
+          vec2 x0 = v -   i + dot(i, C.xx);
+          vec2 i1;
+          i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+          vec4 x12 = x0.xyxy + C.xxzz;
+          x12.xy -= i1;
+          i = mod(i, 289.0);
+          vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+          + i.x + vec3(0.0, i1.x, 1.0 ));
+          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+          m = m*m ;
+          m = m*m ;
+          vec3 x = 2.0 * fract(p * C.www) - 1.0;
+          vec3 h = abs(x) - 0.5;
+          vec3 ox = floor(x + 0.5);
+          vec3 a0 = x - ox;
+          m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+          vec3 g;
+          g.x  = a0.x  * x0.x  + h.x  * x0.y;
+          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+          return 130.0 * dot(m, g);
+        }
+
+        void main() {
+          float time = uTime * 0.1; 
+          vec2 uv = vUv * 3.0; // Lower frequency for larger, softer clouds
+          
+          // Generate noise layers
+          float n1 = snoise(uv + time * 0.5);
+          float n2 = snoise(uv * 2.0 - time * 0.3);
+          float n3 = snoise(uv * 4.0 + time * 0.2);
+          
+          // Combine noise
+          float noise = n1 * 0.5 + n2 * 0.25 + n3 * 0.125;
+          noise = noise * 0.5 + 0.5; // Normalize to 0-1
+          
+          // Soften the noise for diffused clouds
+          // Full range (0.0 to 1.0) for maximum diffusion and softness
+          float softNoise = smoothstep(0.0, 1.0, noise);
+          
+          // Shimmer Effect
+          // Create a high-frequency sine wave based on time and position
+          float shimmer = sin(uTime * 2.0 + vUv.x * 10.0 + vUv.y * 10.0) * 0.5 + 0.5;
+          // Mix it with noise so it's not uniform
+          shimmer = mix(0.8, 1.2, shimmer * noise); 
+          
+          // Color mixing with softer gradients
+          vec3 color = mix(uColor1, uColor2, smoothstep(0.1, 0.9, noise));
+          color = mix(color, uColor3, smoothstep(0.2, 1.0, n2 * 0.5 + 0.5));
+          
+          // Apply shimmer to color brightness
+          color *= shimmer;
+          
+          // Vignette
+          float dist = distance(vUv, vec2(0.5));
+          // Relaxed vignette: starts fading much further out (at 0.6) and ends at 1.2
+          // This keeps the edges of the screen bright
+          float vignette = smoothstep(1.2, 0.6, dist);
+          
+          // Use softNoise for alpha
+          // Increased opacity to 0.9 for stronger presence
+          float alpha = softNoise * vignette * 0.9; 
+          
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+            transparent: true,
+            depthWrite: false,
+        }),
+        []
+    );
+
+    const ref = useRef();
+    useFrame((state) => {
+        if (ref.current) {
+            ref.current.uniforms.uTime.value = state.clock.getElapsedTime();
+        }
+    });
+
+    return (
+        <mesh position={[0, 0, -25]}>
+            <planeGeometry args={[100, 100]} />
+            <shaderMaterial ref={ref} args={[shaderArgs]} />
+        </mesh>
+    );
+}
+
 const Scene = () => {
     return (
         <div className={styles.container}>
             <Canvas camera={{ position: [0, 0, 1] }}>
                 <TwinklingStars />
-                {/* <Sparkles count={300} scale={10} size={4} speed={0.4} opacity={0.8} color="#6366f1" /> */}
-                {/* <Sparkles count={150} scale={15} size={6} speed={0.2} opacity={0.6} color="#a855f7" /> */}
-                <Cloud opacity={0.1} speed={0.2} width={10} depth={1.5} segments={20} position={[0, 0, -10]} color="#1e1b4b" />
+                <ShootingStars />
+                <Nebula />
                 <CameraRig />
             </Canvas>
             <div className={styles.overlay}></div>
