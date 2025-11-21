@@ -21,12 +21,12 @@ export const content = {
             {
                 id: 1,
                 title: "メッセージを書く",
-                category: "Leave a message!"
+                category: "Leave a message"
             },
             {
                 id: 2,
                 title: "メッセージ一覧",
-                category: "See all messages!"
+                category: "See all messages"
             },
             // {
             //     id: 3,

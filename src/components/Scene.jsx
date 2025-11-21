@@ -28,7 +28,8 @@ function TwinklingStars({ count = 5000 }) {
 
         for (let i = 0; i < count; i++) {
             // Positions
-            const r = 100;
+            // Volumetric distribution: Random radius between 50 and 150
+            const r = 50 + Math.random() * 100;
             const theta = 2 * Math.PI * Math.random();
             const phi = Math.acos(2 * Math.random() - 1);
             const x = r * Math.sin(phi) * Math.cos(theta);
@@ -74,51 +75,84 @@ function TwinklingStars({ count = 5000 }) {
         varying float vRandom;
         varying vec3 vColor;
         varying float vBoost;
+        uniform float uTime;
+
         void main() {
           vRandom = aRandom;
           vColor = aColor;
           vBoost = aBoost;
-          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          
+          vec3 pos = position;
+          
+          // Differential Rotation (Parallax Effect)
+          // Calculate distance from center (radius)
+          float dist = length(pos);
+          
+          // Stars closer to the center rotate faster
+          // Base speed + variable speed based on inverse distance
+          // Randomized speed factor (0.8 to 1.2) to break lockstep
+          // Increased speed slightly (0.02) and reversed direction
+          float speed = (0.02 + (100.0 / dist) * 0.02) * (0.8 + aRandom * 0.4);
+          
+          // Calculate rotation angle
+          // Negative for Right-to-Left movement
+          float angle = -uTime * speed * 0.5;
+          
+          // Rotate around Y axis
+          float s = sin(angle);
+          float c = cos(angle);
+          
+          // Apply rotation matrix to X and Z
+          float nx = pos.x * c - pos.z * s;
+          float nz = pos.x * s + pos.z * c;
+          
+          pos.x = nx;
+          pos.z = nz;
+
+          // Vertical Wobble
+          // Add a gentle sine wave movement to Y to break linearity
+          // Amplitude varies by star (0.5 to 1.0) - Reduced to be subtle
+          pos.y += sin(uTime * 0.5 + aRandom * 10.0) * (0.5 + aRandom * 0.5);
+
+          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
           gl_Position = projectionMatrix * mvPosition;
+          
           // Base size only (removed boost multiplier for size)
           gl_PointSize = (4.0 + aRandom * 6.0) * (100.0 / -mvPosition.z);
         }
       `,
             fragmentShader: `
-        uniform float uTime;
-        varying float vRandom;
-        varying vec3 vColor;
-        varying float vBoost;
-        void main() {
-          vec2 uv = gl_PointCoord.xy - 0.5;
-          
-          // Astroid shape (concave diamond) for 4-pointed star look
-          // Formula: |x|^0.5 + |y|^0.5 = r
-          float d = sqrt(abs(uv.x)) + sqrt(abs(uv.y));
-          
-          // Soft edge around the shape (approx 0.7 is the tip of the star at 0.5 radius)
-          float alpha = 1.0 - smoothstep(0.6, 0.8, d);
-          
-          if (alpha <= 0.0) discard;
-          
-          float twinkle;
-          float opacityMult;
-          
-          if (vBoost > 1.1) {
-             // Colored stars: Normal speed, but stay bright longer (broad peak)
-             float t = 0.5 + 0.5 * sin(uTime * 1.0 + vRandom * 10.0);
-             twinkle = pow(t, 0.5); // Broaden the curve so it stays close to 1.0 longer
-             opacityMult = 1.0; // No random dimming for colored stars
-          } else {
-             // Normal stars: Standard sine wave
-             twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + vRandom) + vRandom * 10.0);
-             opacityMult = vRandom; // Random dimming for white stars
-          }
+            uniform float uTime;
+            varying float vRandom;
+            varying vec3 vColor;
+            varying float vBoost;
+            void main() {
+                vec2 uv = gl_PointCoord.xy - 0.5;
 
-          // Apply boost to intensity
-          gl_FragColor = vec4(vColor * vBoost, alpha * twinkle * opacityMult);
-        }
-      `,
+                // Astroid shape (concave diamond) for 4-pointed star look
+                float d = sqrt(abs(uv.x)) + sqrt(abs(uv.y));
+                float alpha = 1.0 - smoothstep(0.6, 0.8, d);
+
+                if(alpha <= 0.0) discard;
+          
+                float twinkle;
+                float opacityMult;
+          
+                if (vBoost > 1.1) {
+                    // Colored stars: Normal speed, but stay bright longer (broad peak)
+                    float t = 0.5 + 0.5 * sin(uTime * 1.0 + vRandom * 10.0);
+                    twinkle = pow(t, 0.5); // Broaden the curve so it stays close to 1.0 longer
+                    opacityMult = 1.0; // No random dimming for colored stars
+                } else {
+                    // Normal stars: Standard sine wave
+                    twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + vRandom) + vRandom * 10.0);
+                    opacityMult = vRandom; // Random dimming for white stars
+                }
+
+                // Apply boost to intensity
+                gl_FragColor = vec4(vColor * vBoost, alpha * twinkle * opacityMult);
+            }
+`,
             transparent: true,
             depthWrite: false,
             blending: THREE.AdditiveBlending,
@@ -131,7 +165,7 @@ function TwinklingStars({ count = 5000 }) {
     useFrame((state) => {
         if (points.current) {
             points.current.material.uniforms.uTime.value = state.clock.getElapsedTime();
-            points.current.rotation.y += 0.0001; // Slow rotation
+            // Removed CPU-side rotation to allow shader to handle differential rotation
         }
     });
 
@@ -257,11 +291,11 @@ function Nebula() {
             },
             vertexShader: `
         varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
+void main() {
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+`,
             fragmentShader: `
         uniform float uTime;
         uniform vec3 uColor1;
@@ -270,76 +304,81 @@ function Nebula() {
         varying vec2 vUv;
 
         // Simplex 2D noise
-        vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+        vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
         float snoise(vec2 v){
-          const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-                   -0.577350269189626, 0.024390243902439);
-          vec2 i  = floor(v + dot(v, C.yy) );
-          vec2 x0 = v -   i + dot(i, C.xx);
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+        -0.577350269189626, 0.024390243902439);
+          vec2 i = floor(v + dot(v, C.yy));
+          vec2 x0 = v - i + dot(i, C.xx);
           vec2 i1;
-          i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
           vec4 x12 = x0.xyxy + C.xxzz;
-          x12.xy -= i1;
-          i = mod(i, 289.0);
-          vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-          + i.x + vec3(0.0, i1.x, 1.0 ));
-          vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-          m = m*m ;
-          m = m*m ;
+    x12.xy -= i1;
+    i = mod(i, 289.0);
+          vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0))
+        + i.x + vec3(0.0, i1.x, 1.0));
+          vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+    m = m * m;
+    m = m * m;
           vec3 x = 2.0 * fract(p * C.www) - 1.0;
           vec3 h = abs(x) - 0.5;
           vec3 ox = floor(x + 0.5);
           vec3 a0 = x - ox;
-          m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+    m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
           vec3 g;
-          g.x  = a0.x  * x0.x  + h.x  * x0.y;
-          g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-          return 130.0 * dot(m, g);
-        }
+    g.x = a0.x * x0.x + h.x * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+}
 
-        void main() {
-          float time = uTime * 0.1; 
-          vec2 uv = vUv * 3.0; // Lower frequency for larger, softer clouds
+void main() {
+          // Explicit Scroll Vectors
+          // Layer 1: Main shape, moves right-to-left
+          // Increased speed slightly (0.01 -> 0.015)
+          vec2 scroll1 = vec2(uTime * 0.015, uTime * 0.003);
           
-          // Generate noise layers
-          float n1 = snoise(uv + time * 0.5);
-          float n2 = snoise(uv * 2.0 - time * 0.3);
-          float n3 = snoise(uv * 4.0 + time * 0.2);
+          // Layer 2: Details, moves slightly faster and opposite vertical drift for turbulence
+          // Increased speed slightly (0.015 -> 0.022)
+          vec2 scroll2 = vec2(uTime * 0.022, -uTime * 0.004);
+          
+          // Generate noise layers with explicit scrolling
+          float n1 = snoise(vUv * 3.0 + scroll1);
+          float n2 = snoise(vUv * 6.0 + scroll2);
           
           // Combine noise
-          float noise = n1 * 0.5 + n2 * 0.25 + n3 * 0.125;
-          noise = noise * 0.5 + 0.5; // Normalize to 0-1
-          
+          float noise = n1 * 0.6 + n2 * 0.4;
+    noise = noise * 0.5 + 0.5; // Normalize to 0-1
+
           // Soften the noise for diffused clouds
           // Full range (0.0 to 1.0) for maximum diffusion and softness
           float softNoise = smoothstep(0.0, 1.0, noise);
-          
+
           // Shimmer Effect
           // Create a high-frequency sine wave based on time and position
           float shimmer = sin(uTime * 2.0 + vUv.x * 10.0 + vUv.y * 10.0) * 0.5 + 0.5;
-          // Mix it with noise so it's not uniform
-          shimmer = mix(0.8, 1.2, shimmer * noise); 
-          
+    // Mix it with noise so it's not uniform
+    shimmer = mix(0.8, 1.2, shimmer * noise);
+
           // Color mixing with softer gradients
           vec3 color = mix(uColor1, uColor2, smoothstep(0.1, 0.9, noise));
-          color = mix(color, uColor3, smoothstep(0.2, 1.0, n2 * 0.5 + 0.5));
-          
-          // Apply shimmer to color brightness
-          color *= shimmer;
-          
+    color = mix(color, uColor3, smoothstep(0.2, 1.0, n2 * 0.5 + 0.5));
+
+    // Apply shimmer to color brightness
+    color *= shimmer;
+
           // Vignette
           float dist = distance(vUv, vec2(0.5));
           // Relaxed vignette: starts fading much further out (at 0.6) and ends at 1.2
           // This keeps the edges of the screen bright
           float vignette = smoothstep(1.2, 0.6, dist);
-          
+
           // Use softNoise for alpha
           // Increased opacity to 0.9 for stronger presence
-          float alpha = softNoise * vignette * 0.9; 
-          
-          gl_FragColor = vec4(color, alpha);
-        }
-      `,
+          float alpha = softNoise * vignette * 0.9;
+
+    gl_FragColor = vec4(color, alpha);
+}
+`,
             transparent: true,
             depthWrite: false,
         }),
