@@ -3,32 +3,11 @@ import { Stars, Sparkles, Cloud } from '@react-three/drei';
 import { useRef, useMemo } from 'react';
 import * as THREE from 'three';
 function TwinklingStars({ count = 5000 }) {
-    const positions = useMemo(() => {
+    const { positions, colors, randoms, boosts } = useMemo(() => {
         const pos = new Float32Array(count * 3);
-        for (let i = 0; i < count; i++) {
-            const r = 100;
-            const theta = 2 * Math.PI * Math.random();
-            const phi = Math.acos(2 * Math.random() - 1);
-            const x = r * Math.sin(phi) * Math.cos(theta);
-            const y = r * Math.sin(phi) * Math.sin(theta);
-            const z = r * Math.cos(phi);
-            pos[i * 3] = x;
-            pos[i * 3 + 1] = y;
-            pos[i * 3 + 2] = z;
-        }
-        return pos;
-    }, [count]);
-
-    const randoms = useMemo(() => {
-        const rnd = new Float32Array(count);
-        for (let i = 0; i < count; i++) {
-            rnd[i] = Math.random();
-        }
-        return rnd;
-    }, [count]);
-
-    const colors = useMemo(() => {
         const cols = new Float32Array(count * 3);
+        const rnd = new Float32Array(count);
+        const bst = new Float32Array(count);
         const palette = [
             new THREE.Color('#f39800'),
             new THREE.Color('#e30f25'),
@@ -44,21 +23,42 @@ function TwinklingStars({ count = 5000 }) {
             new THREE.Color('#7a99cf'),
             new THREE.Color('#f6ae54'),
             new THREE.Color('#7b68ee'),
-            new THREE.Color('#f0f8ff'),
         ];
 
         for (let i = 0; i < count; i++) {
+            // Positions
+            const r = 100;
+            const theta = 2 * Math.PI * Math.random();
+            const phi = Math.acos(2 * Math.random() - 1);
+            const x = r * Math.sin(phi) * Math.cos(theta);
+            const y = r * Math.sin(phi) * Math.sin(theta);
+            const z = r * Math.cos(phi);
+            pos[i * 3] = x;
+            pos[i * 3 + 1] = y;
+            pos[i * 3 + 2] = z;
+
+            // Colors and Boosts
             let color;
+            let boost;
+            let randomVal;
+
             if (Math.random() > 0.95) { // 5% chance of being colored
                 color = palette[Math.floor(Math.random() * palette.length)];
+                boost = 1.3; // 1.3x size and brightness
+                randomVal = 0.8 + Math.random() * 0.2; // Force large base size (0.8-1.0)
             } else {
                 color = new THREE.Color('#ffffff'); // Mostly white
+                boost = 1.0; // Normal
+                randomVal = Math.random(); // Full range size
             }
+
+            rnd[i] = randomVal;
             cols[i * 3] = color.r;
             cols[i * 3 + 1] = color.g;
             cols[i * 3 + 2] = color.b;
+            bst[i] = boost;
         }
-        return cols;
+        return { positions: pos, colors: cols, randoms: rnd, boosts: bst };
     }, [count]);
 
     const shaderArgs = useMemo(
@@ -69,21 +69,25 @@ function TwinklingStars({ count = 5000 }) {
             vertexShader: `
         attribute float aRandom;
         attribute vec3 aColor;
+        attribute float aBoost;
         varying float vRandom;
         varying vec3 vColor;
+        varying float vBoost;
         void main() {
           vRandom = aRandom;
           vColor = aColor;
+          vBoost = aBoost;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mvPosition;
-          // Increased size: base 4.0, random up to +6.0, distance scale 100.0
-          gl_PointSize = (4.0 + aRandom * 6.0) * (100.0 / -mvPosition.z);
+          // Base size * Boost
+          gl_PointSize = (4.0 + aRandom * 6.0) * (100.0 / -mvPosition.z) * aBoost;
         }
       `,
             fragmentShader: `
         uniform float uTime;
         varying float vRandom;
         varying vec3 vColor;
+        varying float vBoost;
         void main() {
           vec2 uv = gl_PointCoord.xy - 0.5;
           
@@ -97,7 +101,8 @@ function TwinklingStars({ count = 5000 }) {
           if (alpha <= 0.0) discard;
           
           float twinkle = 0.5 + 0.5 * sin(uTime * (1.0 + vRandom) + vRandom * 10.0);
-          gl_FragColor = vec4(vColor, alpha * twinkle * vRandom);
+          // Apply boost to intensity
+          gl_FragColor = vec4(vColor * vBoost, alpha * twinkle * vRandom);
         }
       `,
             transparent: true,
@@ -136,6 +141,12 @@ function TwinklingStars({ count = 5000 }) {
                     count={count}
                     array={colors}
                     itemSize={3}
+                />
+                <bufferAttribute
+                    attach="attributes-aBoost"
+                    count={count}
+                    array={boosts}
+                    itemSize={1}
                 />
             </bufferGeometry>
             <shaderMaterial attach="material" args={[shaderArgs]} />
