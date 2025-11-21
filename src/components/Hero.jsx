@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import styles from './Hero.module.css';
 import { getAnimationDelay } from '../utils/animation';
 import { content } from '../data/content';
+import SocialLinks from './SocialLinks';
 const Hero = () => {
     const { hero } = content;
     return (
@@ -41,6 +42,8 @@ const Hero = () => {
                     {hero.description}
                 </p>
             </motion.div>
+
+            <SocialLinks />
         </section>
     );
 };

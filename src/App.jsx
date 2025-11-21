@@ -55,7 +55,6 @@ function App() {
           <Hero />
           <About />
           <Projects />
-          <SocialLinks />
           <div style={{ height: '20vh' }}></div>
         </div>
       )}
