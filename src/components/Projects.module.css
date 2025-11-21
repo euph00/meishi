@@ -1,5 +1,5 @@
 .section {
-    padding: 10rem 2rem;
+    padding: 5rem 2rem 10rem 2rem;
     position: relative;
     /* Ensure mouse tracking works relative to viewport if using fixed, or section if absolute */
 }
