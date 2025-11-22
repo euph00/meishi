@@ -21,27 +21,19 @@ export const content = {
             {
                 id: 1,
                 title: "メッセージを書く",
-                category: "Leave a message"
+                category: "Leave a message",
+                path: "/leave-message"
             },
             {
                 id: 2,
                 title: "メッセージ一覧",
-                category: "See all messages"
-            },
-            // {
-            //     id: 3,
-            //     title: "Stellar Portfolio",
-            //     category: "Creative Design"
-            // },
-            // {
-            //     id: 4,
-            //     title: "Void Chat",
-            //     category: "Real-time Communication"
-            // }
+                category: "See all messages",
+                path: "/messages"
+            }
         ]
     },
     social: {
-        heading: "Remove this header",
+        heading: "",
         links: [
             { icon: Github, href: 'https://github.com/euph00', label: 'GitHub' },
             { icon: Twitter, href: 'https://x.com/e_uph00', label: 'Twitter' },

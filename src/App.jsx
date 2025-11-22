@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import { AnimatePresence } from 'framer-motion';
 import Scene from './components/Scene';
-import Hero from './components/Hero';
-import About from './components/About';
-import Projects from './components/Projects';
 import Loader from './components/Loader';
+import Home from './pages/Home';
+import LeaveMessage from './pages/LeaveMessage';
+import SeeMessages from './pages/SeeMessages';
 import styles from './App.module.css';
 
-function App() {
+function AppContent() {
   const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -33,7 +35,7 @@ function App() {
     // Simulate loading time
     setTimeout(() => {
       setIsLoading(false);
-    }, 2500); // Slightly longer to see the initial fade in
+    }, 2500);
 
     return () => {
       lenis.destroy();
@@ -42,23 +44,31 @@ function App() {
 
   return (
     <>
-
       <main className={styles.main}>
         <Scene />
-        <AnimatePresence>
-          {isLoading && <Loader key="loader" />}
+        <AnimatePresence mode="wait">
+          {isLoading && <Loader key="loader" progress={100} />}
         </AnimatePresence>
 
         {!isLoading && (
           <div className={styles.content}>
-            <Hero />
-            <About />
-            <Projects />
-            <div style={{ height: '20vh' }}></div>
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Home />} />
+              <Route path="/leave-message" element={<LeaveMessage />} />
+              <Route path="/messages" element={<SeeMessages />} />
+            </Routes>
           </div>
         )}
       </main>
     </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 
