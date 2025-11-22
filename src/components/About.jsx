@@ -12,7 +12,14 @@ const About = () => {
                     initial={{ opacity: 0, x: -50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: false, amount: 0.3 }}
+                    whileHover={{
+                        y: -5,
+                        backgroundColor: "rgba(255, 255, 255, 0.08)",
+                        borderColor: "rgba(255, 255, 255, 0.2)",
+                        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
+                        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
+                    }}
                     className={styles.card}
                 >
                     <h2 className={styles.heading}>{about.heading}</h2>
@@ -26,7 +33,14 @@ const About = () => {
                     initial={{ opacity: 0, x: 50 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    viewport={{ once: true }}
+                    viewport={{ once: false, amount: 0.3 }}
+                    whileHover={{
+                        y: -5,
+                        backgroundColor: "rgba(255, 255, 255, 0.08)",
+                        borderColor: "rgba(255, 255, 255, 0.2)",
+                        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
+                        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
+                    }}
                     className={styles.card}
                 >
                     <h2 className={styles.heading}>{about.skillsHeading}</h2>
