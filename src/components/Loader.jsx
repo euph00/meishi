@@ -2,7 +2,9 @@ import { motion } from 'framer-motion';
 import styles from './Loader.module.css';
 import { getAnimationDelay } from '../utils/animation';
 
-const Loader = ({ onLoadingComplete }) => {
+const Loader = ({ onLoadingComplete, pathname }) => {
+    const isHome = pathname === '/';
+
     return (
         <motion.div
             className={styles.container}
@@ -26,8 +28,9 @@ const Loader = ({ onLoadingComplete }) => {
 
             <motion.div
                 className={styles.logoContainer}
-                layoutId="shared-logo-wrapper"
+                layoutId={isHome ? "shared-logo-wrapper" : undefined}
                 transition={{ duration: 1.5, ease: [0.6, 0.01, -0.05, 0.9] }}
+                exit={!isHome ? { opacity: 0, scale: 0.8, filter: "blur(10px)", transition: { duration: 0.5 } } : undefined}
             >
                 <div className={styles.glow} style={{ animationDelay: getAnimationDelay() }}></div>
                 <motion.img

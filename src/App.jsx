@@ -47,7 +47,7 @@ function AppContent() {
       <main className={styles.main}>
         <Scene />
         <AnimatePresence mode="wait">
-          {isLoading && <Loader key="loader" progress={100} />}
+          {isLoading && <Loader key="loader" progress={100} pathname={location.pathname} />}
         </AnimatePresence>
 
         {!isLoading && (
