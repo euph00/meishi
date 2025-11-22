@@ -23,7 +23,7 @@ const About = () => {
                     className={styles.card}
                 >
                     <h2 className={styles.heading}>{about.heading}</h2>
-                    <p className={styles.text} dangerouslySetInnerHTML={{ __html: about.bio1.replace('immersive digital experiences', '<span class="' + styles.highlight + '">immersive digital experiences</span>') }}></p>
+                    <p className={styles.text} dangerouslySetInnerHTML={{ __html: about.bio1.replace('藤田ことね', '<span class="' + styles.highlight + '">藤田ことね</span>') }}></p>
                     <p className={styles.text}>
                         {about.bio2}
                     </p>
