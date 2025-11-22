@@ -403,7 +403,7 @@ void main() {
 const Scene = () => {
     return (
         <div className={styles.container}>
-            <Canvas camera={{ position: [0, 0, 1] }}>
+            <Canvas camera={{ position: [0, 0, 1] }} dpr={[1, 2]}>
                 <TwinklingStars />
                 <ShootingStars />
                 <Nebula />
