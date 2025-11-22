@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
@@ -12,7 +12,8 @@ import { pageVariants } from '../utils/animation';
 const SeeMessages = () => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isOverflowing, setIsOverflowing] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+    const [hoveredId, setHoveredId] = useState(null);
 
     useEffect(() => {
         const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
@@ -28,28 +29,125 @@ const SeeMessages = () => {
         return () => unsubscribe();
     }, []);
 
-    useEffect(() => {
-        const checkHeight = () => {
-            const section = document.getElementById('messages-section');
-            if (section) {
-                const hasOverflow = section.scrollHeight > window.innerHeight;
-                setIsOverflowing(hasOverflow);
-                document.body.style.overflow = hasOverflow ? 'unset' : 'hidden';
-                document.documentElement.style.overflow = hasOverflow ? 'unset' : 'hidden';
+    // Memoize positions and connections calculation
+    // This ensures it only runs when messages change, not on hover/selection
+    const { positions, connections } = React.useMemo(() => {
+        if (messages.length === 0) return { positions: {}, connections: [] };
+
+        const newPositions = {};
+        const newConnections = [];
+
+        // Helper to check collision
+        const checkCollision = (x, y, existing) => {
+            for (const id in existing) {
+                const ex = existing[id];
+                const dx = x - ex.x;
+                const dy = y - ex.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 10) return true; // Min distance 10%
             }
+            return false;
         };
 
-        // Check initially and on resize
-        checkHeight();
-        window.addEventListener('resize', checkHeight);
+        messages.forEach(msg => {
+            // Deterministic seeding based on message ID would be ideal, 
+            // but for now we keep random to ensure variety on reload.
+            // Since this is memoized, it won't change during session unless messages update.
+            let x, y, attempts = 0;
+            do {
+                x = 5 + Math.random() * 90;
+                y = 10 + Math.random() * 80;
+                attempts++;
+            } while (checkCollision(x, y, newPositions) && attempts < 50);
 
-        // Also check when messages change
-        return () => {
-            window.removeEventListener('resize', checkHeight);
-            document.body.style.overflow = 'unset';
-            document.documentElement.style.overflow = 'unset';
-        };
+            newPositions[msg.id] = {
+                x, y,
+                delay: Math.random() * 2,
+                scale: 0.8 + Math.random() * 0.4
+            };
+        });
+
+        // Calculate connections (O(N^2) but N is small)
+        const ids = Object.keys(newPositions);
+        const connectionMap = new Set(); // Track connected nodes
+
+        for (let i = 0; i < ids.length; i++) {
+            for (let j = i + 1; j < ids.length; j++) {
+                const p1 = newPositions[ids[i]];
+                const p2 = newPositions[ids[j]];
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 25) { // Connection threshold
+                    newConnections.push({
+                        from: ids[i],
+                        to: ids[j],
+                        id: `${ids[i]}-${ids[j]}`
+                    });
+                    connectionMap.add(ids[i]);
+                    connectionMap.add(ids[j]);
+                }
+            }
+        }
+
+        // Ensure every star has at least one connection
+        ids.forEach(id => {
+            if (!connectionMap.has(id)) {
+                // Find nearest neighbor
+                let minDist = Infinity;
+                let nearestId = null;
+                const p1 = newPositions[id];
+
+                ids.forEach(otherId => {
+                    if (id === otherId) return;
+                    const p2 = newPositions[otherId];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        nearestId = otherId;
+                    }
+                });
+
+                if (nearestId) {
+                    newConnections.push({
+                        from: id,
+                        to: nearestId,
+                        id: `${id}-${nearestId}`
+                    });
+                    connectionMap.add(id);
+                    connectionMap.add(nearestId);
+                }
+            }
+        });
+
+        return { positions: newPositions, connections: newConnections };
     }, [messages]);
+
+    const [autoHighlightedId, setAutoHighlightedId] = useState(null);
+
+    // Ambient Animation Loop
+    useEffect(() => {
+        if (loading || messages.length === 0) return;
+
+        const interval = setInterval(() => {
+            // Only auto-highlight if user isn't hovering
+            if (!hoveredId) {
+                const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+                setAutoHighlightedId(randomMsg.id);
+
+                // Clear highlight after a short duration
+                setTimeout(() => {
+                    setAutoHighlightedId(null);
+                }, 3000);
+            }
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [loading, messages, hoveredId]);
+
+    const activeId = hoveredId || autoHighlightedId;
 
     const formatDate = (timestamp) => {
         if (!timestamp) return '';
@@ -61,70 +159,167 @@ const SeeMessages = () => {
         }).format(date);
     };
 
+    const selectedMessage = messages.find(m => m.id === selectedId);
+
     return (
         <motion.section
-            id="messages-section"
             className={styles.section}
             initial="initial"
             animate="animate"
             exit="exit"
             variants={pageVariants}
-            style={!isOverflowing ? {
-                height: '100vh',
-                width: '100%',
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                overflow: 'hidden'
-            } : {}}
         >
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                style={{ position: 'fixed', top: '2rem', left: '2rem', zIndex: 100 }}
-            >
-                <Link to="/" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <ArrowLeft size={20} /> {content.seeMessages.back}
-                </Link>
-            </motion.div>
+            <Link to="/" className={styles.backButton}>
+                <ArrowLeft size={20} /> {content.seeMessages.back}
+            </Link>
 
-            <div className={styles.container}>
-                <header className={styles.header}>
-                    <div style={{ width: 24 }}></div> {/* Spacer to balance title since back button is gone */}
-                    <h1 className={styles.title}>{content.seeMessages.title}</h1>
-                    <div style={{ width: 24 }}></div>
-                </header>
-
-                {loading ? (
-                    <div className={styles.loading}>{content.seeMessages.loading}</div>
-                ) : messages.length === 0 ? (
-                    <div className={styles.empty}>{content.seeMessages.empty}</div>
-                ) : (
-                    <div className={styles.grid}>
-                        {messages.map((msg, index) => (
-                            <motion.div
-                                key={msg.id}
-                                className={styles.card}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.05 }}
-                            >
-                                <p className={styles.messageText} style={{ color: msg.color || '#fff', textShadow: msg.color ? `0 0 10px ${msg.color}40` : 'none' }}>
-                                    {msg.message}
-                                </p>
-                                <div className={styles.cardFooter}>
-                                    <span className={styles.name} style={{ color: msg.color || 'rgba(255, 255, 255, 0.9)' }}>{msg.name}</span>
-                                    <span className={styles.date}>{formatDate(msg.timestamp)}</span>
-                                </div>
-                            </motion.div>
+            {loading ? (
+                <div className={styles.loading}>{content.seeMessages.loading}</div>
+            ) : messages.length === 0 ? (
+                <div className={styles.empty}>{content.seeMessages.empty}</div>
+            ) : (
+                <div className={styles.starMap}>
+                    {/* Constellation Lines Layer */}
+                    <svg className={styles.constellationSvg}>
+                        {connections.map(conn => (
+                            <ConnectionLine
+                                key={conn.id}
+                                conn={conn}
+                                positions={positions}
+                                activeId={activeId}
+                            />
                         ))}
-                    </div>
+                    </svg>
+
+                    {/* Stars Layer */}
+                    {messages.map((msg) => (
+                        <Star
+                            key={msg.id}
+                            msg={msg}
+                            positions={positions}
+                            activeId={activeId}
+                            setSelectedId={setSelectedId}
+                            setHoveredId={setHoveredId}
+                        />
+                    ))}
+                </div>
+            )}
+
+            <AnimatePresence>
+                {selectedId && selectedMessage && (
+                    <motion.div
+                        className={styles.modalOverlay}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setSelectedId(null)}
+                    >
+                        <motion.div
+                            className={styles.modalCard}
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ type: "spring", duration: 0.5 }}
+                            style={{ '--glow-color': selectedMessage.color || '#3b82f6' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button className={styles.closeButton} onClick={() => setSelectedId(null)}>
+                                <ArrowLeft size={24} />
+                            </button>
+
+                            <div className={styles.modalContent}>
+                                {selectedMessage.message && (
+                                    <p
+                                        className={styles.messageText}
+                                        data-lenis-prevent
+                                    >
+                                        {selectedMessage.message}
+                                    </p>
+                                )}
+                                <div className={styles.modalFooter}>
+                                    <span className={styles.modalName}>{selectedMessage.name}</span>
+                                    <span className={styles.modalDate}>{formatDate(selectedMessage.timestamp)}</span>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
                 )}
-            </div>
+            </AnimatePresence>
         </motion.section>
     );
 };
+
+// Memoized Components
+import React from 'react';
+
+const ConnectionLine = React.memo(({ conn, positions, activeId }) => {
+    const p1 = positions[conn.from];
+    const p2 = positions[conn.to];
+    const isConnected = activeId === conn.from || activeId === conn.to;
+
+    return (
+        <line
+            x1={`${p1.x}%`}
+            y1={`${p1.y}%`}
+            x2={`${p2.x}%`}
+            y2={`${p2.y}%`}
+            className={`${styles.constellationLine} ${isConnected ? styles.activeLine : ''}`}
+        />
+    );
+});
+
+const truncateText = (text, maxLength = 10) => {
+    if (!text) return '';
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+};
+
+const Star = React.memo(({ msg, positions, activeId, setSelectedId, setHoveredId }) => {
+    const pos = positions[msg.id] || { x: 50, y: 50, delay: 0, scale: 1 };
+    const isActive = activeId === msg.id;
+
+    return (
+        <motion.div
+            className={styles.starWrapper}
+            style={{ top: `${pos.y}%`, left: `${pos.x}%` }}
+            onClick={() => setSelectedId(msg.id)}
+            onMouseEnter={() => setHoveredId(msg.id)}
+            onMouseLeave={() => setHoveredId(null)}
+            initial={{ opacity: 0, scale: 0, x: "-50%", y: "-50%" }}
+            animate={{
+                opacity: 1,
+                scale: 1,
+                x: "-50%",
+                y: "-50%"
+            }}
+            transition={{ duration: 0.5 }}
+        >
+            <motion.div
+                className={styles.star}
+                style={{ '--star-color': msg.color || '#fff' }}
+                animate={{
+                    opacity: [0.6, 1, 0.6],
+                    scale: isActive ? 1.5 : [pos.scale, pos.scale * 1.2, pos.scale]
+                }}
+                transition={{
+                    opacity: { duration: 3 + Math.random() * 2, repeat: Infinity },
+                    scale: { duration: isActive ? 0.3 : 3 + Math.random() * 2, repeat: isActive ? 0 : Infinity },
+                    delay: pos.delay
+                }}
+            />
+            <div
+                className={styles.starLabel}
+                style={{
+                    opacity: isActive ? 1 : undefined,
+                    transform: isActive ? 'translateY(0)' : undefined,
+                    color: isActive ? '#fff' : undefined,
+                    textShadow: isActive ? '0 0 10px rgba(255, 255, 255, 0.5)' : undefined,
+                    zIndex: isActive ? 40 : undefined
+                }}
+            >
+                {truncateText(msg.name)}
+            </div>
+        </motion.div>
+    );
+});
 
 export default SeeMessages;

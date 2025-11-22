@@ -1,9 +1,9 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Stars, Sparkles, Cloud } from '@react-three/drei';
+import { Stars, Sparkles } from '@react-three/drei';
 import { useRef, useMemo, useState } from 'react';
 import * as THREE from 'three';
 import styles from './Scene.module.css';
-function TwinklingStars({ count = 5000 }) {
+function TwinklingStars({ count = 4000 }) {
     const { positions, colors, randoms, boosts } = useMemo(() => {
         const pos = new Float32Array(count * 3);
         const cols = new Float32Array(count * 3);
@@ -403,7 +403,7 @@ void main() {
 const Scene = () => {
     return (
         <div className={styles.container}>
-            <Canvas camera={{ position: [0, 0, 1] }}>
+            <Canvas camera={{ position: [0, 0, 1] }} dpr={[1, 2]}>
                 <TwinklingStars />
                 <ShootingStars />
                 <Nebula />
