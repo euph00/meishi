@@ -52,11 +52,13 @@ function AppContent() {
 
         {!isLoading && (
           <div className={styles.content}>
-            <Routes location={location} key={location.pathname}>
-              <Route path="/" element={<Home />} />
-              <Route path="/leave-message" element={<LeaveMessage />} />
-              <Route path="/messages" element={<SeeMessages />} />
-            </Routes>
+            <AnimatePresence mode="wait">
+              <Routes location={location} key={location.pathname}>
+                <Route path="/" element={<Home />} />
+                <Route path="/leave-message" element={<LeaveMessage />} />
+                <Route path="/messages" element={<SeeMessages />} />
+              </Routes>
+            </AnimatePresence>
           </div>
         )}
       </main>

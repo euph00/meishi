@@ -7,17 +7,19 @@ import { pageVariants } from '../utils/animation';
 
 const Home = () => {
     return (
-        <motion.div
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={pageVariants}
-        >
+        <>
             <Hero />
-            <About />
-            <Projects />
-            <div style={{ height: '20vh' }}></div>
-        </motion.div>
+            <motion.div
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                variants={pageVariants}
+            >
+                <About />
+                <Projects />
+                <div style={{ height: '20vh' }}></div>
+            </motion.div>
+        </>
     );
 };
 
