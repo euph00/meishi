@@ -8,6 +8,8 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { content } from '../data/content';
 
+import { pageVariants } from '../utils/animation';
+
 const LeaveMessage = () => {
     const [formState, setFormState] = useState({ name: '', message: '' });
     const [textColor, setTextColor] = useState('#ffffff');
@@ -72,7 +74,13 @@ const LeaveMessage = () => {
     };
 
     return (
-        <section className={styles.section}>
+        <motion.section
+            className={styles.section}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={pageVariants}
+        >
             <AnimatePresence>
                 {!isSuccess && (
                     <motion.div
@@ -189,7 +197,7 @@ const LeaveMessage = () => {
                     </AnimatePresence>
                 </motion.div>
             </div>
-        </section>
+        </motion.section>
     );
 };
 

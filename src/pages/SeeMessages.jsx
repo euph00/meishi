@@ -7,6 +7,8 @@ import { db } from '../config/firebase';
 import { content } from '../data/content';
 import styles from './SeeMessages.module.css';
 
+import { pageVariants } from '../utils/animation';
+
 const SeeMessages = () => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -36,7 +38,13 @@ const SeeMessages = () => {
     };
 
     return (
-        <section className={styles.section}>
+        <motion.section
+            className={styles.section}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={pageVariants}
+        >
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -82,7 +90,7 @@ const SeeMessages = () => {
                     </div>
                 )}
             </div>
-        </section>
+        </motion.section>
     );
 };
 
