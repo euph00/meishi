@@ -13,9 +13,6 @@ const Projects = () => {
             <div className={styles.container}>
                 <motion.h2
                     className={styles.heading}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
                 >
                     {projects.heading}
                 </motion.h2>
@@ -27,10 +24,6 @@ const Projects = () => {
                             className={styles.projectItem}
                             onMouseEnter={() => setHoveredProject(project.id)}
                             onMouseLeave={() => setHoveredProject(null)}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: project.id * 0.1 }}
                         >
                             <div className={styles.projectInfo}>
                                 <h3 className={styles.projectTitle}>{project.title}</h3>
