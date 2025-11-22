@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import styles from './LeaveMessage.module.css';
 
+import { content } from '../data/content';
+
 const LeaveMessage = () => {
     const [formState, setFormState] = useState({ name: '', message: '' });
     const [textColor, setTextColor] = useState('#ffffff');
@@ -60,7 +62,7 @@ const LeaveMessage = () => {
                         style={{ position: 'fixed', top: '2rem', left: '2rem', zIndex: 100 }}
                     >
                         <Link to="/" style={{ color: 'rgba(255,255,255,0.5)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <ArrowLeft size={20} /> Back
+                            <ArrowLeft size={20} /> {content.leaveMessage.back}
                         </Link>
                     </motion.div>
                 )}
@@ -77,7 +79,7 @@ const LeaveMessage = () => {
                             exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
                             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                         >
-                            <h1 className={styles.title}>Leave a Message</h1>
+                            <h1 className={styles.title}>{content.leaveMessage.title}</h1>
 
                             <form className={styles.form} onSubmit={handleSubmit}>
                                 <div className={styles.inputGroup}>
@@ -93,7 +95,7 @@ const LeaveMessage = () => {
                                         autoComplete="off"
                                         style={{ color: textColor }}
                                     />
-                                    <label htmlFor="name" className={styles.label}>Your Name</label>
+                                    <label htmlFor="name" className={styles.label}>{content.leaveMessage.nameLabel}</label>
                                 </div>
 
                                 <div className={styles.inputGroup}>
@@ -106,11 +108,11 @@ const LeaveMessage = () => {
                                         onChange={handleChange}
                                         style={{ color: textColor }}
                                     />
-                                    <label htmlFor="message" className={styles.label}>Your Message (Optional)</label>
+                                    <label htmlFor="message" className={styles.label}>{content.leaveMessage.messageLabel}</label>
                                 </div>
 
                                 <div className={styles.colorPickerContainer}>
-                                    <span className={styles.colorLabel}>Choose Text Color</span>
+                                    <span className={styles.colorLabel}>{content.leaveMessage.colorLabel}</span>
                                     <div className={styles.colorPalette}>
                                         {colors.map((color) => (
                                             <motion.div
@@ -134,7 +136,7 @@ const LeaveMessage = () => {
                                         whileTap={{ scale: 0.95 }}
                                         animate={isSubmitting ? controls : { opacity: 1, scale: 1, filter: "none" }}
                                     >
-                                        {isSubmitting ? 'Sending...' : 'Send Message'}
+                                        {isSubmitting ? content.leaveMessage.button.sending : content.leaveMessage.button.default}
                                     </motion.button>
                                 </div>
                             </form>
@@ -148,17 +150,14 @@ const LeaveMessage = () => {
                             transition={{ duration: 0.6, ease: "backOut" }}
                         >
                             <div className={styles.successMessage}>
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: 0.2, type: "spring" }}
-                                    style={{ fontSize: '4rem', marginBottom: '1rem' }}
-                                >
-                                    ✨
-                                </motion.div>
-                                <h2 className={styles.successTitle}>Message Sent!</h2>
-                                <p className={styles.successText}>Thank you for reaching out, {formState.name}.<br />Your message has been launched into the cosmos.</p>
-                                <Link to="/" style={{ display: 'inline-block', marginTop: '2rem', color: 'var(--accent-color)', textDecoration: 'none' }}>Return Home</Link>
+
+                                <h2 className={styles.successTitle}>{content.leaveMessage.success.title}</h2>
+                                <p className={`${styles.successText} ${styles.shimmer}`}>
+                                    {content.leaveMessage.success.messageLine1}<br />
+                                    {content.leaveMessage.success.messageLine2}<br />
+                                    {content.leaveMessage.success.messageLine3}
+                                </p>
+                                <Link to="/" style={{ display: 'inline-block', marginTop: '2rem', color: 'var(--accent-color)', textDecoration: 'none' }}>{content.leaveMessage.success.returnHome}</Link>
                             </div>
                         </motion.div>
                     )}

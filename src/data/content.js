@@ -40,5 +40,23 @@ export const content = {
             { icon: Mail, href: 'mailto:euph.f1eur@gmail.com', label: 'Email' },
 
         ]
+    },
+    leaveMessage: {
+        back: "戻る",
+        title: "メッセージを書く",
+        nameLabel: "名前",
+        messageLabel: "メッセージ（任意）",
+        colorLabel: "ブランドカラー",
+        button: {
+            sending: "送信中...",
+            default: "送信"
+        },
+        success: {
+            title: "ありがとうございます",
+            messageLine1: "言葉だけじゃ届かない距離を",
+            messageLine2: "きっと 飛び越えて結ぶ",
+            messageLine3: "きっと 輪を描いていく",
+            returnHome: "ホームに戻る"
+        }
     }
 };

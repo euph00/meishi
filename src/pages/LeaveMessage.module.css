@@ -155,11 +155,28 @@
     font-size: 2rem;
     margin-bottom: 1rem;
     color: #fff;
+    white-space: nowrap;
 }
 
 .successText {
     font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.7);
+    line-height: 1.8;
+}
+
+.shimmer {
+    background: linear-gradient(90deg, #ffffff 0%, #a5b4fc 50%, #ffffff 100%);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shine 4s linear infinite;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
 }
 
 @media (max-width: 768px) {
