@@ -12,6 +12,7 @@ import { pageVariants } from '../utils/animation';
 const SeeMessages = () => {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isOverflowing, setIsOverflowing] = useState(false);
 
     useEffect(() => {
         const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
@@ -27,6 +28,29 @@ const SeeMessages = () => {
         return () => unsubscribe();
     }, []);
 
+    useEffect(() => {
+        const checkHeight = () => {
+            const section = document.getElementById('messages-section');
+            if (section) {
+                const hasOverflow = section.scrollHeight > window.innerHeight;
+                setIsOverflowing(hasOverflow);
+                document.body.style.overflow = hasOverflow ? 'unset' : 'hidden';
+                document.documentElement.style.overflow = hasOverflow ? 'unset' : 'hidden';
+            }
+        };
+
+        // Check initially and on resize
+        checkHeight();
+        window.addEventListener('resize', checkHeight);
+
+        // Also check when messages change
+        return () => {
+            window.removeEventListener('resize', checkHeight);
+            document.body.style.overflow = 'unset';
+            document.documentElement.style.overflow = 'unset';
+        };
+    }, [messages]);
+
     const formatDate = (timestamp) => {
         if (!timestamp) return '';
         const date = timestamp.toDate();
@@ -39,11 +63,20 @@ const SeeMessages = () => {
 
     return (
         <motion.section
+            id="messages-section"
             className={styles.section}
             initial="initial"
             animate="animate"
             exit="exit"
             variants={pageVariants}
+            style={!isOverflowing ? {
+                height: '100vh',
+                width: '100%',
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                overflow: 'hidden'
+            } : {}}
         >
             <motion.div
                 initial={{ opacity: 0 }}
