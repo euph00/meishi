@@ -45,10 +45,12 @@
 }
 
 .projectItem:hover {
-    padding-left: 2rem;
-    /* Subtle shift */
+    /* padding-left removed to prevent layout shift */
     background-color: transparent;
-    /* Remove bg color change */
+}
+
+.projectItem:hover .projectInfo {
+    transform: translateX(2rem);
 }
 
 .projectInfo {
@@ -57,15 +59,16 @@
     gap: 2rem;
     width: 100%;
     overflow: hidden;
+    transition: transform 0.3s ease;
+    /* Add transition for smooth movement */
 }
+
+/* ... existing styles ... */
 
 .projectTitle {
     font-size: clamp(1.5rem, 5vw, 3.5rem);
-    /* Responsive title */
     font-weight: 400;
-    /* Thinner weight for elegance */
     color: rgba(255, 255, 255, 0.5);
-    /* Dimmed by default */
     margin: 0;
     transition: color 0.3s ease;
     white-space: nowrap;
@@ -75,7 +78,6 @@
 
 .projectItem:hover .projectTitle {
     color: #fff;
-    /* Bright on hover */
 }
 
 .projectCategory {
@@ -101,6 +103,12 @@
     }
 
     .projectItem:hover {
-        padding-left: 1rem;
+        padding-left: 0;
+        /* Ensure no padding change */
+    }
+
+    .projectItem:hover .projectInfo {
+        transform: translateX(1rem);
+        /* Smaller shift on mobile */
     }
 }

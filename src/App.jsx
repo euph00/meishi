@@ -25,6 +25,9 @@ function AppContent() {
       touchMultiplier: 2,
     });
 
+    // Disable scrolling initially
+    lenis.stop();
+
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -35,6 +38,11 @@ function AppContent() {
     // Simulate loading time
     setTimeout(() => {
       setIsLoading(false);
+
+      // Enable scrolling after the logo transition (1.5s) completes
+      setTimeout(() => {
+        lenis.start();
+      }, 1500);
     }, 2500);
 
     return () => {
@@ -47,16 +55,18 @@ function AppContent() {
       <main className={styles.main}>
         <Scene />
         <AnimatePresence mode="wait">
-          {isLoading && <Loader key="loader" progress={100} />}
+          {isLoading && <Loader key="loader" progress={100} pathname={location.pathname} />}
         </AnimatePresence>
 
         {!isLoading && (
           <div className={styles.content}>
-            <Routes location={location} key={location.pathname}>
-              <Route path="/" element={<Home />} />
-              <Route path="/leave-message" element={<LeaveMessage />} />
-              <Route path="/messages" element={<SeeMessages />} />
-            </Routes>
+            <AnimatePresence mode="wait">
+              <Routes location={location} key={location.pathname}>
+                <Route path="/" element={<Home />} />
+                <Route path="/leave-message" element={<LeaveMessage />} />
+                <Route path="/messages" element={<SeeMessages />} />
+              </Routes>
+            </AnimatePresence>
           </div>
         )}
       </main>
