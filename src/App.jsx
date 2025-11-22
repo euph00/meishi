@@ -25,6 +25,9 @@ function AppContent() {
       touchMultiplier: 2,
     });
 
+    // Disable scrolling initially
+    lenis.stop();
+
     function raf(time) {
       lenis.raf(time);
       requestAnimationFrame(raf);
@@ -35,6 +38,11 @@ function AppContent() {
     // Simulate loading time
     setTimeout(() => {
       setIsLoading(false);
+
+      // Enable scrolling after the logo transition (1.5s) completes
+      setTimeout(() => {
+        lenis.start();
+      }, 1500);
     }, 2500);
 
     return () => {
