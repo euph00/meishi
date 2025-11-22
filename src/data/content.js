@@ -54,9 +54,15 @@ export const content = {
         success: {
             title: "ありがとうございます",
             messageLine1: "言葉だけじゃ届かない距離を",
-            messageLine2: "きっと 飛び越えて結ぶ",
-            messageLine3: "きっと 輪を描いていく",
+            messageLine2: "きっと",
+            messageLine3: "飛び越えて結ぶ",
             returnHome: "ホームに戻る"
         }
+    },
+    seeMessages: {
+        title: "メッセージ一覧",
+        loading: "読み込み中...",
+        empty: "まだメッセージはありません。",
+        back: "戻る"
     }
 };
