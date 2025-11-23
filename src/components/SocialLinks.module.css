@@ -47,3 +47,10 @@
     height: 1.5rem;
     z-index: 1;
 }
+
+@media (max-height: 800px) and (min-width: 768px) {
+    .container {
+        margin-top: 0.5rem;
+        gap: 1rem;
+    }
+}

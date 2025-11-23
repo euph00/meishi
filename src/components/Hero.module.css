@@ -13,7 +13,7 @@
 .imageContainer {
     position: relative;
     display: block;
-    width: min(300px, 80vw);
+    width: min(300px, 80vw, 25vh);
     height: auto;
     margin-bottom: 3rem;
     z-index: 10;
@@ -187,14 +187,45 @@
 
 @media (min-width: 768px) {
     .title {
-        font-size: 8rem;
+        font-size: clamp(4rem, 10vw, 8rem);
+        /* Fluid scaling between 4rem and 8rem */
     }
 
     .subtitle {
-        font-size: 2.5rem;
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
     }
 
     .description {
-        font-size: 2.5rem;
+        font-size: clamp(1.5rem, 3vw, 2.5rem);
+    }
+}
+
+@media (max-height: 800px) and (min-width: 768px) {
+    .section {
+        padding: 1rem 0.5rem 3rem 0.5rem;
+        /* Reduced padding */
+        min-height: 100vh;
+        /* Ensure it fills screen but doesn't force scroll if not needed */
+    }
+
+    .imageContainer {
+        margin-bottom: 1rem;
+        /* Reduced from 1.5rem */
+    }
+
+    .title {
+        font-size: clamp(3rem, 8vw, 6rem);
+        margin-bottom: 0.5rem;
+        /* Reduced from 1rem */
+    }
+
+    .subtitle {
+        font-size: clamp(1.2rem, 2.5vw, 2rem);
+    }
+
+    .description {
+        font-size: clamp(1.2rem, 2.5vw, 2rem);
+        margin-top: 0.25rem;
+        /* Reduced from 0.5rem */
     }
 }
