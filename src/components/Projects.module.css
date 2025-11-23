@@ -4,13 +4,19 @@
     /* Ensure mouse tracking works relative to viewport if using fixed, or section if absolute */
 }
 
+@media (max-width: 768px) {
+    .section {
+        padding: 3rem 1.5rem 5rem 1.5rem;
+    }
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .heading {
-    font-size: 4rem;
+    font-size: clamp(2.5rem, 8vw, 4rem);
     font-weight: 800;
     margin-bottom: 6rem;
     /* Increased margin */
@@ -58,6 +64,11 @@
     align-items: baseline;
     gap: 2rem;
     width: 100%;
+    padding-left: 2px;
+    /* Prevent font clipping */
+    min-width: 0;
+    min-width: 0;
+    /* Allow shrinking for text ellipsis */
     overflow: hidden;
     transition: transform 0.3s ease;
     /* Add transition for smooth movement */
@@ -71,9 +82,11 @@
     color: rgba(255, 255, 255, 0.5);
     margin: 0;
     transition: color 0.3s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    /* Allow wrapping */
+    word-break: break-word;
+    /* Force break if needed */
+    line-height: 1.2;
 }
 
 .projectItem:hover .projectTitle {
@@ -87,6 +100,9 @@
     letter-spacing: 0.1em;
     opacity: 0;
     transform: translateX(-10px);
+    letter-spacing: 0.1em;
+    opacity: 0;
+    /* transform: translateX(-10px); Removed to prevent layout issues */
     transition: all 0.3s ease;
     flex-shrink: 0;
     white-space: nowrap;
@@ -94,7 +110,7 @@
 
 .projectItem:hover .projectCategory {
     opacity: 1;
-    transform: translateX(0);
+    /* transform: translateX(0); */
 }
 
 @media (max-width: 768px) {

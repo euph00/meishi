@@ -1,5 +1,5 @@
 .section {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     position: fixed;
     top: 0;
@@ -248,4 +248,15 @@
 
 .backButton:hover {
     color: #fff;
+}
+
+@media (max-width: 768px) {
+    .modalCard {
+        padding: 1.5rem;
+    }
+
+    .backButton {
+        top: 1rem;
+        left: 1rem;
+    }
 }

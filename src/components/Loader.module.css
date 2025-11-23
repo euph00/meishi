@@ -19,7 +19,7 @@
 
 .logoContainer {
     position: relative;
-    width: 300px;
+    width: min(300px, 80vw);
     height: auto;
     z-index: 10;
     /* Ensure logo is above overlay */

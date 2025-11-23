@@ -12,8 +12,11 @@
 
 .imageContainer {
     position: relative;
-    display: inline-block;
+    display: block;
+    width: min(300px, 80vw);
+    height: auto;
     margin-bottom: 3rem;
+    z-index: 10;
 }
 
 .glow {
@@ -42,7 +45,7 @@
 
 .image {
     position: relative;
-    width: 300px;
+    width: 100%;
     height: auto;
     filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
 }
@@ -57,7 +60,8 @@
     text-transform: uppercase;
     position: relative;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-    white-space: nowrap;
+    /* white-space: nowrap; Removed to allow wrapping on small screens */
+    line-height: 1.1;
 }
 
 @media (min-width: 768px) {
@@ -153,7 +157,7 @@
     line-height: 1.6;
     font-weight: 300;
     letter-spacing: 0.05em;
-    white-space: nowrap;
+    /* white-space: nowrap; Removed for responsiveness */
 }
 
 .description {
@@ -163,7 +167,7 @@
     letter-spacing: 0.1em;
     margin-top: 1rem;
     font-weight: 300;
-    white-space: nowrap;
+    /* white-space: nowrap; Removed for responsiveness */
 }
 
 .shimmer {

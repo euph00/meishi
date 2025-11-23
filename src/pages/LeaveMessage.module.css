@@ -137,6 +137,7 @@
     text-transform: uppercase;
     position: relative;
     overflow: hidden;
+    max-width: 100%;
 }
 
 .button:hover {

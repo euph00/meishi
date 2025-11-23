@@ -7,19 +7,17 @@ const Hero = () => {
     const { hero } = content;
     return (
         <section className={styles.section}>
-            <div className={styles.heroLogoWrapper}>
-                <motion.div
-                    className={styles.imageContainer}
-                    layoutId="shared-logo-wrapper"
-                    transition={{ duration: 1.5, ease: [0.6, 0.01, -0.05, 0.9] }}
-                >
-                    <img
-                        src="/logo_text_or.svg"
-                        alt={hero.logoAlt}
-                        className={styles.image}
-                    />
-                </motion.div>
-            </div>
+            <motion.div
+                className={styles.imageContainer}
+                layoutId="shared-logo-wrapper"
+                transition={{ duration: 1.5, ease: [0.6, 0.01, -0.05, 0.9] }}
+            >
+                <img
+                    src="/logo_text_or.svg"
+                    alt={hero.logoAlt}
+                    className={styles.image}
+                />
+            </motion.div>
             <motion.h1
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}

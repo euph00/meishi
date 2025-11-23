@@ -9,6 +9,12 @@
     padding: 2rem;
 }
 
+@media (max-width: 768px) {
+    .main {
+        padding: 0;
+    }
+}
+
 .content {
     width: 100%;
     max-width: 1200px;

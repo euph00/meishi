@@ -2,7 +2,8 @@
   --bg-color: #050505;
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
-  --accent-color: #3b82f6; /* Blue-500, can be changed */
+  --accent-color: #3b82f6;
+  /* Blue-500, can be changed */
   --accent-glow: rgba(59, 130, 246, 0.5);
   --card-bg: rgba(255, 255, 255, 0.03);
   --card-border: rgba(255, 255, 255, 0.05);
@@ -15,11 +16,15 @@
   box-sizing: border-box;
 }
 
+html,
 body {
   background-color: var(--bg-color);
   color: var(--text-primary);
   font-family: var(--font-main);
   overflow-x: hidden;
+  overflow-y: scroll;
+  /* Force scrollbar to prevent layout shift */
+  width: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
