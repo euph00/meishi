@@ -95,8 +95,11 @@ img { display: block; }
    ============================================================ */
 .hero {
   position: relative;
+  /* svh, not dvh: sized for the viewport with the mobile browser bar
+     visible (the first-load state) and constant thereafter — dvh re-resolves
+     when the bar collapses mid-scroll, visibly stretching the hero */
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100svh;
   overflow: hidden;
   background: var(--paper);
   display: flex;
@@ -533,8 +536,9 @@ a.work-card:hover { color: inherit; }
    ============================================================ */
 .post-shell {
   max-width: 840px;
+  /* svh for the same reason as .hero */
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100svh;
   margin: 0 auto;
   padding: clamp(24px, 4vh, 40px) var(--pad-x) clamp(28px, 4vh, 44px);
   display: flex;

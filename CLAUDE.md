@@ -125,10 +125,10 @@ themselves.
 - Motion inventory: curtain intro (full-viewport, once per external visit;
   `?intro=0` skips), stage-sweep page transitions (up = into a post, down =
   back), replayable scroll reveals (re-arm when an element fully leaves the
-  viewport), ticker marquee (JS clones groups so wide screens never see the
-  loop seam — keep `--tick-duration` scaling if touching it), and idle
-  touches (badge-star spin, SCROLL ↓ bob, footer emblem breathe, yellow star
-  twinkle).
+  viewport), ticker marquee (the renderer repeats the group at build time so
+  wide screens never see the loop seam, and scales `--tick-duration` so speed
+  stays at one group per 16s — no runtime JS involved), and idle touches
+  (badge-star spin, SCROLL ↓ bob, footer emblem breathe, yellow star twinkle).
 - **Every animation must stay disabled under `prefers-reduced-motion`** — the
   media block at the bottom of `style.css`. Anything new goes in there too.
 - Fonts are Google Fonts with only the used weights loaded (Archivo 400/600,

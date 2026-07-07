@@ -84,14 +84,28 @@ function renderTickerGroup(items) {
     .join('\n        ');
 }
 
+// The -50% marquee loop is only seamless while half the track is at least as
+// wide as the screen, so the group is repeated at build time (no runtime JS —
+// a late-loading script would pop content in after first paint). The copy
+// count adapts to a conservative width estimate of the content; duration
+// scales with the count so the speed stays at one group per 16s.
 function renderTicker(items) {
   needArray(items, 'ticker');
   if (items.length === 0) fail('ticker needs at least one item');
   const group = renderTickerGroup(items);
-  return [
-    `<div class="ticker__group">\n        ${group}\n      </div>`,
-    `<div class="ticker__group" aria-hidden="true">\n        ${group}\n      </div>`,
-  ].join('\n      ');
+  const estWidth = items.reduce((w, text) => {
+    const cjk = (String(text).match(/[぀-ヿ㐀-鿿]/g) || []).length;
+    return w + cjk * 16 + (String(text).length - cjk) * 9 + 56; // text + star + gaps
+  }, 0);
+  // half the track must clear ~4000px (4K fullscreen); even count keeps the
+  // two halves identical for the -50% seam
+  const groups = Math.min(48, Math.max(12, 2 * Math.ceil(4000 / Math.max(estWidth, 80))));
+  const duration = 8 * groups; // groups/2 × 16s
+  const copies = [`<div class="ticker__group">\n        ${group}\n      </div>`];
+  for (let i = 1; i < groups; i++) {
+    copies.push(`<div class="ticker__group" aria-hidden="true">\n        ${group}\n      </div>`);
+  }
+  return `<div class="ticker__track" style="--tick-duration: ${duration}s">\n      ${copies.join('\n      ')}\n    </div>`;
 }
 
 function renderContacts(contacts, variant) {

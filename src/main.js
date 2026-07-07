@@ -25,23 +25,6 @@ document.querySelectorAll('.curtain').forEach((el) => {
   el.addEventListener('animationend', () => el.remove(), { once: true });
 });
 
-// Ticker: the -50% loop is only seamless while half the track is at least as
-// wide as the screen. One group is ~640px, so the two static groups cover
-// phones but leave the right side of wide desktops empty near the loop point.
-// Clone the group until half the track clears 4K, and stretch the duration by
-// the same factor so the speed stays at one group per 16s.
-const track = document.querySelector('.ticker__track');
-if (track && track.children.length === 2) {
-  const GROUPS = 12; // half = 6 groups ≈ 3800px+
-  const group = track.firstElementChild;
-  for (let i = track.children.length; i < GROUPS; i++) {
-    const clone = group.cloneNode(true);
-    clone.setAttribute('aria-hidden', 'true');
-    track.appendChild(clone);
-  }
-  track.style.setProperty('--tick-duration', `${(16 * GROUPS) / 2}s`);
-}
-
 if (!reduceMotion && 'IntersectionObserver' in window) {
   const els = Array.from(document.querySelectorAll('[data-reveal]'));
   const vh = window.innerHeight;
