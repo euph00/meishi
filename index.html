@@ -1,20 +1,276 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EUPH</title>
-  <meta name="description" content="Digital Namecard" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EUPH — ユーフ作品集</title>
+  <meta name="description" content="The work of Euph — an evening of images, interfaces, and the occasional plot twist. Selected work 2020–2026 and notes from the wings.">
+  <meta name="theme-color" content="#ECE7DA">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+  <script>
+    // ?intro=0 skips the curtain intro (prototype's `playIntro` prop).
+    if (/[?&]intro=0(?:&|$)/.test(location.search)) document.documentElement.classList.add('no-intro');
+  </script>
+  <script type="module" src="/src/main.js"></script>
 </head>
-
 <body>
-  <div id="root"></div>
-  <script type="module" src="/src/main.jsx"></script>
-</body>
 
+<!-- Shared SVG symbols: four-pointed star motif + contact icons -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="star" viewBox="0 0 100 100">
+    <path d="M50 0C54.5 33.5 66.5 45.5 100 50C66.5 54.5 54.5 66.5 50 100C45.5 66.5 33.5 54.5 0 50C33.5 45.5 45.5 33.5 50 0Z"/>
+  </symbol>
+  <symbol id="ic-x" viewBox="0 0 100 100">
+    <path d="M28 28 L72 72 M72 28 L28 72" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="ic-mail" viewBox="0 0 100 100">
+    <g fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round">
+      <rect x="16" y="26" width="68" height="48" rx="7"/>
+      <path d="M20 32 L50 56 L80 32"/>
+    </g>
+  </symbol>
+  <symbol id="ic-branch" viewBox="0 0 100 100">
+    <g fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round">
+      <circle cx="30" cy="25" r="9"/>
+      <circle cx="30" cy="75" r="9"/>
+      <circle cx="71" cy="37" r="9"/>
+      <path d="M30 34 L30 66 M71 46 C71 62 30 52 30 64"/>
+    </g>
+  </symbol>
+</svg>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero">
+  <div class="hero__stage">
+
+    <div class="hero__rules rise rise--rules">
+      <span class="hero__rule"></span>
+      <span class="label-mono">THE WORK OF</span>
+      <span class="hero__rule"></span>
+    </div>
+
+    <div class="hero__title rise rise--title">
+      <h1>Euph</h1>
+      <span class="hero__subtitle" lang="ja">ユーフ作品集</span>
+    </div>
+
+    <nav class="contacts rise rise--contacts" aria-label="Contact">
+      <a class="contact" href="https://twitter.com/euph">
+        <svg class="contact__icon" viewBox="0 0 100 100" width="13" height="13" aria-hidden="true"><use href="#ic-x"/></svg>
+        <span>Twitter</span>
+      </a>
+      <svg class="star star--ink" viewBox="0 0 100 100" width="10" height="10" aria-hidden="true"><use href="#star"/></svg>
+      <a class="contact" href="mailto:hi@euph.jp">
+        <svg class="contact__icon" viewBox="0 0 100 100" width="14" height="14" aria-hidden="true"><use href="#ic-mail"/></svg>
+        <span>Email</span>
+      </a>
+      <svg class="star star--ink" viewBox="0 0 100 100" width="10" height="10" aria-hidden="true"><use href="#star"/></svg>
+      <a class="contact" href="https://github.com/euph">
+        <svg class="contact__icon" viewBox="0 0 100 100" width="14" height="14" aria-hidden="true"><use href="#ic-branch"/></svg>
+        <span>GitHub</span>
+      </a>
+    </nav>
+
+    <div class="hero__center rise rise--cluster">
+      <div class="cluster" aria-hidden="true">
+        <div class="cluster__skew">
+          <svg class="star star--yellow cluster__star cluster__star--a" viewBox="0 0 100 100" width="86" height="86"><use href="#star"/></svg>
+          <svg class="star star--yellow cluster__star cluster__star--b" viewBox="0 0 100 100" width="44" height="44"><use href="#star"/></svg>
+          <svg class="star star--yellow cluster__star cluster__star--c" viewBox="0 0 100 100" width="32" height="32"><use href="#star"/></svg>
+        </div>
+      </div>
+      <p class="hero__quote">"An evening of images, interfaces,<br>and the occasional plot twist."</p>
+    </div>
+
+    <div class="hero__foot rise rise--foot">
+      <span>DOORS OPEN</span>
+      <a href="#work">SCROLL ↓</a>
+    </div>
+
+  </div>
+
+  <!-- yellow ticker -->
+  <div class="ticker rise rise--ticker">
+    <div class="ticker__track">
+      <div class="ticker__group">
+        <span class="ticker__en">NOW SHOWING</span>
+        <svg class="star star--ink" viewBox="0 0 100 100" width="12" height="12" aria-hidden="true"><use href="#star"/></svg>
+        <span class="ticker__jp" lang="ja">上演中</span>
+        <svg class="star star--ink" viewBox="0 0 100 100" width="12" height="12" aria-hidden="true"><use href="#star"/></svg>
+        <span class="ticker__en">SELECTED WORK 2020–2026</span>
+        <svg class="star star--ink" viewBox="0 0 100 100" width="12" height="12" aria-hidden="true"><use href="#star"/></svg>
+        <span class="ticker__jp" lang="ja">限定公演</span>
+        <svg class="star star--ink" viewBox="0 0 100 100" width="12" height="12" aria-hidden="true"><use href="#star"/></svg>
+      </div>
+      <div class="ticker__group" aria-hidden="true">
+        <span class="ticker__en">NOW SHOWING</span>
+        <svg class="star star--ink" viewBox="0 0 100 100" width="12" height="12"><use href="#star"/></svg>
+        <span class="ticker__jp" lang="ja">上演中</span>
+        <svg class="star star--ink" viewBox="0 0 100 100" width="12" height="12"><use href="#star"/></svg>
+        <span class="ticker__en">SELECTED WORK 2020–2026</span>
+        <svg class="star star--ink" viewBox="0 0 100 100" width="12" height="12"><use href="#star"/></svg>
+        <span class="ticker__jp" lang="ja">限定公演</span>
+        <svg class="star star--ink" viewBox="0 0 100 100" width="12" height="12"><use href="#star"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- ink curtains, bottom edge leading -->
+  <div class="curtain curtain--left" aria-hidden="true"></div>
+  <div class="curtain curtain--right" aria-hidden="true"></div>
+</header>
+
+<main>
+
+<!-- ==================== ACT I · RECENT WORK ==================== -->
+<section id="work" class="act act--work">
+  <img class="watermark watermark--work" src="/assets/logo-ink.svg" alt="">
+
+  <div class="act__header" data-reveal>
+    <svg class="star star--badge" viewBox="0 0 100 100" width="14" height="14" aria-hidden="true"><use href="#star"/></svg>
+    <span class="label-mono">ACT I</span>
+    <span class="act__rule"></span>
+    <span class="act__jp" lang="ja">近作</span>
+  </div>
+  <h2 class="act__title" data-reveal>Recent <em>Work</em></h2>
+
+  <div class="work-grid">
+    <!-- Artwork cards: swap /artwork/NN.svg placeholders for real image files (4:5 crop). -->
+    <figure class="work-card" data-reveal>
+      <div class="work-card__frame"><img src="/artwork/01.svg" alt="Followspot" loading="lazy"></div>
+      <figcaption class="work-card__caption">
+        <span class="work-card__title">Followspot</span>
+        <span class="work-card__meta">01 — 2026</span>
+      </figcaption>
+    </figure>
+    <figure class="work-card" data-reveal>
+      <div class="work-card__frame"><img src="/artwork/02.svg" alt="Green Room" loading="lazy"></div>
+      <figcaption class="work-card__caption">
+        <span class="work-card__title">Green Room</span>
+        <span class="work-card__meta">02 — 2026</span>
+      </figcaption>
+    </figure>
+    <figure class="work-card" data-reveal>
+      <div class="work-card__frame"><img src="/artwork/03.svg" alt="Matinée" loading="lazy"></div>
+      <figcaption class="work-card__caption">
+        <span class="work-card__title">Matinée</span>
+        <span class="work-card__meta">03 — 2025</span>
+      </figcaption>
+    </figure>
+    <figure class="work-card" data-reveal>
+      <div class="work-card__frame"><img src="/artwork/04.svg" alt="Stage Left" loading="lazy"></div>
+      <figcaption class="work-card__caption">
+        <span class="work-card__title">Stage Left</span>
+        <span class="work-card__meta">04 — 2025</span>
+      </figcaption>
+    </figure>
+    <figure class="work-card" data-reveal>
+      <div class="work-card__frame"><img src="/artwork/05.svg" alt="Prompt Book" loading="lazy"></div>
+      <figcaption class="work-card__caption">
+        <span class="work-card__title">Prompt Book</span>
+        <span class="work-card__meta">05 — 2024</span>
+      </figcaption>
+    </figure>
+    <figure class="work-card" data-reveal>
+      <div class="work-card__frame"><img src="/artwork/06.svg" alt="House Lights" loading="lazy"></div>
+      <figcaption class="work-card__caption">
+        <span class="work-card__title">House Lights</span>
+        <span class="work-card__meta">06 — 2024</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ==================== ACT II · NOTES ==================== -->
+<section id="notes" class="act act--notes">
+  <img class="watermark watermark--notes" src="/assets/logo-ink.svg" alt="">
+
+  <div class="act__header" data-reveal>
+    <svg class="star star--badge" viewBox="0 0 100 100" width="14" height="14" aria-hidden="true"><use href="#star"/></svg>
+    <span class="label-mono">ACT II</span>
+    <span class="act__rule"></span>
+    <span class="act__jp" lang="ja">日誌</span>
+  </div>
+  <h2 class="act__title act__title--notes" data-reveal>Notes from <em>the Wings</em></h2>
+
+  <div class="post-list">
+    <!-- Post rows: point href at real post routes once they exist. -->
+    <a class="post-row" href="#notes" data-reveal>
+      <div class="post-row__meta">
+        <span>2026.06.18</span>
+        <svg class="star star--yellow" viewBox="0 0 100 100" width="8" height="8" aria-hidden="true"><use href="#star"/></svg>
+        <span>PROCESS</span>
+      </div>
+      <div class="post-row__head">
+        <span class="post-row__title">On four-pointed stars</span>
+        <span class="post-row__read">READ →</span>
+      </div>
+      <p class="post-row__excerpt">Why one simple sparkle became the through-line of everything I make this year.</p>
+    </a>
+    <a class="post-row" href="#notes" data-reveal>
+      <div class="post-row__meta">
+        <span>2026.04.02</span>
+        <svg class="star star--yellow" viewBox="0 0 100 100" width="8" height="8" aria-hidden="true"><use href="#star"/></svg>
+        <span>STUDIO</span>
+      </div>
+      <div class="post-row__head">
+        <span class="post-row__title">Rebuilding my palette around one yellow</span>
+        <span class="post-row__read">READ →</span>
+      </div>
+      <p class="post-row__excerpt">Notes on limiting color until it starts doing the work for you.</p>
+    </a>
+    <a class="post-row" href="#notes" data-reveal>
+      <div class="post-row__meta">
+        <span>2026.01.27</span>
+        <svg class="star star--yellow" viewBox="0 0 100 100" width="8" height="8" aria-hidden="true"><use href="#star"/></svg>
+        <span>INTERMISSION</span>
+      </div>
+      <div class="post-row__head">
+        <span class="post-row__title">Sketchbook, winter tour</span>
+        <span class="post-row__read">READ →</span>
+      </div>
+      <p class="post-row__excerpt">A loose pile of drawings from trains, waiting rooms, and one very cold theater.</p>
+    </a>
+    <div class="post-list__end"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ==================== CURTAIN CALL ==================== -->
+<footer class="finale">
+  <img class="watermark watermark--finale" src="/assets/logo-yellow.svg" alt="">
+
+  <div class="finale__center" data-reveal>
+    <span class="finale__kicker">CURTAIN CALL — <span lang="ja">カーテンコール</span></span>
+    <span class="finale__headline">Come backstage,<br><em>say hello.</em></span>
+    <div class="finale__contacts">
+      <a class="contact" href="https://twitter.com/euph">
+        <svg class="contact__icon" viewBox="0 0 100 100" width="13" height="13" aria-hidden="true"><use href="#ic-x"/></svg>
+        <span>Twitter</span>
+      </a>
+      <svg class="star star--yellow" viewBox="0 0 100 100" width="9" height="9" aria-hidden="true"><use href="#star"/></svg>
+      <a class="contact" href="mailto:hi@euph.jp">
+        <svg class="contact__icon" viewBox="0 0 100 100" width="14" height="14" aria-hidden="true"><use href="#ic-mail"/></svg>
+        <span>Email</span>
+      </a>
+      <svg class="star star--yellow" viewBox="0 0 100 100" width="9" height="9" aria-hidden="true"><use href="#star"/></svg>
+      <a class="contact" href="https://github.com/euph">
+        <svg class="contact__icon" viewBox="0 0 100 100" width="14" height="14" aria-hidden="true"><use href="#ic-branch"/></svg>
+        <span>GitHub</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="finale__bar">
+    <span>© MMXXVI EUPH</span>
+    <span>FIN — <span lang="ja">おわり</span></span>
+  </div>
+</footer>
+
+</body>
 </html>

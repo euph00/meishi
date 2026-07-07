@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#E6E0D0"/>
+  <path d="M50 0C54.5 33.5 66.5 45.5 100 50C66.5 54.5 54.5 66.5 50 100C45.5 66.5 33.5 54.5 0 50C33.5 45.5 45.5 33.5 50 0Z" fill="#17150F" opacity=".07" transform="translate(180,280) scale(4.4)"/>
+  <text x="400" y="920" text-anchor="middle" font-family="ui-monospace,Menlo,monospace" font-size="24" letter-spacing="8" fill="#17150F" fill-opacity=".55">ARTWORK 06</text>
+</svg>

@@ -1,16 +1,45 @@
-# React + Vite
+# EUPH — ユーフ作品集
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal portfolio / namecard site for the artist **Euph**, themed as a theatrical
+stage: ink curtains part on load, a playbill-style hero, a recent-work gallery
+(Act I), a blog index (Act II — Notes from the Wings), and a dark Curtain Call
+footer. Mobile-first, one responsive layout, English + Japanese.
 
-Currently, two official plugins are available:
+Built as a static site with [Vite](https://vite.dev) — no framework. The design
+reference lives in [design_handoff_euph_portfolio/](design_handoff_euph_portfolio/).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Structure
 
-## React Compiler
+- [index.html](index.html) — all page content (hero, Act I artwork cards, Act II post rows, footer)
+- [src/style.css](src/style.css) — design tokens, layout, keyframe animations, reduced-motion rules
+- [src/main.js](src/main.js) — scroll-reveal (progressive enhancement; content stays visible without JS)
+- [public/assets/](public/assets/) — emblem watermark SVGs (ink / yellow)
+- [public/artwork/](public/artwork/) — placeholder artwork images
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Editing content
 
-## Expanding the ESLint configuration
+- **Artwork**: drop real images (4:5 crop) into `public/artwork/` and update the
+  six `.work-card` figures in `index.html` (image `src`, `alt`, title, `NN — YYYY` meta).
+- **Blog posts**: each post is a `.post-row` anchor in `index.html`
+  (date, tag, title, excerpt). Point `href` at real post pages once they exist.
+- **Social links**: the Twitter / Email / GitHub URLs appear twice (hero + footer)
+  and are still the handoff placeholders.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Develop
+
+```bash
+npm install
+npm run dev       # dev server
+npm run build     # production build → dist/
+npm run preview   # serve the production build locally
+```
+
+Append `?intro=0` to the URL to skip the curtain intro. The intro and all motion
+are also skipped automatically under `prefers-reduced-motion`.
+
+## Deploy
+
+Pushing to `master` triggers GitHub Actions
+([.github/workflows/](.github/workflows/)), which runs `npm ci && npm run build`
+and deploys `dist/` to Firebase Hosting (project `meishi-site-f3315`). PRs get a
+preview channel deploy.
