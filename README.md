@@ -1,13 +1,13 @@
-# EUPH — ユーフ作品集
+# EUPH — ユーフ
 
-Personal portfolio / namecard site for the artist **Euph**, themed as a
+Personal portfolio / namecard site themed as a
 theatrical stage: ink curtains part on load, a playbill-style hero with a
 scrolling ticker, an artwork gallery, a blog with generated post pages, and a
 dark Curtain Call footer. Mobile-first, English + Japanese, one bold yellow
 accent, four-pointed stars throughout.
 
-Built as a **static site with [Vite](https://vite.dev)** — no framework.
-Day-to-day maintenance is documented in [CLAUDE.md](CLAUDE.md); the original
+Built as a **static site with [Vite](https://vite.dev)** no framework.
+Day-to-day maintenance is documented in [AGENTS.md](AGENTS.md); the original
 design handoff spec is preserved in git history
 (`design_handoff_euph_portfolio/`).
 
