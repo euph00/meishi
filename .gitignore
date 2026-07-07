@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 .env
 .env.local
+
+# generated post pages (rebuilt from content/site.json at build time)
+/posts/
+
+# full-resolution artwork sources (downscaled copies live in public/artwork/)
+/art-originals/

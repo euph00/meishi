@@ -1,45 +1,79 @@
 # EUPH — ユーフ作品集
 
-Personal portfolio / namecard site for the artist **Euph**, themed as a theatrical
-stage: ink curtains part on load, a playbill-style hero, a recent-work gallery
-(Act I), a blog index (Act II — Notes from the Wings), and a dark Curtain Call
-footer. Mobile-first, one responsive layout, English + Japanese.
+Personal portfolio / namecard site for the artist **Euph**, themed as a
+theatrical stage: ink curtains part on load, a playbill-style hero with a
+scrolling ticker, an artwork gallery, a blog with generated post pages, and a
+dark Curtain Call footer. Mobile-first, English + Japanese, one bold yellow
+accent, four-pointed stars throughout.
 
-Built as a static site with [Vite](https://vite.dev) — no framework. The design
-reference lives in [design_handoff_euph_portfolio/](design_handoff_euph_portfolio/).
+Built as a **static site with [Vite](https://vite.dev)** — no framework.
+Day-to-day maintenance is documented in [CLAUDE.md](CLAUDE.md); the original
+design handoff spec is preserved in git history
+(`design_handoff_euph_portfolio/`).
 
-## Structure
+## How it works
 
-- [index.html](index.html) — all page content (hero, Act I artwork cards, Act II post rows, footer)
-- [src/style.css](src/style.css) — design tokens, layout, keyframe animations, reduced-motion rules
-- [src/main.js](src/main.js) — scroll-reveal (progressive enhancement; content stays visible without JS)
-- [public/assets/](public/assets/) — emblem watermark SVGs (ink / yellow)
-- [public/artwork/](public/artwork/) — placeholder artwork images
+All page content lives in one data file, `content/site.json`. At build time a
+small Vite plugin ([vite.config.js](vite.config.js)) runs
+[scripts/render-content.js](scripts/render-content.js), which validates the
+JSON (bad content fails the build — nothing broken can deploy), HTML-escapes
+it, and injects it into two templates:
 
-## Editing content
+- [index.html](index.html) — the main page (`<!-- content:... -->` slots for
+  contacts, catchline, ticker, work cards, post rows)
+- [post.html](post.html) — the blog post page (`<!-- post:... -->` slots);
+  one static page is generated at `posts/<slug>.html` for every post with a
+  `slug` (that directory is gitignored build output)
 
-- **Artwork**: drop real images (4:5 crop) into `public/artwork/` and update the
-  six `.work-card` figures in `index.html` (image `src`, `alt`, title, `NN — YYYY` meta).
-- **Blog posts**: each post is a `.post-row` anchor in `index.html`
-  (date, tag, title, excerpt). Point `href` at real post pages once they exist.
-- **Social links**: the Twitter / Email / GitHub URLs appear twice (hero + footer)
-  and are still the handoff placeholders.
+The dev server renders everything on the fly and live-reloads when content or
+templates change; `vite build` emits fully static HTML to `dist/`, so the
+deployed site needs no JavaScript to show content.
+
+## File map
+
+| Path | Role |
+| --- | --- |
+| [content/site.json](content/site.json) | **all editable content** (works, posts + bodies, ticker, catchline, contacts) |
+| [index.html](index.html) / [post.html](post.html) | page templates |
+| [scripts/render-content.js](scripts/render-content.js) | build-time renderer + content validation |
+| [vite.config.js](vite.config.js) | wires the renderer into dev/build; generates post pages |
+| [src/style.css](src/style.css) | design tokens, layout, all animation keyframes, reduced-motion rules |
+| [src/main.js](src/main.js) | index page: ticker loop, curtain cleanup, replayable scroll reveals |
+| [src/nav.js](src/nav.js) | stage-sweep page transitions (index ⇄ posts) |
+| [src/post.js](src/post.js) | post page entry (transitions only) |
+| [public/artwork/](public/artwork/) | web-ready artwork (≤1600px WebP) |
+| `art-originals/` | full-resolution sources (gitignored, not deployed) |
+| [.github/workflows/](.github/workflows/) | CI: build + deploy to Firebase Hosting |
+
+## Motion & accessibility
+
+Curtain intro on load (skippable via `?intro=0`), camera-dolly and staggered
+rise-ins in the hero, a seamless marquee ticker, scroll reveals that replay
+when elements re-enter the viewport, directional "stage sweep" transitions
+between the index and post pages, and quiet idle motion (spinning badge
+stars, bobbing scroll cue, breathing footer emblem, twinkling accent stars).
+All of it is disabled under `prefers-reduced-motion`, and every page is fully
+readable with JavaScript off.
+
+## Performance
+
+The whole index page is ~30KB of HTML/CSS/JS (gzipped) plus ~200KB of
+artwork. Fonts load only the weights in use; artwork ships as ≤1600px WebP
+with dimensions baked into the HTML (no layout shift) and lazy loading;
+`firebase.json` sets long-lived caching for hashed assets and no-cache for
+HTML.
 
 ## Develop
 
 ```bash
 npm install
 npm run dev       # dev server
-npm run build     # production build → dist/
-npm run preview   # serve the production build locally
+npm run build     # validate content + build to dist/
+npm run preview   # serve the production build
 ```
-
-Append `?intro=0` to the URL to skip the curtain intro. The intro and all motion
-are also skipped automatically under `prefers-reduced-motion`.
 
 ## Deploy
 
-Pushing to `master` triggers GitHub Actions
-([.github/workflows/](.github/workflows/)), which runs `npm ci && npm run build`
-and deploys `dist/` to Firebase Hosting (project `meishi-site-f3315`). PRs get a
-preview channel deploy.
+Pushing to `master` builds and deploys to Firebase Hosting (project
+`meishi-site-f3315`) via GitHub Actions; pull requests get preview-channel
+deploys. See the pre-deploy checklist in [CLAUDE.md](CLAUDE.md).

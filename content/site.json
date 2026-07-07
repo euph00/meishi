@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "catchline": [
+      "君と出会い、夢に翔ける"
+    ]
+  },
+  "ticker": [
+    "NEXT EVENT - 参加予定",
+    "春咲暖1st Live『Light in Bloom』 27.12.2026",
+    "コミックマーケットC109 29-31.12.2026"
+  ],
+  "contacts": [
+    { "label": "Twitter", "href": "https://twitter.com/e_uph00", "icon": "x" },
+    { "label": "Email", "href": "mailto:euph.f1eur@gmail.com", "icon": "mail" },
+    { "label": "GitHub", "href": "https://github.com/euph00", "icon": "branch" }
+  ],
+  "works": [
+    { "title": "ぷろでゅーさー♡", "date": "07.2026", "image": "/artwork/02072026.webp", "link": "https://x.com/e_uph00/status/2072672129833988556" },
+    { "title": "異議あり！", "date": "07.2026", "image": "/artwork/igiari.webp", "link": "https://x.com/e_uph00/status/2073777430607876430" }
+  ],
+  "posts": [
+    {
+      "date": "2026.06.18",
+      "tag": "LOREM IPSUM",
+      "title": "Lorem ipsum dolor sit amet, consectetur elit",
+      "excerpt": "A full-length placeholder post for checking the blog page design — lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "slug": "lorem-ipsum",
+      "body": [
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec ullamcorper nulla non metus auctor fringilla, sed odio dui vestibulum id ligula porta felis euismod semper.",
+        "Vestibulum id ligula porta felis euismod semper. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor, tortor mauris condimentum nibh ut fermentum massa justo sit amet risus.",
+        { "h2": "Curabitur blandit tempus porttitor" },
+        "Etiam porta sem malesuada magna mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.",
+        "Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod.",
+        { "quote": "Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum — donec id elit non mi porta gravida at eget metus." },
+        "Sed posuere consectetur est at lobortis. Nulla vitae elit libero, a pharetra augue. Maecenas sed diam eget risus varius blandit sit amet non magna. Nullam id dolor id nibh ultricies vehicula ut id elit. Donec ullamcorper nulla non metus auctor fringilla.",
+        { "h2": "Integer posuere erat a ante" },
+        "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec sed odio dui. Vestibulum id ligula porta felis euismod semper. Curabitur blandit tempus porttitor, sed posuere consectetur est at lobortis.",
+        "Nullam quis risus eget urna mollis ornare vel eu leo. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Donec ullamcorper nulla non metus auctor fringilla — fin."
+      ]
+    },
+    {
+      "date": "2026.04.02",
+      "tag": "PLACEHOLDER TAG FOR DEPLOY TEST",
+      "title": "Placeholder Title for Deploy Test",
+      "excerpt": "Placeholder excerpt for deploy test. This is a placeholder post to test the deployment of the website.",
+      "href": "#notes"
+    },
+    {
+      "date": "2026.01.27",
+      "tag": "PLACEHOLDER TAG FOR DEPLOY TEST",
+      "title": "Placeholder Title for Deploy Test",
+      "excerpt": "Placeholder excerpt for deploy test. This is a placeholder post to test the deployment of the website.",
+      "href": "#notes"
+    }
+  ]
+}

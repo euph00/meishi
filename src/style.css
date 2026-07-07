@@ -13,6 +13,7 @@
   --ink-60: rgba(23, 21, 15, .6);
   --ink-65: rgba(23, 21, 15, .65);
   --ink-75: rgba(23, 21, 15, .75);
+  --ink-85: rgba(23, 21, 15, .85);
   --paper-25: rgba(236, 231, 218, .25);
   --paper-55: rgba(236, 231, 218, .55);
   --paper-60: rgba(236, 231, 218, .6);
@@ -145,7 +146,7 @@ img { display: block; }
 .hero__subtitle {
   font-family: var(--jp-serif);
   font-weight: 500;
-  font-size: clamp(15px, 1.4vw, 19px);
+  font-size: clamp(19px, 1.75vw, 24px);
   letter-spacing: .4em;
   padding-left: .4em;
 }
@@ -162,7 +163,7 @@ img { display: block; }
   display: flex;
   align-items: center;
   gap: 6px;
-  font: 400 clamp(13px, 1.1vw, 15px)/1 var(--sans);
+  font: 400 clamp(16px, 1.4vw, 19px)/1 var(--sans);
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
@@ -181,23 +182,23 @@ img { display: block; }
   gap: 16px;
   padding: 18px 0;
 }
-.cluster { width: 106px; height: 92px; }
+.cluster { width: 133px; height: 115px; }
 .cluster__skew {
   position: relative;
-  width: 106px;
-  height: 92px;
+  width: 133px;
+  height: 115px;
   transform: skewX(-14deg);
 }
 .cluster__star { position: absolute; }
-.cluster__star--a { left: 10px; top: 4px;  animation: shimmer 3.6s ease-in-out 2.6s infinite; }
-.cluster__star--b { left: 60px; top: 0;    animation: shimmer 2.9s ease-in-out 3.4s infinite; }
-.cluster__star--c { left: 60px; top: 54px; animation: shimmer 2.5s ease-in-out 3s infinite; }
+.cluster__star--a { left: 13px; top: 5px;  animation: shimmer 3.6s ease-in-out 2.6s infinite; }
+.cluster__star--b { left: 75px; top: 0;    animation: shimmer 2.9s ease-in-out 3.4s infinite; }
+.cluster__star--c { left: 75px; top: 68px; animation: shimmer 2.5s ease-in-out 3s infinite; }
 
 .hero__quote {
   text-align: center;
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(19px, 1.6vw, 22px);
+  font-size: clamp(24px, 2vw, 28px);
   line-height: 1.35;
   color: var(--ink-75);
 }
@@ -256,19 +257,62 @@ img { display: block; }
   white-space: nowrap;
 }
 
-/* ink curtains */
+/* ink curtains — fixed to the viewport so the intro plays full-screen
+   regardless of where the page is scrolled on load */
 .curtain {
-  position: absolute;
+  position: fixed;
   top: 0;
   bottom: 0;
   width: 75%;
   background: var(--ink);
   pointer-events: none;
+  z-index: 100;
 }
 .curtain--left  { left: -23%;  animation: curtLB 1.7s var(--ease-curtain) .5s forwards; }
 .curtain--right { right: -23%; animation: curtRB 1.7s var(--ease-curtain) .5s forwards; }
 
 .no-intro .curtain { display: none; }
+
+/* stage sweep — page-transition overlay (driven by src/nav.js): wipes up
+   going index → post, down coming back. Oversized ±12vh so the transient
+   skew of the leading edge never reveals a gap. */
+.sweep {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: -12vh;
+  bottom: -12vh;
+  background: var(--ink);
+  transform: translateY(112%);
+  pointer-events: none;
+  z-index: 120;
+}
+.arriving .sweep,
+.arriving-back .sweep { transform: translateY(0); }
+.sweep--cover-up    { animation: sweepCoverUp .42s var(--ease-curtain) forwards; }
+.sweep--cover-down  { animation: sweepCoverDown .42s var(--ease-curtain) forwards; }
+.sweep--reveal-up   { animation: sweepRevealUp .6s var(--ease-curtain) .06s forwards; }
+.sweep--reveal-down { animation: sweepRevealDown .6s var(--ease-curtain) .06s forwards; }
+@keyframes sweepCoverUp {
+  0%   { transform: translateY(112%) skewY(0); }
+  45%  { transform: translateY(52%) skewY(-3.5deg); }
+  100% { transform: translateY(0) skewY(0); }
+}
+@keyframes sweepRevealUp {
+  0%   { transform: translateY(0) skewY(0); }
+  45%  { transform: translateY(-52%) skewY(-3.5deg); }
+  100% { transform: translateY(-112%) skewY(0); }
+}
+@keyframes sweepCoverDown {
+  0%   { transform: translateY(-112%) skewY(0); }
+  45%  { transform: translateY(-52%) skewY(3.5deg); }
+  100% { transform: translateY(0) skewY(0); }
+}
+@keyframes sweepRevealDown {
+  0%   { transform: translateY(0) skewY(0); }
+  45%  { transform: translateY(52%) skewY(3.5deg); }
+  100% { transform: translateY(112%) skewY(0); }
+}
 
 /* ============================================================
    Acts (shared section chrome)
@@ -288,8 +332,6 @@ img { display: block; }
   opacity: .045;
   pointer-events: none;
 }
-.watermark--work   { width: min(76vmin, 80vw); }
-.watermark--notes  { width: min(60vmin, 76vw); }
 .watermark--finale { height: 70%; width: auto; opacity: .09; }
 
 .act__header {
@@ -325,6 +367,7 @@ img { display: block; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   gap: clamp(24px, 3.4vw, 44px) clamp(20px, 3vw, 36px);
+  align-items: start;
 }
 
 .work-card {
@@ -332,17 +375,24 @@ img { display: block; }
   flex-direction: column;
   gap: 12px;
 }
+a.work-card {
+  color: inherit;
+  text-decoration: none;
+}
+a.work-card:hover { color: inherit; }
+.work-card__fig { display: contents; }
+/* the frame hugs each piece at its native aspect ratio (width/height
+   attributes reserve the space pre-load; faint wash shows while loading) */
 .work-card__frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
   outline: 1px solid var(--ink-25);
   outline-offset: -1px;
+  background: rgba(23, 21, 15, .03);
 }
 .work-card__frame img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
 }
 .work-card__caption {
   display: flex;
@@ -471,23 +521,168 @@ img { display: block; }
   letter-spacing: .2em;
   color: var(--paper-55);
 }
+.finale__bar a {
+  color: inherit;
+  text-decoration: none;
+  transition: color .3s;
+}
+.finale__bar a:hover { color: var(--yellow); }
+
+/* ============================================================
+   Blog post page
+   ============================================================ */
+.post-shell {
+  max-width: 840px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: clamp(24px, 4vh, 40px) var(--pad-x) clamp(28px, 4vh, 44px);
+  display: flex;
+  flex-direction: column;
+}
+.post-main { flex: 1; }
+
+/* entrance rises (short stagger; skipped under reduced motion) */
+.post-rise    { animation: rise .7s ease-out both; }
+.post-rise--1 { animation-delay: .1s; }
+.post-rise--2 { animation-delay: .22s; }
+.post-rise--3 { animation-delay: .34s; }
+
+.post-top {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 18px);
+}
+.post-top__back {
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 14px 8px;
+  margin: -14px -8px;
+}
+.post-top__tag { color: var(--ink-60); }
+
+.post-hero {
+  margin-top: clamp(28px, 6vh, 56px);
+  padding-bottom: clamp(20px, 3.5vh, 32px);
+  border-bottom: 1px solid var(--ink-35);
+}
+.post-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: .2em;
+  color: var(--ink-60);
+}
+.post-hero__title {
+  margin-top: 16px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(40px, 7vw, 76px);
+  line-height: 1.05;
+}
+
+.post-article { margin-top: clamp(24px, 4vh, 40px); }
+.post-article p {
+  margin: 0 0 1.3em;
+  font: 400 clamp(16px, 1.25vw, 18px)/1.85 var(--sans);
+  color: var(--ink-85);
+}
+.post-article h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 1.6em 0 .7em;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(24px, 2.4vw, 32px);
+  line-height: 1.2;
+}
+.post-article blockquote {
+  margin: 1.6em 0;
+  padding: .2em 0 .2em 22px;
+  border-left: 1px solid var(--ink-35);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(20px, 1.8vw, 25px);
+  line-height: 1.5;
+  color: var(--ink-75);
+}
+
+.post-fin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: clamp(36px, 6vh, 56px) 0;
+}
+
+.post-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--ink-35);
+  padding-top: 14px;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: .2em;
+}
+.post-bar a {
+  color: inherit;
+  text-decoration: none;
+  padding: 14px 8px;
+  margin: -14px -8px;
+}
 
 /* ============================================================
    Scroll reveals (classes applied by JS only — content stays
-   visible when JS is unavailable) + hover motion
+   visible when JS is unavailable) + hover motion. Entrances are
+   animations, not transitions, so they replay on re-entry and
+   never fight the hover transitions below.
    ============================================================ */
 .js-reveal { opacity: 0; transform: translateY(26px); }
-.js-reveal.is-revealed {
-  opacity: 1;
-  transform: none;
-  transition: opacity .9s ease, transform .9s var(--ease-spring);
+.is-revealed {
+  animation: revealFade .9s ease both, revealMove .9s var(--ease-spring) both;
 }
+@keyframes revealFade { from { opacity: 0; } }
+@keyframes revealMove { from { transform: translateY(26px); } }
 
-/* hover rules after reveal rules so they win while both apply */
 .work-card { transition: transform .5s var(--ease-spring); }
 .work-card:hover { transform: translateY(-5px); }
 .post-row { transition: transform .5s var(--ease-spring); }
 .post-row:hover { transform: translateX(8px); }
+
+/* ============================================================
+   Idle motion — quiet life while the page rests
+   ============================================================ */
+/* section badge stars turn slowly (spinSlow existed unused in the
+   original design prototype) */
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+.star--badge { animation: spinSlow 24s linear infinite; }
+
+/* SCROLL ↓ arrow bobs as a cue (starts after the intro settles) */
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
+}
+.bob {
+  display: inline-block;
+  animation: bob 1.8s ease-in-out 3s infinite;
+}
+
+/* footer emblem breathes */
+@keyframes breathe {
+  0%, 100% { opacity: .09; }
+  50%      { opacity: .14; }
+}
+.watermark--finale { animation: breathe 7s ease-in-out infinite; }
+
+/* small yellow accent stars twinkle, phase-staggered */
+.twinkle { animation: shimmer 3.2s ease-in-out infinite; }
+.twinkle:nth-of-type(2n) { animation-duration: 2.7s; animation-delay: 1.1s; }
+.post-row:nth-child(2n) .twinkle { animation-delay: 1.4s; }
+.post-fin .twinkle:nth-of-type(2) { animation-delay: .8s; }
+.post-fin .twinkle:nth-of-type(3) { animation-delay: 1.6s; }
 
 /* ============================================================
    Reduced motion: no curtains, no dolly, content immediately
@@ -495,11 +690,14 @@ img { display: block; }
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .curtain { display: none; }
+  .curtain, .sweep { display: none; }
   .hero__stage,
   .rise--title, .rise--rules, .rise--contacts,
   .rise--cluster, .rise--foot, .rise--ticker,
   .cluster__star,
+  .post-rise,
+  .is-revealed,
+  .star--badge, .bob, .watermark--finale, .twinkle,
   .ticker__track { animation: none; }
   .work-card, .post-row, .finale .contact { transition: none; }
   .work-card:hover { transform: none; }

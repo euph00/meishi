@@ -2,7 +2,28 @@
 // Elements below 92% of the viewport at load are hidden, then revealed
 // once as they enter the viewport. If JS never runs, nothing is hidden.
 
+import { wireSweep } from './nav.js';
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Returning from a post lands on the notes anchor: jump there instantly
+// (the sweep overlay hides the jump) instead of smooth-scrolling the
+// whole page, then let smooth scrolling back for in-page links.
+if (document.documentElement.classList.contains('arriving-back') && location.hash) {
+  document.documentElement.style.scrollBehavior = 'auto';
+  const target = document.querySelector(location.hash);
+  if (target) target.scrollIntoView();
+  setTimeout(() => {
+    document.documentElement.style.scrollBehavior = '';
+  }, 400);
+}
+wireSweep();
+
+// Curtains are a fixed full-viewport overlay; drop them from the DOM once the
+// intro finishes so no invisible fixed layers stick around.
+document.querySelectorAll('.curtain').forEach((el) => {
+  el.addEventListener('animationend', () => el.remove(), { once: true });
+});
 
 // Ticker: the -50% loop is only seamless while half the track is at least as
 // wide as the screen. One group is ~640px, so the two static groups cover
@@ -24,35 +45,37 @@ if (track && track.children.length === 2) {
 if (!reduceMotion && 'IntersectionObserver' in window) {
   const els = Array.from(document.querySelectorAll('[data-reveal]'));
   const vh = window.innerHeight;
-  const hidden = els.filter((el) => el.getBoundingClientRect().top > vh * 0.92);
+  // elements already in view at load stay put (no entrance on first paint)
+  els.forEach((el) => {
+    if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('js-reveal');
+  });
 
-  hidden.forEach((el) => el.classList.add('js-reveal'));
-
+  // Replayable reveals: entering past the 12% threshold plays the entrance;
+  // leaving the viewport completely re-arms it (hidden again while
+  // off-screen), so the animation plays each time the element comes back.
   const io = new IntersectionObserver(
     (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        io.unobserve(entry.target);
-        reveal(entry.target);
+      entries.forEach(({ target, isIntersecting, intersectionRatio }) => {
+        if (isIntersecting && intersectionRatio >= 0.12) {
+          if (target.classList.contains('js-reveal')) {
+            target.classList.remove('js-reveal');
+            target.classList.add('is-revealed');
+          }
+        } else if (!isIntersecting) {
+          target.classList.remove('is-revealed');
+          target.classList.add('js-reveal');
+        }
       });
     },
-    { threshold: 0.12 }
+    { threshold: [0, 0.12] }
   );
-  hidden.forEach((el) => io.observe(el));
-}
+  els.forEach((el) => io.observe(el));
 
-function reveal(el) {
-  el.classList.add('is-revealed');
-  // Once the entrance transition finishes, drop the reveal classes so
-  // hover transitions (card lift, row slide) run at their own timing.
-  const cleanup = () => {
-    el.classList.remove('js-reveal', 'is-revealed');
-    el.removeEventListener('transitionend', onEnd);
-    clearTimeout(timer);
-  };
-  const onEnd = (e) => {
-    if (e.target === el && e.propertyName === 'transform') cleanup();
-  };
-  el.addEventListener('transitionend', onEnd);
-  const timer = setTimeout(cleanup, 1100);
+  // A finished-but-filling entrance animation keeps owning `transform`,
+  // which would suppress the card/row hover transitions (they'd jump
+  // instead of easing). Drop the class once the entrance ends; the
+  // observer re-arms it with .js-reveal when the element leaves view.
+  document.addEventListener('animationend', (e) => {
+    if (e.animationName === 'revealMove') e.target.classList.remove('is-revealed');
+  });
 }

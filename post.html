@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><!-- post:title --> — EUPH</title>
+  <meta name="description" content="<!-- post:excerpt -->">
+  <meta name="theme-color" content="#ECE7DA">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;600&family=Shippori+Mincho:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+  <script>
+    // Pre-paint: arriving via an internal link starts covered by the sweep
+    // overlay so src/nav.js can reveal the page. ?intro=0 kept for parity.
+    (function () {
+      var html = document.documentElement;
+      if (/[?&]intro=0(?:&|$)/.test(location.search)) html.classList.add('no-intro');
+      try {
+        var nav = sessionStorage.getItem('euph-nav');
+        if (nav) sessionStorage.removeItem('euph-nav');
+        if (nav && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          html.classList.add(nav === 'back' ? 'arriving-back' : 'arriving');
+        }
+      } catch (e) { /* sessionStorage unavailable — plain load */ }
+    })();
+  </script>
+  <script type="module" src="/src/post.js"></script>
+</head>
+<body class="post-page" id="top">
+
+<!-- stage-sweep page-transition overlay (driven by src/nav.js) -->
+<div class="sweep" aria-hidden="true"></div>
+
+<!-- four-pointed star symbol -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="star" viewBox="0 0 100 100">
+    <path d="M50 0C54.5 33.5 66.5 45.5 100 50C66.5 54.5 54.5 66.5 50 100C45.5 66.5 33.5 54.5 0 50C33.5 45.5 45.5 33.5 50 0Z"/>
+  </symbol>
+</svg>
+
+<div class="post-shell">
+
+  <header class="post-top post-rise post-rise--1">
+    <svg class="star star--badge" viewBox="0 0 100 100" width="14" height="14" aria-hidden="true"><use href="#star"/></svg>
+    <a class="post-top__back label-mono" href="/#notes" data-nav="back">← BACK</a>
+    <span class="act__rule"></span>
+    <span class="label-mono post-top__tag"><!-- post:tag --></span>
+  </header>
+
+  <main class="post-main">
+    <div class="post-hero post-rise post-rise--2">
+      <div class="post-hero__meta">
+        <span><!-- post:date --></span>
+        <svg class="star star--yellow twinkle" viewBox="0 0 100 100" width="9" height="9" aria-hidden="true"><use href="#star"/></svg>
+        <span><!-- post:tag --></span>
+      </div>
+      <h1 class="post-hero__title"><!-- post:title --></h1>
+    </div>
+
+    <article class="post-article post-rise post-rise--3">
+      <!-- post:body -->
+    </article>
+
+    <div class="post-fin post-rise post-rise--3" aria-hidden="true">
+      <svg class="star star--yellow twinkle" viewBox="0 0 100 100" width="10" height="10"><use href="#star"/></svg>
+      <svg class="star star--yellow twinkle" viewBox="0 0 100 100" width="15" height="15"><use href="#star"/></svg>
+      <svg class="star star--yellow twinkle" viewBox="0 0 100 100" width="10" height="10"><use href="#star"/></svg>
+    </div>
+  </main>
+
+  <footer class="post-bar post-rise post-rise--3">
+    <a href="/#notes" data-nav="back">← BACK</a>
+    <a href="#top">TOP ↑</a>
+  </footer>
+
+</div>
+
+</body>
+</html>
