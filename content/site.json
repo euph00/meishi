@@ -37,20 +37,6 @@
         "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec sed odio dui. Vestibulum id ligula porta felis euismod semper. Curabitur blandit tempus porttitor, sed posuere consectetur est at lobortis.",
         "Nullam quis risus eget urna mollis ornare vel eu leo. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Donec ullamcorper nulla non metus auctor fringilla — fin."
       ]
-    },
-    {
-      "date": "2026.04.02",
-      "tag": "PLACEHOLDER TAG FOR DEPLOY TEST",
-      "title": "Placeholder Title for Deploy Test",
-      "excerpt": "Placeholder excerpt for deploy test. This is a placeholder post to test the deployment of the website.",
-      "href": "#notes"
-    },
-    {
-      "date": "2026.01.27",
-      "tag": "PLACEHOLDER TAG FOR DEPLOY TEST",
-      "title": "Placeholder Title for Deploy Test",
-      "excerpt": "Placeholder excerpt for deploy test. This is a placeholder post to test the deployment of the website.",
-      "href": "#notes"
     }
   ]
 }
