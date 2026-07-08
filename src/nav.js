@@ -37,6 +37,30 @@ export function wireSweep() {
     });
   }
 
+  // Browser back/forward can restore this page from the bfcache exactly as
+  // it was left: frozen mid-exit with the sweep still covering the screen
+  // (the cover animation fills forwards). Turn that stuck cover into the
+  // matching reveal so the gesture reads as the designed transition —
+  // returning after leaving forward reveals downward, and vice versa.
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    html.classList.remove('arriving', 'arriving-back');
+    const coveredBy = sweep.classList.contains('sweep--cover-up')
+      ? 'up'
+      : sweep.classList.contains('sweep--cover-down')
+        ? 'down'
+        : null;
+    sweep.classList.remove('sweep--reveal-up', 'sweep--reveal-down');
+    if (coveredBy) {
+      // add the reveal before dropping the cover (same style recalc) so the
+      // page is never shown uncovered for a frame in between
+      const cls = coveredBy === 'up' ? 'sweep--reveal-down' : 'sweep--reveal-up';
+      sweep.classList.add(cls);
+      sweep.addEventListener('animationend', () => sweep.classList.remove(cls), { once: true });
+    }
+    sweep.classList.remove('sweep--cover-up', 'sweep--cover-down');
+  });
+
   // exit: cover the page, then navigate
   document.addEventListener('click', (e) => {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
