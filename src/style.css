@@ -98,6 +98,9 @@ img { display: block; }
   75%  { transform: translateY(-.03em) rotate(0deg); }
   100% { transform: translateY(0) rotate(0deg); }
 }
+/* hairline rules draw themselves in (to their natural scaleX(1), so the
+   lines are simply visible wherever the animation never runs) */
+@keyframes ruleDraw { from { transform: scaleX(0); } }
 @keyframes contactChildIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
@@ -173,7 +176,15 @@ img { display: block; }
   align-items: center;
   gap: clamp(12px, 2vw, 18px);
 }
-.hero__rule { flex: 1; height: 1px; background: var(--ink); }
+.hero__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--ink);
+  animation: ruleDraw .9s var(--ease-spring) 1.45s both;
+}
+/* the two rules draw outward from the center label, like parting curtains */
+.hero__rules .hero__rule:first-child { transform-origin: right; }
+.hero__rules .hero__rule:last-child  { transform-origin: left; }
 
 .hero__title {
   display: flex;
@@ -305,13 +316,25 @@ img { display: block; }
 }
 
 .hero__foot {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 0 0;
-  border-top: 1px solid var(--ink);
   font: 500 clamp(10px, .9vw, 11px)/1 var(--mono);
   letter-spacing: .22em;
+}
+/* the top border as a drawable line, growing from the center outward */
+.hero__foot::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink);
+  transform-origin: center;
+  animation: ruleDraw 1s var(--ease-spring) 1.95s both;
 }
 .hero__foot a {
   color: inherit;
@@ -454,7 +477,16 @@ img { display: block; }
   align-items: baseline;
   gap: clamp(12px, 2vw, 18px);
 }
-.act__rule { flex: 1; height: 1px; background: var(--ink); align-self: center; }
+.act__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--ink);
+  align-self: center;
+  transform-origin: left;
+}
+/* redraws on every reveal (replay-safe: is-revealed is JS-applied, so the
+   line is simply visible without JS or under reduced motion) */
+.act__header.is-revealed .act__rule { animation: ruleDraw .85s var(--ease-spring) both; }
 .act__jp {
   font-family: var(--jp-serif);
   font-weight: 500;
@@ -562,13 +594,28 @@ a.work-card:hover { color: inherit; }
 .post-list__end { border-top: 1px solid var(--ink-35); }
 
 .post-row {
+  position: relative;
   display: block;
   padding: clamp(20px, 3vh, 28px) 0;
-  border-top: 1px solid var(--ink-35);
   text-decoration: none;
   color: var(--ink);
 }
 .post-row:hover { color: var(--ink); }
+/* each row's top hairline, drawn as the row reveals */
+.post-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink-35);
+  transform-origin: left;
+}
+.post-row.is-revealed::before { animation: ruleDraw .85s var(--ease-spring) both; }
+/* closing hairline draws when the last row reveals */
+.post-list__end { transform-origin: left; }
+.post-row.is-revealed + .post-list__end { animation: ruleDraw .85s var(--ease-spring) both; }
 
 .post-row__meta {
   display: flex;
@@ -658,11 +705,22 @@ a.work-card:hover { color: inherit; }
   gap: 12px;
   margin-top: clamp(48px, 8vh, 80px);
   padding-top: 16px;
-  border-top: 1px solid var(--paper-25);
   font: 500 10px/1 var(--mono);
   letter-spacing: .2em;
   color: var(--paper-55);
 }
+.finale__bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--paper-25);
+  transform-origin: center;
+}
+/* draws when the footer content reveals */
+.finale__center.is-revealed ~ .finale__bar::before { animation: ruleDraw .9s var(--ease-spring) both; }
 .finale__bar a {
   color: inherit;
   text-decoration: none;
@@ -705,10 +763,23 @@ a.work-card:hover { color: inherit; }
 .post-top__tag { color: var(--ink-60); }
 
 .post-hero {
+  position: relative;
   margin-top: clamp(28px, 6vh, 56px);
   padding-bottom: clamp(20px, 3.5vh, 32px);
-  border-bottom: 1px solid var(--ink-35);
 }
+.post-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink-35);
+  transform-origin: left;
+  animation: ruleDraw .9s var(--ease-spring) .55s both;
+}
+/* the post header row's rule draws on load too */
+.post-top .act__rule { animation: ruleDraw .9s var(--ease-spring) .35s both; }
 .post-hero__meta {
   display: flex;
   align-items: center;
@@ -761,14 +832,25 @@ a.work-card:hover { color: inherit; }
 }
 
 .post-bar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-top: 1px solid var(--ink-35);
   padding-top: 14px;
   font: 500 11px/1 var(--mono);
   letter-spacing: .2em;
+}
+.post-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--ink-35);
+  transform-origin: center;
+  animation: ruleDraw .9s var(--ease-spring) .6s both;
 }
 .post-bar a {
   color: inherit;
@@ -862,6 +944,8 @@ a.work-card:hover { color: inherit; }
   .ticker__track,
   .h1-l, .sub-ch, .q-ch,
   .contacts > *,
+  .hero__rule, .hero__foot::before,
+  .post-top .act__rule, .post-hero::after, .post-bar::before,
   .act__title em, .act__title em::before { animation: none; }
   .work-card, .post-row, .finale .contact { transition: none; }
   .work-card:hover { transform: none; }
