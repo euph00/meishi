@@ -73,35 +73,57 @@ if (!reduceMotion && 'IntersectionObserver' in window) {
   });
 
   // The hero replays its entrance choreography when it comes back into
-  // view: armed once fully off-screen, replayed at ~30% visible. The
-  // original delays are tuned to follow the curtain intro, so replays
-  // compress that lead-in out (keeping the stagger). Only entrance
-  // animations replay — idle loops (ticker, shimmer, bob), the dolly, and
-  // the scroll-driven dim are left untouched.
+  // view, mirroring the section-reveal state machine: once the hero is
+  // fully off-screen its entrance animations are rewound to their hidden
+  // from-state and PAUSED (invisible, since nothing is on screen), then
+  // simply played when the hero is ~30% visible again — elements are
+  // already hidden when they scroll in, so nothing visible ever blinks
+  // out. The original delays are tuned to follow the curtain intro, so
+  // replays compress that lead-in out (keeping the stagger). Excluded:
+  // the ticker subtree (the marquee is continuously meaningful and is the
+  // first thing visible when scrolling back up — it must never vanish),
+  // idle loops (shimmer, bob), the dolly, and the scroll-driven dim.
   const hero = document.querySelector('.hero');
   if (hero && hero.getAnimations) {
     const ENTRANCES = new Set(['rise', 'charIn', 'ruleDraw', 'contactChildIn', 'pop']);
     const INTRO_LEAD_MS = 1250; // earliest entrance delay (the title)
     const originalDelay = new WeakMap();
     let armed = false;
-    const replayHero = () => {
-      for (const a of hero.getAnimations({ subtree: true })) {
-        if (!ENTRANCES.has(a.animationName)) continue;
+    const entranceAnims = () =>
+      hero.getAnimations({ subtree: true }).filter(
+        (a) =>
+          ENTRANCES.has(a.animationName) &&
+          !(a.effect.target && a.effect.target.closest('.ticker'))
+      );
+    const rewindAndHold = () => {
+      for (const a of entranceAnims()) {
         if (!originalDelay.has(a)) originalDelay.set(a, a.effect.getTiming().delay);
         a.effect.updateTiming({
           delay: Math.max(0, (originalDelay.get(a) - INTRO_LEAD_MS) * 0.8),
         });
+        // pause() BEFORE rewinding: a pause is otherwise pending until the
+        // next frame and the animation keeps advancing meanwhile, freezing
+        // ~17ms into the entrance instead of at the hidden from-state;
+        // setting currentTime on a pause-pending animation commits the
+        // pause synchronously at exactly that time.
+        a.pause();
         a.currentTime = 0;
-        a.play();
+      }
+    };
+    const playHeld = () => {
+      for (const a of entranceAnims()) {
+        if (a.playState === 'paused') a.play();
       }
     };
     new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (!e.isIntersecting) armed = true;
-          else if (armed && e.intersectionRatio >= 0.3) {
+          if (!e.isIntersecting) {
+            armed = true;
+            rewindAndHold();
+          } else if (armed && e.intersectionRatio >= 0.3) {
             armed = false;
-            replayHero();
+            playHeld();
           }
         });
       },
