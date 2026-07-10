@@ -97,13 +97,12 @@ img { display: block; }
   75%  { transform: translateY(-.03em) rotate(0deg); }
   100% { transform: translateY(0) rotate(0deg); }
 }
-@keyframes maskWipeSubtitle {
-  from { clip-path: inset(0 100% 0 0); }
-  to   { clip-path: inset(0 -2% 0 0); }
-}
-@keyframes maskWipeQuote {
-  from { clip-path: inset(0 100% 0 0); }
-  to   { clip-path: inset(0); }
+/* gentler sibling of h1LetterIn (no rotation) for the subtitle and quote */
+@keyframes settleIn {
+  0%   { opacity: 0; transform: translateY(.45em); }
+  60%  { opacity: 1; }
+  75%  { transform: translateY(-.06em); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes contactChildIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -119,16 +118,24 @@ img { display: block; }
   58.44% { transform: scaleX(1); transform-origin: right; animation-timing-function: var(--ease-curtain); }
   100%   { transform: scaleX(0); transform-origin: right; }
 }
-/* em text stays invisible while the yellow block paints over it, then
-   snaps visible at .35s (of the same .77s timeline) so it reads as
-   "revealed" once the block departs. This animates `color`, not
-   `opacity`: opacity on `em` would also fade its own ::before (the
-   swipe block is generated content of em, so it composites as part of
-   em's subtree), hiding the highlight along with the text instead of
-   letting it paint independently. */
-@keyframes actEmTextIn {
-  0%, 45.45%  { color: transparent; }
-  45.46%, 100% { color: var(--ink); }
+/* em text unveils in lockstep with the departing yellow block: the block
+   shrinks toward its right edge (origin right — its left edge sweeps
+   rightward) while the text's clip-path opens left→right over the same
+   keyframe span with the same easing, so the word appears exactly along
+   the uncover line instead of blinking in. Negative top/bottom/left
+   insets leave room for italic overhang, ascenders, and descenders. */
+@keyframes actEmReveal {
+  0%     { clip-path: inset(-18% 100% -18% -12%); animation-timing-function: linear; }
+  58.44% { clip-path: inset(-18% 100% -18% -12%); animation-timing-function: var(--ease-curtain); }
+  100%   { clip-path: inset(-18% -12% -18% -12%); }
+}
+/* star cluster punctuation: each star pops with a rotate-in overshoot,
+   then hands off to its shimmer loop (shimmer delays all start later) */
+@keyframes pop {
+  0%   { opacity: 0; transform: scale(.1) rotate(-30deg); }
+  62%  { opacity: 1; transform: scale(1.25) rotate(5deg); }
+  82%  { transform: scale(.94) rotate(-1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
 }
 
 /* ============================================================
@@ -141,7 +148,10 @@ img { display: block; }
      when the bar collapses mid-scroll, visibly stretching the hero */
   min-height: 100vh;
   min-height: 100svh;
-  overflow: hidden;
+  /* clip, not hidden: overflow:hidden makes .hero a scroll container, which
+     hijacks the scroll-driven view() timeline below; clip clips identically
+     without creating one */
+  overflow: clip;
   background: var(--paper);
   display: flex;
   flex-direction: column;
@@ -206,7 +216,7 @@ img { display: block; }
   font-size: clamp(19px, 1.75vw, 24px);
   letter-spacing: .4em;
   padding-left: .4em;
-  animation: maskWipeSubtitle .7s ease-out 1.7s both;
+  animation: settleIn .7s cubic-bezier(.2, .85, .3, 1.1) 1.7s both;
 }
 
 .contacts {
@@ -260,9 +270,9 @@ img { display: block; }
   transform: skewX(-14deg);
 }
 .cluster__star { position: absolute; }
-.cluster__star--a { left: 13px; top: 5px;  animation: shimmer 3.6s ease-in-out 2.6s infinite; }
-.cluster__star--b { left: 75px; top: 0;    animation: shimmer 2.9s ease-in-out 3.4s infinite; }
-.cluster__star--c { left: 75px; top: 68px; animation: shimmer 2.5s ease-in-out 3s infinite; }
+.cluster__star--a { left: 13px; top: 5px;  animation: pop .65s cubic-bezier(.2, .85, .3, 1.2) 1.75s both, shimmer 3.6s ease-in-out 2.6s infinite; }
+.cluster__star--b { left: 75px; top: 0;    animation: pop .65s cubic-bezier(.2, .85, .3, 1.2) 1.92s both, shimmer 2.9s ease-in-out 3.4s infinite; }
+.cluster__star--c { left: 75px; top: 68px; animation: pop .65s cubic-bezier(.2, .85, .3, 1.2) 2.06s both, shimmer 2.5s ease-in-out 3s infinite; }
 
 .hero__quote {
   text-align: center;
@@ -271,10 +281,9 @@ img { display: block; }
   font-size: clamp(24px, 2vw, 28px);
   line-height: 1.35;
   color: var(--ink-75);
-  /* own left→right mask wipe, layered over the parent rise--cluster fade:
-     stays fully clipped until the wipe starts regardless of the parent's
-     opacity timing */
-  animation: maskWipeQuote .9s ease-out 2.05s both;
+  /* own overshoot-settle, layered over the parent rise--cluster fade:
+     stays hidden until its own entrance regardless of the parent's timing */
+  animation: settleIn .85s cubic-bezier(.2, .85, .3, 1.1) 2.05s both;
 }
 
 .hero__foot {
@@ -361,6 +370,19 @@ img { display: block; }
   pointer-events: none;
   z-index: 120;
 }
+/* yellow lining on the sweep's horizontal edges — the trim rides the
+   leading edge whichever direction the panel wipes */
+.sweep::before,
+.sweep::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 7px;
+  background: var(--yellow);
+}
+.sweep::before { top: 0; }
+.sweep::after  { bottom: 0; }
 .arriving .sweep,
 .arriving-back .sweep { transform: translateY(0); }
 .sweep--cover-up    { animation: sweepCoverUp .42s var(--ease-curtain) forwards; }
@@ -788,6 +810,24 @@ a.work-card:hover { color: inherit; }
 .post-fin .twinkle:nth-of-type(3) { animation-delay: 1.6s; }
 
 /* ============================================================
+   Scroll-driven depth — progressive enhancement, no-op entirely
+   in browsers without animation-timeline support
+   ============================================================ */
+@supports (animation-timeline: view()) {
+  /* hero content dims once you've scrolled well past it, layered on top
+     of the load-in dolly — dolly only touches transform, heroDim only
+     touches opacity, so the intro still plays untouched on first paint */
+  @keyframes heroDim {
+    to { opacity: .3; }
+  }
+  .hero__stage {
+    animation: dolly 2.4s var(--ease-spring) both, heroDim linear both;
+    animation-timeline: auto, view();
+    animation-range: normal, exit 10% exit 90%;
+  }
+}
+
+/* ============================================================
    Reduced motion: no curtains, no dolly, content immediately
    visible, marquee and shimmer parked
    ============================================================ */
@@ -811,7 +851,7 @@ a.work-card:hover { color: inherit; }
   /* text choreography must never leave content clipped/offset/transparent
      when animations are off */
   .h1-l { opacity: 1; transform: none; }
-  .hero__subtitle, .hero__quote { clip-path: none; }
+  .hero__subtitle, .hero__quote { opacity: 1; transform: none; }
   .contacts > * { opacity: 1; transform: none; }
-  .act__title em { color: var(--ink); }
+  .act__title em { clip-path: none; }
 }
