@@ -90,19 +90,13 @@ img { display: block; }
 }
 @keyframes tick { to { transform: translateX(-50%); } }
 
-/* "Typographic overture" — text choreography keyframes */
-@keyframes h1LetterIn {
+/* "Typographic overture" — per-character overshoot-settle shared by the
+   hero title, subtitle, and quote */
+@keyframes charIn {
   0%   { opacity: 0; transform: translateY(.32em) rotate(3deg); }
   40%  { opacity: 1; }
   75%  { transform: translateY(-.03em) rotate(0deg); }
   100% { transform: translateY(0) rotate(0deg); }
-}
-/* gentler sibling of h1LetterIn (no rotation) for the subtitle and quote */
-@keyframes settleIn {
-  0%   { opacity: 0; transform: translateY(.45em); }
-  60%  { opacity: 1; }
-  75%  { transform: translateY(-.06em); }
-  100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes contactChildIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -204,7 +198,7 @@ img { display: block; }
 .h1-l {
   display: inline-block;
   letter-spacing: .01em;
-  animation: h1LetterIn .85s cubic-bezier(.2, .85, .3, 1.1) both;
+  animation: charIn .85s cubic-bezier(.2, .85, .3, 1.1) both;
 }
 .h1-l:nth-child(1) { animation-delay: 1.25s; }
 .h1-l:nth-child(2) { animation-delay: 1.34s; }
@@ -216,8 +210,16 @@ img { display: block; }
   font-size: clamp(19px, 1.75vw, 24px);
   letter-spacing: .4em;
   padding-left: .4em;
-  animation: settleIn .7s cubic-bezier(.2, .85, .3, 1.1) 1.7s both;
 }
+/* subtitle characters ripple in after the title letters */
+.sub-ch {
+  display: inline-block;
+  animation: charIn .7s cubic-bezier(.2, .85, .3, 1.1) both;
+}
+.sub-ch:nth-child(1) { animation-delay: 1.7s; }
+.sub-ch:nth-child(2) { animation-delay: 1.76s; }
+.sub-ch:nth-child(3) { animation-delay: 1.82s; }
+.sub-ch:nth-child(n+4) { animation-delay: 1.88s; }
 
 .contacts {
   display: flex;
@@ -281,9 +283,25 @@ img { display: block; }
   font-size: clamp(24px, 2vw, 28px);
   line-height: 1.35;
   color: var(--ink-75);
-  /* own overshoot-settle, layered over the parent rise--cluster fade:
-     stays hidden until its own entrance regardless of the parent's timing */
-  animation: settleIn .85s cubic-bezier(.2, .85, .3, 1.1) 2.05s both;
+}
+/* quote characters ripple in (spans emitted by the renderer, --qi = global
+   character index; .q-word keeps Latin words unbreakable while CJK
+   characters wrap freely) */
+.q-word { display: inline-block; white-space: nowrap; }
+.q-ch {
+  display: inline-block;
+  animation: charIn .7s cubic-bezier(.2, .85, .3, 1.1) both;
+  animation-delay: calc(2.05s + var(--qi, 0) * .035s);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .hero__foot {
@@ -842,7 +860,7 @@ a.work-card:hover { color: inherit; }
   .is-revealed,
   .star--badge, .bob, .watermark--finale, .twinkle,
   .ticker__track,
-  .h1-l, .hero__subtitle, .hero__quote,
+  .h1-l, .sub-ch, .q-ch,
   .contacts > *,
   .act__title em, .act__title em::before { animation: none; }
   .work-card, .post-row, .finale .contact { transition: none; }
@@ -850,8 +868,7 @@ a.work-card:hover { color: inherit; }
   .post-row:hover { transform: none; }
   /* text choreography must never leave content clipped/offset/transparent
      when animations are off */
-  .h1-l { opacity: 1; transform: none; }
-  .hero__subtitle, .hero__quote { opacity: 1; transform: none; }
+  .h1-l, .sub-ch, .q-ch { opacity: 1; transform: none; }
   .contacts > * { opacity: 1; transform: none; }
   .act__title em { clip-path: none; }
 }
