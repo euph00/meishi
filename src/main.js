@@ -82,10 +82,17 @@ if (!reduceMotion && 'IntersectionObserver' in window) {
   // replays compress that lead-in out (keeping the stagger). Excluded:
   // the ticker subtree (the marquee is continuously meaningful and is the
   // first thing visible when scrolling back up — it must never vanish),
-  // idle loops (shimmer, bob), the dolly, and the scroll-driven dim.
+  // the bob loop, the dolly, and the scroll-driven dim.
+  //
+  // shimmer IS included even though it's an idle loop: it sits after pop
+  // in the cluster stars' animation list, so left running it overrides
+  // the pop's opacity/scale and the replay degrades to a plain fade.
+  // Rewound, its fill:none delay keeps it silent until the pop finishes —
+  // the same hand-off as first load. (Within the hero, shimmer exists
+  // only on the cluster stars.)
   const hero = document.querySelector('.hero');
   if (hero && hero.getAnimations) {
-    const ENTRANCES = new Set(['rise', 'charIn', 'ruleDraw', 'contactChildIn', 'pop']);
+    const ENTRANCES = new Set(['rise', 'charIn', 'ruleDraw', 'contactChildIn', 'pop', 'shimmer']);
     const INTRO_LEAD_MS = 1250; // earliest entrance delay (the title)
     const originalDelay = new WeakMap();
     let armed = false;
