@@ -71,4 +71,41 @@ if (!reduceMotion && 'IntersectionObserver' in window) {
   document.addEventListener('animationend', (e) => {
     if (e.animationName === 'revealMove') e.target.classList.remove('is-revealed');
   });
+
+  // The hero replays its entrance choreography when it comes back into
+  // view: armed once fully off-screen, replayed at ~30% visible. The
+  // original delays are tuned to follow the curtain intro, so replays
+  // compress that lead-in out (keeping the stagger). Only entrance
+  // animations replay — idle loops (ticker, shimmer, bob), the dolly, and
+  // the scroll-driven dim are left untouched.
+  const hero = document.querySelector('.hero');
+  if (hero && hero.getAnimations) {
+    const ENTRANCES = new Set(['rise', 'charIn', 'ruleDraw', 'contactChildIn', 'pop']);
+    const INTRO_LEAD_MS = 1250; // earliest entrance delay (the title)
+    const originalDelay = new WeakMap();
+    let armed = false;
+    const replayHero = () => {
+      for (const a of hero.getAnimations({ subtree: true })) {
+        if (!ENTRANCES.has(a.animationName)) continue;
+        if (!originalDelay.has(a)) originalDelay.set(a, a.effect.getTiming().delay);
+        a.effect.updateTiming({
+          delay: Math.max(0, (originalDelay.get(a) - INTRO_LEAD_MS) * 0.8),
+        });
+        a.currentTime = 0;
+        a.play();
+      }
+    };
+    new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) armed = true;
+          else if (armed && e.intersectionRatio >= 0.3) {
+            armed = false;
+            replayHero();
+          }
+        });
+      },
+      { threshold: [0, 0.3] }
+    ).observe(hero);
+  }
 }

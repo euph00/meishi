@@ -131,7 +131,11 @@ themselves.
     one character at a time (`charIn` overshoot-settle); contacts
     micro-stagger; hairline rules draw themselves in (`ruleDraw` — timed in
     the hero/post page, reveal-tied elsewhere); the star cluster pops
-    (`pop`) then hands off to its shimmer loops.
+    (`pop`) then hands off to its shimmer loops. The whole hero entrance
+    **replays** when the hero returns to view (armed off-screen, replayed at
+    ~30% visible; `main.js` rewinds the entrance animations via the Web
+    Animations API with the curtain-intro lead compressed out of the delays —
+    idle loops, the dolly, and the scroll dim are never rewound).
   - **Section reveals** — replayable: elements reveal once they clear the
     bottom 15% of the viewport (`revealIO` in `src/main.js`) and re-arm only
     after leaving the screen entirely (`armIO`); `.is-revealed` is dropped on
