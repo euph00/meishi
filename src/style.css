@@ -652,28 +652,6 @@ a.work-card:hover { color: inherit; }
 /* ============================================================
    Curtain call — footer
    ============================================================ */
-/* soft boundary between the notes section and the footer: a strip
-   straddling the edge blurs its backdrop — with flat colors on both sides
-   that resolves to a smooth paper→ink ramp with seamless strip edges.
-   Sized ±60px to stay inside both sections' paddings (nothing readable
-   gets frosted); browsers without backdrop-filter keep the crisp edge. */
-.stage-fade {
-  position: relative;
-  height: 0;
-  z-index: 5;
-  pointer-events: none;
-}
-.stage-fade::before {
-  content: '';
-  position: absolute;
-  top: -60px;
-  left: 0;
-  right: 0;
-  height: 120px;
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-}
-
 .finale {
   position: relative;
   overflow: hidden;
