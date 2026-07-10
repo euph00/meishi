@@ -33,26 +33,36 @@ if (!reduceMotion && 'IntersectionObserver' in window) {
     if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('js-reveal');
   });
 
-  // Replayable reveals: entering past the 12% threshold plays the entrance;
-  // leaving the viewport completely re-arms it (hidden again while
-  // off-screen), so the animation plays each time the element comes back.
-  const io = new IntersectionObserver(
+  // Replayable reveals, two observers with different roots:
+  // - reveal fires only once the element has cleared the bottom 15% of the
+  //   viewport, so entrances play where they can actually be seen instead
+  //   of finishing at the screen's edge (thin rows/rules used to trigger
+  //   the moment their top edge peeked in);
+  // - re-arm uses the full viewport, so an element is only re-hidden once
+  //   it has left the screen entirely (never a visible blink-out).
+  const revealIO = new IntersectionObserver(
     (entries) => {
-      entries.forEach(({ target, isIntersecting, intersectionRatio }) => {
-        if (isIntersecting && intersectionRatio >= 0.12) {
-          if (target.classList.contains('js-reveal')) {
-            target.classList.remove('js-reveal');
-            target.classList.add('is-revealed');
-          }
-        } else if (!isIntersecting) {
-          target.classList.remove('is-revealed');
-          target.classList.add('js-reveal');
+      entries.forEach(({ target, isIntersecting }) => {
+        if (isIntersecting && target.classList.contains('js-reveal')) {
+          target.classList.remove('js-reveal');
+          target.classList.add('is-revealed');
         }
       });
     },
-    { threshold: [0, 0.12] }
+    { rootMargin: '0px 0px -15% 0px' }
   );
-  els.forEach((el) => io.observe(el));
+  const armIO = new IntersectionObserver((entries) => {
+    entries.forEach(({ target, isIntersecting }) => {
+      if (!isIntersecting) {
+        target.classList.remove('is-revealed');
+        target.classList.add('js-reveal');
+      }
+    });
+  });
+  els.forEach((el) => {
+    revealIO.observe(el);
+    armIO.observe(el);
+  });
 
   // A finished-but-filling entrance animation keeps owning `transform`,
   // which would suppress the card/row hover transitions (they'd jump
