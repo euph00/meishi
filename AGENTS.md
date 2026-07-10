@@ -36,7 +36,7 @@ public/* ────────────→ copied verbatim (artwork, favic
 
 | Key | Shape | Notes |
 | --- | --- | --- |
-| `hero.catchline` | array of strings | one string per line of the hero quote |
+| `hero.catchline` | array of strings | one string per line of the hero quote; plain text only — the renderer splits it into per-character animated spans automatically (JP chars wrap freely, Latin words stay whole, closing punctuation never starts a line, and a hidden plain copy is kept for screen readers) |
 | `ticker` | array of strings | marquee items; JP items are auto-detected and get JP font styling + `lang="ja"` |
 | `contacts` | `{label, href, icon}` | `icon`: `x` \| `mail` \| `branch`; rendered in hero **and** footer |
 | `works` | `{title, date, image, alt?, meta?, link?}` | see below |
@@ -101,9 +101,11 @@ themselves.
 ## Pre-deploy checklist
 
 1. `npm run build` passes (content validation happens here).
-2. `npm run preview`, then click through: curtain intro plays; ticker loops
-   with no gap; artwork cards open their links in a new tab; a post row
-   sweeps forward and ← BACK sweeps back to the notes list.
+2. `npm run preview`, then click through: curtain intro plays and the hero
+   text ripples in letter-by-letter; ticker loops with no gap; scrolling
+   draws the section rules and plays the yellow title swipes; artwork cards
+   open their links in a new tab; a post row sweeps forward and ← BACK
+   sweeps back to the notes list.
 3. Narrow the window to ~390px: no horizontal scrolling anywhere.
 4. No image in `public/` over ~400KB.
 
@@ -122,15 +124,39 @@ themselves.
 
 - Tokens (colors, fonts, spacing, easings) are CSS custom properties at the
   top of `src/style.css`.
-- Motion inventory: curtain intro (full-viewport, once per external visit;
-  `?intro=0` skips), stage-sweep page transitions (up = into a post, down =
-  back), replayable scroll reveals (re-arm when an element fully leaves the
-  viewport), ticker marquee (the renderer repeats the group at build time so
-  wide screens never see the loop seam, and scales `--tick-duration` so speed
-  stays at one group per 16s — no runtime JS involved), and idle touches
-  (badge-star spin, SCROLL ↓ bob, footer emblem breathe, yellow star twinkle).
-- **Every animation must stay disabled under `prefers-reduced-motion`** — the
-  media block at the bottom of `style.css`. Anything new goes in there too.
+- Motion inventory:
+  - **Curtain intro** — full-viewport, once per external visit; `?intro=0`
+    skips; curtains self-remove from the DOM after playing.
+  - **Typographic entrances** — the hero title, subtitle, and catchline enter
+    one character at a time (`charIn` overshoot-settle); contacts
+    micro-stagger; hairline rules draw themselves in (`ruleDraw` — timed in
+    the hero/post page, reveal-tied elsewhere); the star cluster pops
+    (`pop`) then hands off to its shimmer loops.
+  - **Section reveals** — replayable: elements reveal once they clear the
+    bottom 15% of the viewport (`revealIO` in `src/main.js`) and re-arm only
+    after leaving the screen entirely (`armIO`); `.is-revealed` is dropped on
+    `revealMove` animationend so hover transitions aren't suppressed —
+    **any reveal-tied animation must finish within .9s** or it gets cut.
+    Section titles run the yellow paint-and-depart swipe (`actEmSwipe` +
+    `actEmReveal`, kept in lockstep) on every reveal.
+  - **Stage-sweep page transitions** — ink panel with yellow lining, up =
+    into a post, down = back; bfcache restores handled via `pageshow`.
+  - **Scroll-driven** — hero dims as you scroll past (`@supports
+    (animation-timeline: view())`, no-op elsewhere). `.hero` must keep
+    `overflow: clip` (NOT `hidden` — that creates a scroll container and
+    freezes the `view()` timeline).
+  - **Ticker marquee** — the renderer repeats the group at build time so wide
+    screens never see the loop seam, scaling `--tick-duration` so speed stays
+    one group per 16s; no runtime JS.
+  - **Idle touches** — badge-star spin, SCROLL ↓ bob, footer emblem breathe,
+    yellow star twinkle.
+- **Every animation must stay disabled under `prefers-reduced-motion`.** Two
+  safe patterns: (a) add the selector to the media block at the bottom of
+  `style.css` with **matching specificity**, or (b) tie the animation to
+  `.is-revealed` — main.js never applies reveal classes under reduced motion,
+  so those selectors simply never match. Keyframes that animate *to* the
+  element's natural state (like `ruleDraw`, `revealFade`) leave content
+  correctly visible wherever they never run.
 - Fonts are Google Fonts with only the used weights loaded (Archivo 400/600,
   Instrument Serif 400+italic, Shippori Mincho 400/500, Zen Kaku Gothic New
   400/500/700). If you use a new weight in CSS, add it to the `<link>` in
@@ -141,9 +167,20 @@ themselves.
 
 ## Gotchas
 
+- **The hero title (`Euph`) and subtitle (`ユーフ`) are hand-split into
+  per-character spans in `index.html`** (`.h1-l` / `.sub-ch`, with
+  `aria-label` on the parent and `aria-hidden` spans). Changing either string
+  means re-splitting the spans and updating the `aria-label`; the subtitle's
+  stagger covers a 4th+ character via `:nth-child(n+4)`, but a much longer
+  string deserves its own delay steps. The catchline needs none of this —
+  its splitting is automatic in the renderer.
 - The old Firestore message-board feature was removed from this repo, but the
   Firebase project may still hold its deployed rules/data — managing that is
   a Firebase-console task, not a repo task.
 - `?intro=0` query param skips the curtain intro (useful for quick checks).
 - The dev server and the built site behave identically for content, but only
   the build writes `posts/*.html` to disk.
+- **Design-experiment branches** (`proto/*`) are kept on purpose — don't
+  delete them. Unmerged material that can be revisited: multi-slat sweep and
+  curtain yellow-trim in `proto/stage-transitions`; followspot, stardust,
+  card hover sparkle, and footer-emblem parallax in `proto/ambient-stage`.

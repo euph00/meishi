@@ -6,7 +6,7 @@ scrolling ticker, an artwork gallery, a blog with generated post pages, and a
 dark Curtain Call footer. Mobile-first, English + Japanese, one bold yellow
 accent, four-pointed stars throughout.
 
-Built as a **static site with [Vite](https://vite.dev)** no framework.
+Built as a **static site with [Vite](https://vite.dev)** — no framework.
 Day-to-day maintenance is documented in [AGENTS.md](AGENTS.md); the original
 design handoff spec is preserved in git history
 (`design_handoff_euph_portfolio/`).
@@ -35,10 +35,10 @@ deployed site needs no JavaScript to show content.
 | --- | --- |
 | [content/site.json](content/site.json) | **all editable content** (works, posts + bodies, ticker, catchline, contacts) |
 | [index.html](index.html) / [post.html](post.html) | page templates |
-| [scripts/render-content.js](scripts/render-content.js) | build-time renderer + content validation |
+| [scripts/render-content.js](scripts/render-content.js) | build-time renderer + content validation (incl. per-character catchline splitting, ticker repetition) |
 | [vite.config.js](vite.config.js) | wires the renderer into dev/build; generates post pages |
 | [src/style.css](src/style.css) | design tokens, layout, all animation keyframes, reduced-motion rules |
-| [src/main.js](src/main.js) | index page: ticker loop, curtain cleanup, replayable scroll reveals |
+| [src/main.js](src/main.js) | index page: curtain cleanup, replayable scroll reveals (reveal/re-arm observers) |
 | [src/nav.js](src/nav.js) | stage-sweep page transitions (index ⇄ posts) |
 | [src/post.js](src/post.js) | post page entry (transitions only) |
 | [public/artwork/](public/artwork/) | web-ready artwork (≤1600px WebP) |
@@ -47,13 +47,20 @@ deployed site needs no JavaScript to show content.
 
 ## Motion & accessibility
 
-Curtain intro on load (skippable via `?intro=0`), camera-dolly and staggered
-rise-ins in the hero, a seamless marquee ticker, scroll reveals that replay
-when elements re-enter the viewport, directional "stage sweep" transitions
-between the index and post pages, and quiet idle motion (spinning badge
-stars, bobbing scroll cue, breathing footer emblem, twinkling accent stars).
-All of it is disabled under `prefers-reduced-motion`, and every page is fully
-readable with JavaScript off.
+Curtain intro on load (skippable via `?intro=0`), then a typographic
+overture: the title, subtitle, and catchline enter one character at a time
+with an overshoot-settle, hairline rules draw themselves in, and the star
+cluster pops before settling into its shimmer. Scrolling brings replayable
+reveals (triggered once elements clear the bottom 15% of the viewport,
+re-armed when they fully leave), section titles unveiled by a yellow
+paint-and-depart swipe, a hero that dims as you scroll past it
+(CSS scroll-driven, progressively enhanced), a seamless marquee ticker,
+directional yellow-lined "stage sweep" transitions between the index and
+post pages (browser back/forward included), and quiet idle motion
+(spinning badge stars, bobbing scroll cue, breathing footer emblem,
+twinkling accent stars). All of it is disabled under
+`prefers-reduced-motion`, and every page is fully readable with
+JavaScript off.
 
 ## Performance
 
@@ -76,4 +83,4 @@ npm run preview   # serve the production build
 
 Pushing to `master` builds and deploys to Firebase Hosting (project
 `meishi-site-f3315`) via GitHub Actions; pull requests get preview-channel
-deploys. See the pre-deploy checklist in [CLAUDE.md](CLAUDE.md).
+deploys. See the pre-deploy checklist in [AGENTS.md](AGENTS.md).
