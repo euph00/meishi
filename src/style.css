@@ -301,6 +301,13 @@ img { display: block; }
 .q-word { display: inline-block; white-space: nowrap; }
 .q-ch {
   display: inline-block;
+  /* the quote is italic but JP glyphs have no true italic — the browser's
+     synthetic oblique slants ink past the advance width, and a composited
+     inline-block span crops at its own box (visible on 翔's right edge).
+     Pad the paint box to cover the overhang; negative margins cancel the
+     layout so spacing is untouched. */
+  padding: 0 .12em;
+  margin: 0 -.12em;
   animation: charIn .7s cubic-bezier(.2, .85, .3, 1.1) both;
   animation-delay: calc(2.05s + var(--qi, 0) * .035s);
 }
