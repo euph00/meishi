@@ -65,10 +65,51 @@ function loadContent() {
   }
 }
 
+// Closing punctuation that must not start a line (kinsoku shori) — glued to
+// the character before it instead of becoming its own breakable token
+const CLOSE_PUNCT = /[、。，．・：；」』）〕】〉》！？!?,.;:]/;
+
+// The catchline enters one character at a time (same overshoot-settle as the
+// hero title), so each character is wrapped in an animated span carrying its
+// stagger index. Tokens keep line-wrapping correct for both scripts: CJK
+// characters stay individually breakable, Latin words never break mid-word,
+// and closing punctuation sticks to the previous token. A visually-hidden
+// plain copy keeps the text readable for assistive tech.
 function renderCatchline(hero) {
   const lines = needArray(hero?.catchline, 'hero.catchline');
   if (lines.length === 0) fail('hero.catchline needs at least one line');
-  return lines.map((l, i) => esc(needString(l, `hero.catchline[${i}]`))).join('<br>');
+  let qi = 0;
+  const renderLine = (line, li) => {
+    needString(line, `hero.catchline[${li}]`);
+    const tokens = []; // arrays of chars, or ' ' word gaps
+    let word = null;
+    for (const ch of Array.from(line)) {
+      if (ch === ' ') {
+        tokens.push(' ');
+        word = null;
+      } else if (CLOSE_PUNCT.test(ch) && Array.isArray(tokens[tokens.length - 1])) {
+        tokens[tokens.length - 1].push(ch);
+        word = null;
+      } else if (JP_RE.test(ch)) {
+        tokens.push([ch]);
+        word = null;
+      } else {
+        if (!word) tokens.push((word = []));
+        word.push(ch);
+      }
+    }
+    return tokens
+      .map((t) =>
+        t === ' '
+          ? ' '
+          : `<span class="q-word">${t
+              .map((ch) => `<span class="q-ch" style="--qi:${qi++}">${esc(ch)}</span>`)
+              .join('')}</span>`
+      )
+      .join('');
+  };
+  const animated = lines.map(renderLine).join('<br>');
+  return `<span aria-hidden="true">${animated}</span><span class="sr-only">${esc(lines.join(' '))}</span>`;
 }
 
 function renderTickerGroup(items) {
