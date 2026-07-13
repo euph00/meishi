@@ -11,15 +11,112 @@
     "コミックマーケットC109 29-31.12.2026"
   ],
   "contacts": [
-    { "label": "Twitter", "href": "https://twitter.com/e_uph00", "icon": "x" },
-    { "label": "Email", "href": "mailto:euph.f1eur@gmail.com", "icon": "mail" },
-    { "label": "GitHub", "href": "https://github.com/euph00", "icon": "branch" }
+    {
+      "label": "Twitter",
+      "href": "https://twitter.com/e_uph00",
+      "icon": "x"
+    },
+    {
+      "label": "Email",
+      "href": "mailto:euph.f1eur@gmail.com",
+      "icon": "mail"
+    },
+    {
+      "label": "GitHub",
+      "href": "https://github.com/euph00",
+      "icon": "branch"
+    }
   ],
   "works": [
-    { "title": "ぷろでゅーさー♡", "date": "07.2026", "image": "/artwork/02072026.webp", "link": "https://x.com/e_uph00/status/2072672129833988556" },
-    { "title": "異議あり！", "date": "07.2026", "image": "/artwork/igiari.webp", "link": "https://x.com/e_uph00/status/2073777430607876430" }
+    {
+      "title": "ぷろでゅーさー♡",
+      "date": "07.2026",
+      "image": "/artwork/02072026.webp",
+      "link": "https://x.com/e_uph00/status/2072672129833988556"
+    },
+    {
+      "title": "異議あり！",
+      "date": "07.2026",
+      "image": "/artwork/igiari.webp",
+      "link": "https://x.com/e_uph00/status/2073777430607876430"
+    }
   ],
   "posts": [
+    {
+      "date": "2026.07.13",
+      "tag": "ESSAY",
+      "title": "The Photocopy Machine at the Temple",
+      "excerpt": "The case against generated images as fan art",
+      "slug": "photocopy-machine-at-the-temple",
+      "body": [
+        "The oldest dated printed book in the world is a Buddhist scripture. The Diamond Sutra was printed from carved woodblocks in the year 868, nearly six centuries before Gutenberg, and this is no accident: Buddhism was never squeamish about reproduction. Printing sutras and giving them away was itself an act of merit. The tradition embraced the copy machine before the copy machine had a name.",
+        "Yet eleven centuries later, people still practice shakyō（写経）: copying the Heart Sutra by hand at a temple desk, grinding the ink, writing character by character to be presented at an altar as an offering. The handwritten page is objectively visually inferior to the printed copy sold at the counter: less legible, less accurate, columns drifting as wrists tire.",
+        "Nobody minds, because the finished page was never the point. Ask a practitioner why they don't simply photocopy the sutra and the question dissolves as you say it aloud. The copying is the practice. A photocopy handed in at a shakyō session would be neither a better offering nor a worse one. It would not be an offering at all.",
+        "The Buddhist tradition separates these two things cleanly. The sutra as an object may be mass-produced; the merit of doing so outweighs the drawbacks. However, the act of shakyō, which is copying as a practice, counts only when a hand pays its cost.",
+        {
+          "h2": "The central claim"
+        },
+        "I want to discuss AI-generated images in fan communities. You have seen them, they have flooded Pixiv and Twitter since late 2022. In this piece, I will strive to argue that presenting an AI-generated image as fan art is morally offensive.",
+        {
+          "h2": "Preliminary"
+        },
+        "My claim is not an indictment against GenAI in general. Both Claude and GPT do incredible work for me daily. It also does not rest on the two most common arguments against AI image generation, both of which I will swiftly reject before we get into the weeds of the argument.",
+        "My argument does not rest on technical shortcomings of the technology. Mangled hands and garbled logos are engineering problems, and engineering problems get solved. The goalposts have moved too many times in two years to anchor a serious discussion: an objection that expires with the next model release was never an objection about art.",
+        "It also does not rest on theft. Fan art itself lives in copyright's gray zone: Comiket is a festival of derivative works that rights holders tolerate rather than license. A practice built on drawing characters we do not own should not, and indeed need not rest its objection on intellectual property law. Whatever courts eventually decide, my argument does not need the theft premise.",
+        "This raises the question: if generated images are neither ugly nor stolen, what is wrong with presenting them as fan art? My answer: a generated image is a photocopy of a sutra at a hand-copying ceremony. Not a lesser offering; it is no offering at all. This is a categorical claim, and I intend to defend it categorically. The thesis in one line: generated images are not bad fan art; they are not fan art at all.",
+        {
+          "h2": "The essence of generative AI"
+        },
+        "At its core, generative AI is an information-expanding tool. It allows you to go from few bits of information (a 60-word prompt) to many bits of information (a fully functional B2B SaaS app, if you so fancy). This is the entire appeal of generative AI: it almost entirely eliminates the tedium or technical skill needed in execution of otherwise highly non-trivial tasks, using a radically underspecified description of the product.",
+        "This is perfect for use-cases such as generating visuals for a slideshow or proofreading an article. When the final product is the end in itself, it matters little to me what means were taken to reach it. I have no quarrel with the presenter who generates visuals for his Q3 earnings report slides using ChatGPT. The sole purpose of those images is to convey information, how they were made is unimportant.",
+        {
+          "h2": "The gift economy"
+        },
+        "Now consider what the fan art community actually does. Thousands of people spend their evenings drawing characters they do not own. Doujinshi are priced to roughly cover printing; few even expect to recover costs. And yet events are packed, year after year. Work is given to strangers for nothing but recognition from someone who loves the same character. Scholars call this a “gift economy”, and the description is precise once we identify the gift. The core of the gift is what the image embodies: hours of a person's finite life, spent voluntarily on something both giver and receiver love. The labor is not the packaging around the gift. The labor is the gift.",
+        {
+          "h2": "The essence of fanart"
+        },
+        "Fan art belongs to what the philosopher C. Thi Nguyen calls “striving practices”: activities defined by voluntarily accepting unnecessary obstacles, because engaging the obstacle is the point. A forklift out-lifts any powerlifter but wins no medal at the Olympics. A car crosses the finish line faster than any marathon runner and yet completes no marathon. The obstacle is what constitutes the activity. Remove it and there is no activity left. This premise will carry weight in what follows, so note what kind of claim it is: not a stipulation about what fan art ought to be, but an empirical claim about how this community behaves — one that can be checked, and that I will check shortly against a case involving no AI at all.",
+        "How do we quantify the gift of labor? Many people put in great effort to gather training data and fine tune their models, and even more hours to prompt-engineer their way to a desired outcome. Are those hours not labor as well?",
+        {
+          "h2": "Art as choices"
+        },
+        "The science fiction writer Ted Chiang made an observation about generative AI. Any piece of writing or drawing, he points out, is the accumulation of thousands of choices: where a line thickens, what gets left out of the frame, how a sleeve folds. When you write a prompt, you make perhaps a few dozen choices. The generator must fill in all the rest, and it fills them in from statistical patterns distilled out of everyone else's past choices. The result looks dense with decisions. But most of those decisions were never made by anyone.",
+        "Notice that effort itself was never the practice's currency. A master's five-minute sketch outweighs a beginner's fifty hours, and this offends no one, because those five minutes are saturated with choices backed by decades of experience. The currency is decision, not sweat. This answers the prompter who says they spent six hours refining an image. Six hours of regenerating buys six hours of selection — accept or reject, one whole image at a time. An illustrator also faces accidents she did not choose; watercolor blooms where it pleases. But she responds stroke by stroke, thousands of times, until nearly every region of the page is downstream of a decision. Nearly every region of the generated page is downstream of the average.",
+        "This currency also settles the commissioner without special pleading. A commission, honestly attributed, routes the credit to the hands that made the choices; nobody mistakes the patron for the painter, and nobody thinks less of Bach's cantatas for having been salaried work. A commission passed off as one's own is condemned as precisely what it is: a claim to choices one did not make.",
+        {
+          "h2": "The crux of the issue"
+        },
+        "Why would presenting such an image be offensive rather than merely unimpressive? The philosopher Denis Dutton answered this in his analysis of forgery. The canvas is beautiful, so what exactly is wrong? Dutton's answer: every artwork is implicitly presented as a human performance, an achievement. The forger's crime is not against the object. It is a misrepresentation of the achievement; of what was done, by whom, against what difficulty. Presenting an image as fan art makes exactly this kind of implicit claim: a person worked through these choices, out of love for this character. A generated image presented that way claims an achievement that never occurred. This is why quality is not the problem. The forged painting is also lovely to behold.",
+        "The community has, in fact, already run the experiment that confirms this diagnosis, and it involves no AI at all. Traced fan art is made by human hands over real hours, yet it is condemned with exactly the fury now directed at generated images. If the practice valued only finished images, tracing would be a shortcut, not a scandal; if it valued only effort, tracing would be honest work. The fury makes sense only on the account given here: the traced work claims choices its presenter did not make. The objection was never about technology, and never about effort. It was always about the provenance of the choices. This is also the promised check on our premise: a community that reacts this way to tracing is a community for which the obstacle is the point.",
+        "The printed sutra was never the enemy. Handing it in as your copying is.",
+        {
+          "h2": "Objections"
+        },
+        "Each of the standard objections, examined closely, draws the line more precisely rather than erasing it.",
+        "The fine-tuner. Someone who curates a dataset and trains their own model pays real costs and makes real expressive choices — but choices about a style, not about any particular image. Training a model is authorship of a space of possible pictures, the way designing a typeface is authorship of a space of possible pages. It is real, skilled, even beautiful work. And typing a letter in that font is still not calligraphy. The model-sharing communities themselves understand this: on the sites where people publish fine-tuned models, the model is the showcased work and the images are demo samples. That is the honest presentation. The dishonest one takes the millionth image, which cost nothing, because the training cost was paid once and amortized into oblivion, and presents it as if the cost lived inside it.",
+        "Vocaloid. This community canonized a synthetic voice, so it is clearly not hostile to technology. The relevant distinction is between tools that transmit your choices and systems that supply choices you never made. An electric guitar amplifies a choice your fingers made. A Vocaloid is an instrument in the same sense: the producer writes the melody, harmony, lyrics, and arrangement, then tunes the voice note by note. When newer synthesizers began auto-generating that expressive tuning, producers largely accepted them, because in a song the voice's micro-expression is periphery; the composition, which remains human, is the center. Systems that generate the entire song meet open contempt from the same community. The line, drawn consistently, is: delegate the periphery freely; delegate the center and you are no longer making a move in the practice. An illustration, unlike a vocal track, is not one element inside a larger authored work. The image is the whole work, so generating it delegates the center by construction.",
+        "Accessibility. The claim that AI finally lets non-artists participate deserves a careful answer, because the desire behind it is real. But the obstacle in a striving practice is not a gate someone installed; it is the substance of the practice, and removing it replaces the activity rather than opening it. The practice has also never required drawing as the price of belonging: people participate through writing, cosplay, MMD, translation, the list goes on. These are honored precisely because the expressive labor still happens somewhere. The desire to have made something is one of the most human desires there is. It is still not the same thing as making, and no practice survives pretending otherwise.",
+        {
+          "h2": "The commons"
+        },
+        "Everything so far concerns a single act of presentation. But there is a second-order harm that operates even if no individual generated image is ever passed off as hand-drawn. We have been at the mercy of it since the autumn of 2022. Economists call it the market for lemons: when genuine articles cannot be cheaply distinguished from counterfeits, everything is discounted and honest sellers suffer.",
+        "Fan art subsists precisely on the trust this corrodes, because the gift is not the image but what the image is evidence of, and the fact that evidence can now be minted for free makes all evidence suspect. This led to the proof-of-work culture that assembled almost overnight after 2022: timelapses, layered files, process screenshots. Presenting these artifacts became the only way to defend yourself against the witch hunt. Communities do not build verification rituals against bad art; they build them against counterfeits. Honest artists have been mobbed on false suspicion. I do not condone the mobbing, but it is painfully clear what the root of the problem is: a community discovering, under stress, what its norms had been all along.",
+        {
+          "h2": "The boundary"
+        },
+        "A categorical claim is only worth making if one can say where it stops. Someone who generates images of a beloved character, labels them honestly, and posts them where only opted-in viewers will see them misrepresents no achievement, conscripts no attention, and counterfeits no gift. They wrong no one, and this argument does not condemn them. What remains defensible is a complaint about the neighborhood rather than any particular neighbor: the wall between that practice and this one is paper. Tags are self-applied, reposts strip provenance, and suspicion leaks across boundaries regardless of individual conduct. That is a collective problem, not an individual offense.",
+        {
+          "h2": "Not a move in this game"
+        },
+        "Baudelaire called photography art's mortal enemy, and history buried him. But photography was vindicated as photography, a new practice with its own skills, not as painting. A photograph still cannot win a painting competition, and no one calls that exclusion luddism. If prompt-craft and model-building mature into a practice with virtues of their own, nothing here opposes it. The claim was never that generated images cannot be art. The claim is that they are not moves in this game. That is the conclusion of this essay, stated positively: fan art is a practice whose gift is labor and whose currency is decision. A generated image, carrying neither, may be many things — a product, a tool, someday perhaps the seed of a practice with masters of its own. What it cannot be is a move in this one.",
+        {
+          "h2": "The ink"
+        },
+        "Why do shakyō practitioners still grind ink, when bottled ink is better? Because the minutes spent grinding are not overhead on the practice; they are part of the practice. The completed work is the receipt, not the gift on its own. Fan art is the same kind of act: beneath the linework, what is handed over is hours of a finite life, spent freely on something both people love. That cannot be generated, not by a diffusion model nor any other algorithm.",
+        "The ink takes minutes to grind. That was always the point."
+      ]
+    },
     {
       "date": "2026.06.18",
       "tag": "LOREM IPSUM",
@@ -29,12 +126,18 @@
       "body": [
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec ullamcorper nulla non metus auctor fringilla, sed odio dui vestibulum id ligula porta felis euismod semper.",
         "Vestibulum id ligula porta felis euismod semper. Maecenas faucibus mollis interdum. Nullam quis risus eget urna mollis ornare vel eu leo. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor, tortor mauris condimentum nibh ut fermentum massa justo sit amet risus.",
-        { "h2": "Curabitur blandit tempus porttitor" },
+        {
+          "h2": "Curabitur blandit tempus porttitor"
+        },
         "Etiam porta sem malesuada magna mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.",
         "Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod.",
-        { "quote": "Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum — donec id elit non mi porta gravida at eget metus." },
+        {
+          "quote": "Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum — donec id elit non mi porta gravida at eget metus."
+        },
         "Sed posuere consectetur est at lobortis. Nulla vitae elit libero, a pharetra augue. Maecenas sed diam eget risus varius blandit sit amet non magna. Nullam id dolor id nibh ultricies vehicula ut id elit. Donec ullamcorper nulla non metus auctor fringilla.",
-        { "h2": "Integer posuere erat a ante" },
+        {
+          "h2": "Integer posuere erat a ante"
+        },
         "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec sed odio dui. Vestibulum id ligula porta felis euismod semper. Curabitur blandit tempus porttitor, sed posuere consectetur est at lobortis.",
         "Nullam quis risus eget urna mollis ornare vel eu leo. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Donec ullamcorper nulla non metus auctor fringilla — fin."
       ]
