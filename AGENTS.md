@@ -63,9 +63,15 @@ public/* ────────────→ copied verbatim (artwork, favic
     stage-sweep transition;
   - `href` → the row is a plain link (external URL or `#notes` placeholder).
 - `body` is an array of blocks:
-  - `"plain string"` → paragraph
+  - `"plain string"` → paragraph; supports inline `**bold**` and `*italic*`
+    (that's the whole markup language — anything else is plain text)
   - `{"h2": "…"}` → subheading (yellow star + serif)
-  - `{"quote": "…"}` → pull quote
+  - `{"quote": "…"}` → bordered blockquote (attributed/inline quotes)
+  - `{"pull": "…"}` → standout centered pull quote with a star flourish —
+    use sparingly at an essay's key beats (a handful per post, not per section)
+- `excerpt` does triple duty: the row excerpt on the index, the italic lede
+  under the post title, and the OG/meta description for link previews —
+  write it as a subtitle, not a summary sentence.
 
 ## Task recipes
 
@@ -82,9 +88,17 @@ public/* ────────────→ copied verbatim (artwork, favic
 ### Add a blog post
 1. Append a `posts` entry with `slug` and `body` (order doesn't matter —
    display is sorted by `date`).
-2. `npm run build`, then check `/posts/<slug>.html` in the preview: title,
-   meta line, body blocks, and the ← BACK link.
-3. Check the row on the index page and its forward/back transition.
+2. `npm run cards` to generate the post's 1200×630 social-preview card at
+   `public/cards/<slug>.png`, and commit the PNG. Requirements (local only —
+   CI never runs this): `npx playwright install chromium` once; on this
+   machine Chromium also needs libasound (`sudo apt install libasound2t64`).
+   If the card is missing the build still succeeds — the renderer just warns
+   and the post's link preview falls back to text-only. Re-run after
+   retitling a post.
+3. `npm run build`, then check `/posts/<slug>.html` in the preview: title,
+   lede, meta line, body blocks, pull quotes, and the ← BACK link. Confirm
+   the `og:` tags in the built file if the post will be shared.
+4. Check the row on the index page and its forward/back transition.
 
 ### Everything else
 Ticker items, catchline lines, contact links: edit the arrays in place.
@@ -188,3 +202,8 @@ themselves.
   delete them. Unmerged material that can be revisited: multi-slat sweep and
   curtain yellow-trim in `proto/stage-transitions`; followspot, stardust,
   card hover sparkle, and footer-emblem parallax in `proto/ambient-stage`.
+- Absolute URLs (OG tags, canonical links, card images) come from
+  `SITE_ORIGIN` in `scripts/render-content.js` — change it in that one place
+  if the site ever moves to a custom domain. The site-wide (homepage) link
+  preview is deliberately not set up yet: it's waiting on the new physical
+  namecard design, which will become the card image.

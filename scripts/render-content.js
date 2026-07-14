@@ -30,6 +30,24 @@ const esc = (s) =>
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
 
+// Minimal inline markup for post prose (applied AFTER escaping, so it can
+// never introduce raw HTML): **bold** → <strong>, *italic* → <em>.
+const rich = (s) =>
+  esc(s)
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+// The same text with the markers stripped — for attribute/plain contexts
+// (meta descriptions, <title>, OG tags, card images)
+const plainText = (s) =>
+  String(s)
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1');
+
+// Canonical origin for absolute URLs in OG/canonical tags and card images.
+// Update here (only here) if the site moves to a custom domain.
+const SITE_ORIGIN = 'https://meishi-site-f3315.web.app';
+
 function fail(msg) {
   throw new Error(`content/site.json: ${msg}`);
 }
@@ -243,15 +261,16 @@ function validatePost(p, i) {
   return { ...p };
 }
 
-// body blocks: plain string → paragraph; {"h2": ...} → subheading;
-// {"quote": ...} → pull quote
+// body blocks: plain string → paragraph (supports **bold** / *italic*);
+// {"h2": ...} → subheading; {"quote": ...} → attributed/inline blockquote;
+// {"pull": ...} → standout centered pull quote with a star flourish
 function renderPostBody(body, where) {
   return body
     .map((block, j) => {
       const at = `${where}[${j}]`;
       if (typeof block === 'string') {
         needString(block, at);
-        return `<p>${esc(block)}</p>`;
+        return `<p>${rich(block)}</p>`;
       }
       if (block && typeof block === 'object') {
         const keys = Object.keys(block);
@@ -259,10 +278,13 @@ function renderPostBody(body, where) {
           return `<h2>${star('yellow', 12)}<span>${esc(needString(block.h2, `${at}.h2`))}</span></h2>`;
         }
         if (keys.length === 1 && keys[0] === 'quote') {
-          return `<blockquote>${esc(needString(block.quote, `${at}.quote`))}</blockquote>`;
+          return `<blockquote>${rich(needString(block.quote, `${at}.quote`))}</blockquote>`;
+        }
+        if (keys.length === 1 && keys[0] === 'pull') {
+          return `<aside class="post-pull">${star('yellow', 13, 'twinkle')}<p>${rich(needString(block.pull, `${at}.pull`))}</p></aside>`;
         }
       }
-      fail(`${at} must be a paragraph string, {"h2": ...}, or {"quote": ...}`);
+      fail(`${at} must be a paragraph string, {"h2": ...}, {"quote": ...}, or {"pull": ...}`);
     })
     .join('\n      ');
 }
@@ -281,10 +303,10 @@ function renderPosts(posts) {
         <span>${esc(p.tag)}</span>
       </div>
       <div class="post-row__head">
-        <span class="post-row__title">${esc(p.title)}</span>
+        <span class="post-row__title">${esc(plainText(p.title))}</span>
         <span class="post-row__read">READ →</span>
       </div>
-      <p class="post-row__excerpt">${esc(p.excerpt)}</p>
+      <p class="post-row__excerpt">${rich(p.excerpt)}</p>
     </a>`
     )
     .join('\n    ');
@@ -303,11 +325,38 @@ export function renderPostPages() {
     if (!p.slug) return;
     if (seen.has(p.slug)) fail(`posts[${i}].slug "${p.slug}" is used more than once`);
     seen.add(p.slug);
+    const url = `${SITE_ORIGIN}/posts/${p.slug}.html`;
+    const hasCard = fs.existsSync(path.join(ROOT, 'public', 'cards', `${p.slug}.png`));
+    if (!hasCard) {
+      console.warn(
+        `[content] no card image at public/cards/${p.slug}.png — ` +
+          `link previews for "${p.slug}" will be text-only (run: npm run cards)`
+      );
+    }
+    const og = [
+      `<link rel="canonical" href="${url}">`,
+      `<meta property="og:type" content="article">`,
+      `<meta property="og:site_name" content="EUPH">`,
+      `<meta property="og:title" content="${esc(plainText(p.title))}">`,
+      `<meta property="og:description" content="${esc(plainText(p.excerpt))}">`,
+      `<meta property="og:url" content="${url}">`,
+      ...(hasCard
+        ? [
+            `<meta property="og:image" content="${SITE_ORIGIN}/cards/${p.slug}.png">`,
+            `<meta property="og:image:width" content="1200">`,
+            `<meta property="og:image:height" content="630">`,
+            `<meta name="twitter:card" content="summary_large_image">`,
+          ]
+        : [`<meta name="twitter:card" content="summary">`]),
+      `<meta name="twitter:site" content="@e_uph00">`,
+    ].join('\n  ');
     const slots = {
-      'post:title': esc(p.title),
+      'post:title': esc(plainText(p.title)),
       'post:date': esc(p.date),
       'post:tag': esc(p.tag),
-      'post:excerpt': esc(p.excerpt),
+      'post:excerpt': esc(plainText(p.excerpt)),
+      'post:lede': rich(p.excerpt),
+      'post:og': og,
       'post:body': renderPostBody(p.body, `posts[${i}].body`),
     };
     let html = template;

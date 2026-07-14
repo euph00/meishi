@@ -802,6 +802,15 @@ a.work-card:hover { color: inherit; }
   font-size: clamp(40px, 7vw, 76px);
   line-height: 1.05;
 }
+/* the excerpt doubles as an italic lede beneath the title */
+.post-hero__lede {
+  margin-top: 14px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(19px, 1.7vw, 24px);
+  line-height: 1.4;
+  color: var(--ink-60);
+}
 
 .post-article { margin-top: clamp(24px, 4vh, 40px); }
 .post-article p {
@@ -828,6 +837,24 @@ a.work-card:hover { color: inherit; }
   font-size: clamp(20px, 1.8vw, 25px);
   line-height: 1.5;
   color: var(--ink-75);
+}
+.post-article strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+/* standout pull quote — a held breath between sections */
+.post-pull {
+  margin: clamp(40px, 6vh, 64px) auto;
+  max-width: 30em;
+  text-align: center;
+}
+.post-pull p {
+  margin: 14px 0 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(23px, 2.2vw, 30px);
+  line-height: 1.45;
+  color: var(--ink-85);
 }
 
 .post-fin {
