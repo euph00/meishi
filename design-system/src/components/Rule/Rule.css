@@ -1,0 +1,22 @@
+.euph-rule {
+  display: block;
+  height: 1px;
+  background: var(--ink);
+}
+.euph-rule--flex { flex: 1; }
+
+.euph-rule--ink { background: var(--ink); }
+.euph-rule--ink-35 { background: var(--ink-35); }
+.euph-rule--paper-25 { background: var(--paper-25); }
+
+.euph-rule--origin-left { transform-origin: left; }
+.euph-rule--origin-center { transform-origin: center; }
+.euph-rule--origin-right { transform-origin: right; }
+
+/* draws to its natural scaleX(1), so it's simply visible if the animation
+   never runs (reduced motion, no JS) */
+.euph-rule--draw { animation: euph-rule-draw .85s var(--ease-spring) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .euph-rule--draw { animation: none; }
+}

@@ -1,0 +1,51 @@
+.euph-display-title {
+  position: relative;
+  margin: clamp(18px, 3vh, 28px) 0 clamp(32px, 5vh, 52px);
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(44px, 6vw, 84px);
+  line-height: 1;
+}
+.euph-display-title em {
+  /* own stacking context so the ::before's z-index:-1 highlight stays behind
+     the word rather than escaping to the root */
+  position: relative;
+  z-index: 0;
+  font-style: italic;
+}
+/* yellow highlight block, hidden (scaleX 0) behind the word at rest */
+.euph-display-title em::before {
+  content: '';
+  position: absolute;
+  inset: -0.05em -0.08em;
+  z-index: -1;
+  background: var(--yellow);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+/* two-pass yellow swipe: paints in from the left (0 → 41.56%), holds, then
+   departs from the right (58.44% → 100%). Origin flips at scaleX(1) so the
+   flip is invisible. */
+@keyframes euph-act-em-swipe {
+  0%     { transform: scaleX(0); transform-origin: left;  animation-timing-function: var(--ease-curtain); }
+  41.56% { transform: scaleX(1); transform-origin: left;  animation-timing-function: linear; }
+  58.44% { transform: scaleX(1); transform-origin: right; animation-timing-function: var(--ease-curtain); }
+  100%   { transform: scaleX(0); transform-origin: right; }
+}
+/* the word uncovers left→right in lockstep with the departing block; negative
+   insets leave room for italic overhang, ascenders, and descenders */
+@keyframes euph-act-em-reveal {
+  0%     { clip-path: inset(-18% 100% -18% -12%); animation-timing-function: linear; }
+  58.44% { clip-path: inset(-18% 100% -18% -12%); animation-timing-function: var(--ease-curtain); }
+  100%   { clip-path: inset(-18% -12% -18% -12%); }
+}
+
+.euph-display-title--swipe em::before { animation: euph-act-em-swipe .77s linear both; }
+.euph-display-title--swipe em { animation: euph-act-em-reveal .77s linear both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .euph-display-title--swipe em::before,
+  .euph-display-title--swipe em { animation: none; }
+  .euph-display-title--swipe em { clip-path: none; }
+}

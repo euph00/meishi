@@ -1,0 +1,14 @@
+.euph-section-header {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: clamp(12px, 2vw, 18px);
+}
+/* the rule sits centred on the baseline-aligned row */
+.euph-section-header__rule { align-self: center; }
+.euph-section-header__jp {
+  font-family: var(--jp-serif);
+  font-weight: 500;
+  font-size: clamp(13px, 1.1vw, 15px);
+  letter-spacing: .3em;
+}

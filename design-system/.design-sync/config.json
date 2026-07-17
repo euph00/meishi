@@ -1,0 +1,9 @@
+{
+  "pkg": "@euph/ui",
+  "globalName": "EuphUI",
+  "projectId": "7116355c-fd5b-44a4-be8e-8c9bf7eb93c2",
+  "shape": "package",
+  "buildCmd": "npm run build",
+  "cssEntry": "dist/euph-ui.css",
+  "readmeHeader": ".design-sync/conventions.md"
+}

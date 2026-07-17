@@ -48,6 +48,32 @@ const plainText = (s) =>
 // Update here (only here) if the site moves to a custom domain.
 const SITE_ORIGIN = 'https://meishi-site-f3315.web.app';
 
+function renderSocialPreview() {
+  const url = `${SITE_ORIGIN}/`;
+  const image = `${SITE_ORIGIN}/social-preview.png`;
+  const description = 'Namecard website for Euph';
+  const imageAlt = 'Euph — HATSUBOSHI GAKUEN producer track';
+  return [
+    `<link rel="canonical" href="${url}">`,
+    `<meta property="og:type" content="website">`,
+    `<meta property="og:site_name" content="EUPH">`,
+    `<meta property="og:title" content="EUPH">`,
+    `<meta property="og:description" content="${description}">`,
+    `<meta property="og:url" content="${url}">`,
+    `<meta property="og:image" content="${image}">`,
+    `<meta property="og:image:type" content="image/png">`,
+    `<meta property="og:image:width" content="1200">`,
+    `<meta property="og:image:height" content="630">`,
+    `<meta property="og:image:alt" content="${imageAlt}">`,
+    `<meta name="twitter:card" content="summary_large_image">`,
+    `<meta name="twitter:site" content="@e_uph00">`,
+    `<meta name="twitter:title" content="EUPH">`,
+    `<meta name="twitter:description" content="${description}">`,
+    `<meta name="twitter:image" content="${image}">`,
+    `<meta name="twitter:image:alt" content="${imageAlt}">`,
+  ].join('\n  ');
+}
+
 function fail(msg) {
   throw new Error(`content/site.json: ${msg}`);
 }
@@ -375,6 +401,7 @@ export function renderPostPages() {
 export function renderContent(html) {
   const c = loadContent();
   const slots = {
+    'content:social-preview': () => renderSocialPreview(),
     'content:catchline': () => renderCatchline(c.hero),
     'content:ticker': () => renderTicker(c.ticker),
     'content:contacts:hero': () => renderContacts(c.contacts, 'hero'),

@@ -1,0 +1,44 @@
+{
+  "name": "@euph/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "EUPH \"Stage\" design system — React components extracted from the portfolio site",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./dist/euph-ui.umd.cjs",
+  "module": "./dist/euph-ui.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/euph-ui.js",
+      "require": "./dist/euph-ui.umd.cjs"
+    },
+    "./styles.css": "./dist/euph-ui.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "gallery": "vite build",
+    "build": "vite build --config vite.lib.config.ts && tsc -p tsconfig.build.json",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3",
+    "vite": "^7.2.2"
+  }
+}

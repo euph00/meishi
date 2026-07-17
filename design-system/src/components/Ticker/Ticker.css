@@ -1,0 +1,41 @@
+.euph-ticker {
+  height: 44px;
+  background: var(--yellow);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.euph-ticker--absolute {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.euph-ticker__track {
+  display: flex;
+  width: max-content;
+  animation: euph-tick var(--euph-tick-duration, 16s) linear infinite;
+}
+.euph-ticker__group {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding-left: 22px;
+  flex: none;
+}
+.euph-ticker__en {
+  font: 600 12px/1 var(--sans);
+  letter-spacing: .14em;
+  white-space: nowrap;
+}
+.euph-ticker__jp {
+  font: 700 12px/1 var(--jp-sans);
+  letter-spacing: .2em;
+  white-space: nowrap;
+}
+
+@keyframes euph-tick { to { transform: translateX(-50%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .euph-ticker__track { animation: none; }
+}

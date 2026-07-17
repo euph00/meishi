@@ -1,0 +1,21 @@
+/* Four-pointed star motif. Fill follows currentColor; the variant sets that
+   color (and, for the badge, an ink outline scaled in viewBox units). */
+.euph-star { fill: currentColor; flex: none; }
+.euph-star--ink { color: var(--ink); }
+.euph-star--yellow { color: var(--yellow); }
+.euph-star--badge {
+  color: var(--yellow);
+  stroke: var(--ink);
+  stroke-width: 4;
+  align-self: center;
+}
+
+@keyframes euph-spin-slow { to { transform: rotate(360deg); } }
+
+.euph-star--spin { animation: euph-spin-slow 24s linear infinite; }
+.euph-star--twinkle { animation: euph-shimmer 3.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .euph-star--spin,
+  .euph-star--twinkle { animation: none; }
+}

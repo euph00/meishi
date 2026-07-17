@@ -1,0 +1,31 @@
+.euph-contact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 400 clamp(16px, 1.4vw, 19px)/1 var(--sans);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  /* ≥44px hit target without changing the visual layout */
+  padding: 14px 4px;
+  margin: -14px -4px;
+}
+.euph-contact__icon { flex: none; }
+
+/* On the paper hero: ink text/icon, global link-hover on hover. */
+.euph-contact--ink { color: var(--ink); }
+.euph-contact--ink:hover { color: var(--link-hover); }
+
+/* In the dark Curtain Call footer: paper text, yellow icon, hover → yellow. */
+.euph-contact--on-ink {
+  gap: 7px;
+  font-size: 14px;
+  color: var(--paper);
+  transition: color .3s;
+}
+.euph-contact--on-ink:hover { color: var(--yellow); }
+.euph-contact--on-ink .euph-contact__icon { color: var(--yellow); }
+
+@media (prefers-reduced-motion: reduce) {
+  .euph-contact--on-ink { transition: none; }
+}

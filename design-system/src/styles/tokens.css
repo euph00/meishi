@@ -1,0 +1,72 @@
+/* ============================================================
+   EUPH — "Stage" theme
+   Design tokens + base layer
+   Extracted verbatim from the portfolio site's src/style.css so
+   the library and the site stay pixel-identical.
+   ============================================================ */
+
+/* Brand webfonts. Imported here (not just via a host <link>) so anything that
+   ships this stylesheet — including designs built in claude.ai/design — renders
+   in the real fonts. JP fallbacks in the stacks cover the pre-load frame. */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Archivo:wght@400;600&family=Shippori+Mincho:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+
+:root {
+  --paper: #ECE7DA;
+  --ink: #17150F;
+  --yellow: #FFD400;
+  --link-hover: #B89600;
+
+  --ink-25: rgba(23, 21, 15, .25);
+  --ink-35: rgba(23, 21, 15, .35);
+  --ink-60: rgba(23, 21, 15, .6);
+  --ink-65: rgba(23, 21, 15, .65);
+  --ink-75: rgba(23, 21, 15, .75);
+  --ink-85: rgba(23, 21, 15, .85);
+  --paper-25: rgba(236, 231, 218, .25);
+  --paper-55: rgba(236, 231, 218, .55);
+  --paper-60: rgba(236, 231, 218, .6);
+
+  --serif: 'Instrument Serif', 'Shippori Mincho', serif;
+  --jp-serif: 'Shippori Mincho', serif;
+  --sans: Archivo, 'Zen Kaku Gothic New', system-ui, sans-serif;
+  --jp-sans: 'Zen Kaku Gothic New', sans-serif;
+  /* JP webfont before generic monospace so JP glyphs inside mono labels
+     render consistently on systems without JP fonts */
+  --mono: ui-monospace, Menlo, 'Zen Kaku Gothic New', monospace;
+
+  --pad-x: clamp(24px, 5vw, 64px);
+  --ease-spring: cubic-bezier(.16, 1, .3, 1);
+  --ease-curtain: cubic-bezier(.76, 0, .24, 1);
+}
+
+/* Base layer — opt-in via importing this file. Components never depend on
+   body styles; these just reproduce the site's page defaults for anyone who
+   wants them. */
+.euph *,
+.euph *::before,
+.euph *::after { box-sizing: border-box; }
+
+.euph {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+}
+.euph ::selection { background: var(--yellow); color: var(--ink); }
+
+/* Shared shimmer used by idle star motion (Star, Ticker separators, etc.) */
+@keyframes euph-shimmer {
+  0%, 100% { transform: scale(1); opacity: 1; filter: brightness(1); }
+  50%      { transform: scale(.975); opacity: .93; filter: brightness(1.07); }
+}
+/* hairline rules draw themselves in to their natural scaleX(1) */
+@keyframes euph-rule-draw { from { transform: scaleX(0); } }
+
+.euph-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
