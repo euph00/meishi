@@ -51,7 +51,7 @@ const SITE_ORIGIN = 'https://meishi-site-f3315.web.app';
 function renderSocialPreview() {
   const url = `${SITE_ORIGIN}/`;
   const image = `${SITE_ORIGIN}/social-preview.png`;
-  const description = 'Namecard website for Euph';
+  const description = 'よろしくお願いします';
   const imageAlt = 'Euph — HATSUBOSHI GAKUEN producer track';
   return [
     `<link rel="canonical" href="${url}">`,
