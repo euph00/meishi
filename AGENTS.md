@@ -37,7 +37,7 @@ public/* ────────────→ copied verbatim (artwork, favic
 | Key | Shape | Notes |
 | --- | --- | --- |
 | `hero.catchline` | array of strings | one string per line of the hero quote; plain text only — the renderer splits it into per-character animated spans automatically (JP chars wrap freely, Latin words stay whole, closing punctuation never starts a line, and a hidden plain copy is kept for screen readers) |
-| `ticker` | array of strings | marquee items; JP items are auto-detected and get JP font styling + `lang="ja"` |
+| `ticker` | array of strings | upcoming-event items only (`参加予定` is fixed UI); JP items are auto-detected and get JP font styling + `lang="ja"` |
 | `contacts` | `{label, href, icon}` | `icon`: `x` \| `mail` \| `branch`; rendered in hero **and** footer |
 | `works` | `{title, date, image, alt?, meta?, link?}` | see below |
 | `posts` | `{date, tag, title, excerpt, slug+body OR href}` | see below |
@@ -50,9 +50,13 @@ public/* ────────────→ copied verbatim (artwork, favic
 - `image`: root-relative path under `public/` (e.g. `/artwork/piece.webp`).
   The frame takes the piece's own aspect ratio — dimensions are read at build
   time, any ratio works.
-- `link` (optional, must be `http(s)://…`): makes the whole card an external
-  link (e.g. the piece's Twitter post), marked with ↗.
+- `link` (optional, must be `http(s)://…`): adds an `Original post ↗` action
+  beneath the expanded piece (e.g. the piece's Twitter post).
 - `alt` defaults to `title`.
+- The newest piece starts expanded. Every viewport uses the same independent
+  program accordion (zero, one, or several pieces may be open), with reversible
+  height transitions when JS is available. Full art is never cropped; only the
+  small program previews use `object-fit: cover`.
 
 ### posts
 
@@ -116,10 +120,11 @@ themselves.
 
 1. `npm run build` passes (content validation happens here).
 2. `npm run preview`, then click through: curtain intro plays and the hero
-   text ripples in letter-by-letter; ticker loops with no gap; scrolling
-   draws the section rules and plays the yellow title swipes; artwork cards
-   open their links in a new tab; a post row sweeps forward and ← BACK
-   sweeps back to the notes list.
+   text ripples in letter-by-letter; the ticker loops continuously at every
+   ordinary viewport size; scrolling draws the section rules and plays the
+   yellow title swipes; artwork accordion rows expand independently and
+   `Original post ↗` opens in a new tab; a post row sweeps forward
+   and ← BACK sweeps back to the notes list.
 3. Narrow the window to ~390px: no horizontal scrolling anywhere.
 4. No image in `public/` over ~400KB.
 
@@ -155,19 +160,23 @@ themselves.
     after leaving the screen entirely (`armIO`); `.is-revealed` is dropped on
     `revealMove` animationend so hover transitions aren't suppressed —
     **any reveal-tied animation must finish within .9s** or it gets cut.
-    Section titles run the yellow paint-and-depart swipe (`actEmSwipe` +
-    `actEmReveal`, kept in lockstep) on every reveal.
+    Section titles run the yellow paint-and-depart swipe (`actEmSwipe`) on
+    every reveal; the italic text itself stays visible throughout.
   - **Stage-sweep page transitions** — ink panel with yellow lining, up =
     into a post, down = back; bfcache restores handled via `pageshow`.
   - **Scroll-driven** — hero dims as you scroll past (`@supports
     (animation-timeline: view())`, no-op elsewhere). `.hero` must keep
     `overflow: clip` (NOT `hidden` — that creates a scroll container and
     freezes the `view()` timeline).
-  - **Ticker marquee** — the renderer repeats the group at build time so wide
-    screens never see the loop seam, scaling `--tick-duration` so speed stays
-    one group per 16s; no runtime JS.
-  - **Idle touches** — badge-star spin, SCROLL ↓ bob, footer emblem breathe,
-    yellow star twinkle.
+  - **Ticker rail / marquee** — `参加予定` stays fixed. The repeated seamless
+    marquee runs at every ordinary viewport size, scaled to one source group
+    per 16s. Reduced-motion mode falls back to a manually swipeable static snap
+    rail.
+  - **Work program** — native independent `<details>` allow zero, one, or
+    several open pieces at every viewport size. JS adds reversible height
+    transitions; without JS the native accordion remains fully usable.
+  - **Idle touches** — badge-star spin, footer emblem breathe, yellow star
+    twinkle.
 - **Every animation must stay disabled under `prefers-reduced-motion`.** Two
   safe patterns: (a) add the selector to the media block at the bottom of
   `style.css` with **matching specificity**, or (b) tie the animation to

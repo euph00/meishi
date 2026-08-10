@@ -98,8 +98,15 @@
     </div>
 
     <div class="hero__foot rise rise--foot">
-      <span>HATSUBOSHI GAKUEN</span>
-      <a href="#work">SCROLL <span class="bob">↓</span></a>
+      <span class="hero__credit">HATSUBOSHI GAKUEN</span>
+      <details class="hero__menu">
+        <summary>Index <span class="hero__menu-mark" aria-hidden="true">+</span></summary>
+        <nav class="hero__nav" aria-label="On this page">
+          <a href="#work"><span class="hero__nav-index" aria-hidden="true">01</span> Work</a>
+          <a href="#notes"><span class="hero__nav-index" aria-hidden="true">02</span> Notes</a>
+          <a href="#contact"><span class="hero__nav-index" aria-hidden="true">03</span> Contact</a>
+        </nav>
+      </details>
     </div>
 
   </div>
@@ -123,9 +130,7 @@
   </div>
   <h2 class="act__title" data-reveal>Recent <em>Work</em></h2>
 
-  <div class="work-grid">
-    <!-- content:works -->
-  </div>
+  <!-- content:works -->
 </section>
 
 <!-- ==================== ACT II · NOTES ==================== -->
@@ -147,7 +152,7 @@
 </main>
 
 <!-- ==================== CURTAIN CALL ==================== -->
-<footer class="finale">
+<footer class="finale" id="contact">
   <img class="watermark watermark--finale" src="/logo-yellow.svg" alt="" loading="lazy" decoding="async">
 
   <div class="finale__center" data-reveal>

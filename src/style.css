@@ -115,17 +115,6 @@ img { display: block; }
   58.44% { transform: scaleX(1); transform-origin: right; animation-timing-function: var(--ease-curtain); }
   100%   { transform: scaleX(0); transform-origin: right; }
 }
-/* em text unveils in lockstep with the departing yellow block: the block
-   shrinks toward its right edge (origin right — its left edge sweeps
-   rightward) while the text's clip-path opens left→right over the same
-   keyframe span with the same easing, so the word appears exactly along
-   the uncover line instead of blinking in. Negative top/bottom/left
-   insets leave room for italic overhang, ascenders, and descenders. */
-@keyframes actEmReveal {
-  0%     { clip-path: inset(-18% 100% -18% -12%); animation-timing-function: linear; }
-  58.44% { clip-path: inset(-18% 100% -18% -12%); animation-timing-function: var(--ease-curtain); }
-  100%   { clip-path: inset(-18% -12% -18% -12%); }
-}
 /* star cluster punctuation: each star pops with a rotate-in overshoot,
    then hands off to its shimmer loop (shimmer delays all start later) */
 @keyframes pop {
@@ -327,6 +316,7 @@ img { display: block; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 16px 0 0;
   font: 500 clamp(10px, .9vw, 11px)/1 var(--mono);
   letter-spacing: .22em;
@@ -346,10 +336,77 @@ img { display: block; }
 .hero__foot a {
   color: inherit;
   text-decoration: none;
-  padding: 14px 8px;
-  margin: -14px -8px;
 }
 .hero__foot a:hover { color: inherit; }
+.hero__credit { white-space: nowrap; }
+.hero__menu { position: relative; }
+.hero__menu summary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: -14px 0;
+  cursor: pointer;
+  list-style: none;
+  letter-spacing: .16em;
+}
+.hero__menu summary::-webkit-details-marker { display: none; }
+.hero__menu-mark {
+  display: inline-block;
+  font-size: 14px;
+  transition: transform .25s var(--ease-spring);
+}
+.hero__menu[open] .hero__menu-mark { transform: rotate(45deg); }
+.hero__nav {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 14px);
+  z-index: 5;
+  min-width: 168px;
+  padding: 6px 14px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 6px 6px 0 var(--yellow);
+}
+.hero__nav a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  letter-spacing: .16em;
+  box-shadow: inset 0 0 0 var(--yellow);
+  transition: box-shadow .25s ease;
+}
+.hero__nav a:hover,
+.hero__nav a:focus-visible { box-shadow: inset 0 -.5em 0 var(--yellow); }
+.hero__nav-index {
+  width: 24px;
+  flex: none;
+  color: var(--ink-75);
+  letter-spacing: .04em;
+}
+
+@media (min-width: 700px) {
+  .hero__menu summary { display: none; }
+  .hero__menu:not([open]) > .hero__nav,
+  .hero__nav {
+    position: static;
+    display: flex;
+    justify-content: flex-end;
+    gap: clamp(22px, 3vw, 42px);
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .hero__nav a {
+    display: inline-flex;
+    justify-content: flex-start;
+  }
+  .hero__nav-index { width: auto; }
+}
 
 /* yellow ticker */
 .ticker {
@@ -357,25 +414,60 @@ img { display: block; }
   left: 0;
   right: 0;
   bottom: 0;
-  height: 44px;
+  height: 50px;
   background: var(--yellow);
   overflow: hidden;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.ticker__label {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
+  padding: 0 14px;
+  background: var(--ink);
+  color: var(--yellow);
+  font: 500 11px/1 var(--jp-sans);
+  letter-spacing: .18em;
+  white-space: nowrap;
+}
+.ticker__viewport {
+  min-width: 0;
+  overflow: hidden;
+  scrollbar-width: none;
+  touch-action: pan-y;
+}
+.ticker__viewport::-webkit-scrollbar { display: none; }
+.ticker__viewport:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -3px;
 }
 .ticker__track {
   display: flex;
+  align-items: center;
+  height: 100%;
   width: max-content;
-  /* --tick-duration scales with the group count (see main.js) so the
-     scroll speed stays at one group per 16s */
+  /* Duration is emitted by the renderer so speed remains one source group
+     per 16 seconds as the event list grows. */
   animation: tick var(--tick-duration, 16s) linear infinite;
 }
 .ticker__group {
+  height: 100%;
+  margin: 0;
+  padding: 0 0 0 18px;
+  list-style: none;
   display: flex;
   align-items: center;
-  gap: 22px;
-  padding-left: 22px;
+  gap: 18px;
   flex: none;
+}
+.ticker__group[aria-hidden="true"] { display: flex; }
+.ticker__item {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 .ticker__en {
   font: 600 12px/1 var(--sans);
@@ -386,6 +478,9 @@ img { display: block; }
   font: 700 12px/1 var(--jp-sans);
   letter-spacing: .2em;
   white-space: nowrap;
+}
+@media (min-width: 700px) {
+  .ticker { height: 44px; }
 }
 
 /* ink curtains — fixed to the viewport so the intro plays full-screen
@@ -532,38 +627,100 @@ img { display: block; }
   transform-origin: left;
 }
 /* replays every time the h2 re-enters the viewport: main.js removes
-   and re-adds .is-revealed, which restarts both animations below */
+   and re-adds .is-revealed, which restarts the swipe below */
 .act__title.is-revealed em::before {
   animation: actEmSwipe .77s linear both;
 }
-.act__title.is-revealed em {
-  animation: actEmTextIn .77s linear both;
-}
 
 /* ============================================================
-   Act I — work grid
+   Act I — work program accordion
    ============================================================ */
-.work-grid {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
-  gap: clamp(24px, 3.4vw, 44px) clamp(20px, 3vw, 36px);
-  align-items: start;
+.work-grid { position: relative; }
+.work-accordion {
+  min-width: 0;
+  max-width: 100%;
+  border-top: 1px solid var(--ink-35);
 }
-
 .work-card {
+  min-width: 0;
+  max-width: 100%;
+  border-bottom: 1px solid var(--ink-35);
+}
+.work-card__summary {
+  width: 100%;
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  cursor: pointer;
+  list-style: none;
+  transition: background-color .25s ease, padding .35s var(--ease-spring);
+}
+.work-card__summary::-webkit-details-marker { display: none; }
+.work-card__summary:hover { background: rgba(255, 212, 0, .12); }
+.work-card__summary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.work-card[open]:not(.is-collapsing) > .work-card__summary {
+  padding-left: 10px;
+  background: rgba(255, 212, 0, .12);
+}
+.work-card__thumb {
+  width: 64px;
+  height: 52px;
+  overflow: hidden;
+  outline: 1px solid var(--ink-25);
+  outline-offset: -1px;
+  background: rgba(23, 21, 15, .03);
+}
+.work-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.work-card__summary-copy {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 7px;
 }
-a.work-card {
-  color: inherit;
-  text-decoration: none;
+.work-card__eyebrow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .16em;
+  color: var(--ink-65);
 }
-a.work-card:hover { color: inherit; }
-.work-card__fig { display: contents; }
-/* the frame hugs each piece at its native aspect ratio (width/height
-   attributes reserve the space pre-load; faint wash shows while loading) */
+.work-card__title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(18px, 5vw, 22px);
+  line-height: 1.15;
+}
+.work-card__toggle {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  overflow: clip;
+}
+.work-card__toggle::before {
+  content: '+';
+  display: block;
+  font: 400 22px/1 var(--serif);
+  transition: transform .35s var(--ease-spring);
+}
+.work-card[open]:not(.is-collapsing) .work-card__toggle::before { transform: rotate(45deg); }
+.work-card__content {
+  padding: 0;
+}
+.work-card__content-inner { padding: 5px 0 26px; }
+.work-card__fig { width: 100%; }
+/* Full artwork is never cropped; dimensions reserve the space before load. */
 .work-card__frame {
   position: relative;
   width: 100%;
@@ -576,22 +733,65 @@ a.work-card:hover { color: inherit; }
   height: auto;
 }
 .work-card__caption {
+  min-width: 0;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
+  padding-top: 12px;
 }
-.work-card__title {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: clamp(19px, 1.6vw, 23px);
-  line-height: 1.2;
+.work-card__caption .work-card__title { overflow-wrap: anywhere; }
+.work-card__caption-copy {
+  min-width: min(100%, 220px);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 .work-card__meta {
   font: 500 10px/1.4 var(--mono);
   letter-spacing: .16em;
-  color: var(--ink-60);
+  color: var(--ink-65);
   white-space: nowrap;
+}
+.work-card__source {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  margin: -10px 0;
+  color: inherit;
+  font: 500 10px/1 var(--mono);
+  letter-spacing: .14em;
+  text-underline-offset: 4px;
+}
+
+/* On tablets, keep an expanded portrait from becoming taller than the
+   viewport while preserving its complete native aspect ratio. Phones still
+   use the full available width; the cap only becomes relevant as width grows. */
+@media (min-width: 600px) {
+  .work-card__content .work-card__fig {
+    width: var(--work-width);
+    margin: 0 auto;
+  }
+  .work-card__content .work-card__frame img {
+    width: 100%;
+  }
+}
+
+/* Wide screens keep the same accordion interaction, with slightly larger
+   program thumbnails. Expanded art remains centered at its own aspect ratio. */
+@media (min-width: 900px) {
+  .work-card__summary {
+    grid-template-columns: 72px minmax(0, 1fr) 24px;
+    min-height: 82px;
+  }
+  .work-card__thumb {
+    width: 72px;
+    height: 58px;
+  }
+  .work-card__title {
+    font-size: clamp(18px, 1.6vw, 22px);
+  }
 }
 
 /* ============================================================
@@ -906,8 +1106,6 @@ a.work-card:hover { color: inherit; }
 @keyframes revealFade { from { opacity: 0; } }
 @keyframes revealMove { from { transform: translateY(26px); } }
 
-.work-card { transition: transform .5s var(--ease-spring); }
-.work-card:hover { transform: translateY(-5px); }
 .post-row { transition: transform .5s var(--ease-spring); }
 .post-row:hover { transform: translateX(8px); }
 
@@ -918,16 +1116,6 @@ a.work-card:hover { color: inherit; }
    original design prototype) */
 @keyframes spinSlow { to { transform: rotate(360deg); } }
 .star--badge { animation: spinSlow 24s linear infinite; }
-
-/* SCROLL ↓ arrow bobs as a cue (starts after the intro settles) */
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(4px); }
-}
-.bob {
-  display: inline-block;
-  animation: bob 1.8s ease-in-out 3s infinite;
-}
 
 /* footer emblem breathes */
 @keyframes breathe {
@@ -968,25 +1156,34 @@ a.work-card:hover { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .curtain, .sweep { display: none; }
+  .ticker { grid-template-columns: auto minmax(0, 1fr); }
   .hero__stage,
   .rise--title, .rise--rules, .rise--contacts,
   .rise--cluster, .rise--foot, .rise--ticker,
   .cluster__star,
   .post-rise,
   .is-revealed,
-  .star--badge, .bob, .watermark--finale, .twinkle,
+  .star--badge, .watermark--finale, .twinkle,
   .ticker__track,
   .h1-l, .sub-ch, .q-ch,
   .contacts > *,
   .hero__rule, .hero__foot::before,
   .post-top .act__rule, .post-hero::after, .post-bar::before,
-  .act__title em, .act__title em::before { animation: none; }
-  .work-card, .post-row, .finale .contact { transition: none; }
-  .work-card:hover { transform: none; }
+  .act__title em::before,
+  .work-card__content { animation: none; }
+  .post-row, .finale .contact, .hero__nav a,
+  .hero__menu-mark, .work-card__summary, .work-card__toggle::before { transition: none; }
   .post-row:hover { transform: none; }
+  .ticker__viewport {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    touch-action: pan-x;
+  }
+  .ticker__item { scroll-snap-align: start; }
+  .ticker__group[aria-hidden="true"] { display: none; }
   /* text choreography must never leave content clipped/offset/transparent
      when animations are off */
   .h1-l, .sub-ch, .q-ch { opacity: 1; transform: none; }
   .contacts > * { opacity: 1; transform: none; }
-  .act__title em { clip-path: none; }
 }

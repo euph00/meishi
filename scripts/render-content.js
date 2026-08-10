@@ -164,7 +164,7 @@ function renderTickerGroup(items) {
       const span = jp
         ? `<span class="ticker__jp" lang="ja">${esc(text)}</span>`
         : `<span class="ticker__en">${esc(text)}</span>`;
-      return `${span}\n        ${star('ink', 12)}`;
+      return `<li class="ticker__item">${span}\n          ${star('ink', 12)}</li>`;
     })
     .join('\n        ');
 }
@@ -186,11 +186,16 @@ function renderTicker(items) {
   // two halves identical for the -50% seam
   const groups = Math.min(48, Math.max(12, 2 * Math.ceil(4000 / Math.max(estWidth, 80))));
   const duration = 8 * groups; // groups/2 × 16s
-  const copies = [`<div class="ticker__group">\n        ${group}\n      </div>`];
+  const copies = [`<ul class="ticker__group">\n        ${group}\n      </ul>`];
   for (let i = 1; i < groups; i++) {
-    copies.push(`<div class="ticker__group" aria-hidden="true">\n        ${group}\n      </div>`);
+    copies.push(`<ul class="ticker__group" aria-hidden="true">\n        ${group}\n      </ul>`);
   }
-  return `<div class="ticker__track" style="--tick-duration: ${duration}s">\n      ${copies.join('\n      ')}\n    </div>`;
+  return `<span class="ticker__label" lang="ja">参加予定</span>
+    <div class="ticker__viewport" tabindex="0" aria-label="Upcoming events">
+      <div class="ticker__track" style="--tick-duration: ${duration}s">
+        ${copies.join('\n        ')}
+      </div>
+    </div>`;
 }
 
 function renderContacts(contacts, variant) {
@@ -216,8 +221,7 @@ function renderContacts(contacts, variant) {
 
 function renderWorks(works) {
   needArray(works, 'works');
-  return works
-    .map((w, i) => {
+  const checked = works.map((w, i) => {
       needString(w?.title, `works[${i}].title`);
       needString(String(w?.date ?? w?.year ?? ''), `works[${i}].date`);
       needString(w?.image, `works[${i}].image`);
@@ -233,8 +237,8 @@ function renderWorks(works) {
       } catch {
         fail(`works[${i}].image — could not read dimensions of public${w.image}`);
       }
-      // optional "link" turns the whole card into an external link (e.g. the
-      // piece's Twitter post); flagged with ↗ in the meta label
+      // optional "link" supplies the expanded piece's external source action
+      // (e.g. its original Twitter/X post)
       if (w.link !== undefined) {
         needString(w.link, `works[${i}].link`);
         if (!/^https?:\/\//.test(w.link)) {
@@ -245,19 +249,50 @@ function renderWorks(works) {
       // set "meta" to override the whole "NN — MM.YYYY" label
       const meta = w.meta ?? `${String(i + 1).padStart(2, '0')} — ${w.date ?? w.year}`;
       const alt = w.alt ?? w.title;
-      const inner = `
-      <div class="work-card__frame"><img src="${esc(w.image)}" alt="${esc(alt)}" width="${dim.width}" height="${dim.height}" loading="lazy" decoding="async"></div>
+      return { ...w, i, dim, meta, alt };
+    });
+
+  const figure = (w) => {
+    const titleLang = JP_RE.test(w.title) ? ' lang="ja"' : '';
+    const loading = w.i === 0 ? 'eager' : 'lazy';
+    const priority = w.i === 0 ? ' fetchpriority="high"' : '';
+    const ratio = w.dim.width / w.dim.height;
+    const workWidth = `min(100%, ${w.dim.width}px, ${(72 * ratio).toFixed(4)}svh, ${(760 * ratio).toFixed(2)}px)`;
+    return `<figure class="work-card__fig" style="--work-width:${workWidth}">
+      <div class="work-card__frame"><img src="${esc(w.image)}" alt="${esc(w.alt)}" width="${w.dim.width}" height="${w.dim.height}" loading="${loading}"${priority} decoding="async"></div>
       <figcaption class="work-card__caption">
-        <span class="work-card__title">${esc(w.title)}</span>
-        <span class="work-card__meta">${esc(meta)}${w.link ? ' ↗' : ''}</span>
-      </figcaption>`;
-      return w.link
-        ? `<a class="work-card" href="${esc(w.link)}" target="_blank" rel="noopener" data-reveal><figure class="work-card__fig">${inner}
-    </figure></a>`
-        : `<figure class="work-card" data-reveal>${inner}
+        <span class="work-card__caption-copy">
+          <span class="work-card__title"${titleLang}>${esc(w.title)}</span>
+          <span class="work-card__meta">${esc(w.meta)}</span>
+        </span>
+        ${w.link ? `<a class="work-card__source" href="${esc(w.link)}" target="_blank" rel="noopener">Original post ↗</a>` : ''}
+      </figcaption>
     </figure>`;
+  };
+
+  const cards = checked
+    .map((w) => {
+      const number = String(w.i + 1).padStart(2, '0');
+      const titleLang = JP_RE.test(w.title) ? ' lang="ja"' : '';
+      return `<details class="work-card"${w.i === 0 ? ' open' : ''}>
+      <summary class="work-card__summary" data-reveal>
+        <span class="work-card__thumb" aria-hidden="true"><img src="${esc(w.image)}" alt="" width="${w.dim.width}" height="${w.dim.height}" loading="lazy" decoding="async"></span>
+        <span class="work-card__summary-copy">
+          <span class="work-card__eyebrow"><span>${number}</span><span>${esc(w.date ?? w.year)}</span></span>
+          <span class="work-card__title"${titleLang}>${esc(w.title)}</span>
+        </span>
+        <span class="work-card__toggle" aria-hidden="true"></span>
+      </summary>
+      <div class="work-card__content"><div class="work-card__content-inner">${figure(w)}</div></div>
+    </details>`;
     })
     .join('\n    ');
+
+  return `<div class="work-grid">
+    <div class="work-accordion">
+      ${cards}
+    </div>
+  </div>`;
 }
 
 // A post links out via an explicit `href`, or gets a generated page at
