@@ -40,7 +40,7 @@ size, or over 4KB. CI validates these files but never generates them.
 | --- | --- |
 | [content/site.json](content/site.json) | **all editable content** (works, posts + bodies, ticker, catchline, contacts) |
 | [index.html](index.html) / [post.html](post.html) | page templates |
-| [scripts/render-content.js](scripts/render-content.js) | build-time renderer + content validation (incl. per-character catchline splitting, the two-copy ticker loop, per-post OG/Twitter meta) |
+| [scripts/render-content.js](scripts/render-content.js) | build-time renderer + content validation (incl. per-character catchline splitting, ticker repetition, per-post OG/Twitter meta) |
 | [scripts/artwork-washes.mjs](scripts/artwork-washes.mjs) | shared wash filename, dimension, and byte-limit contract |
 | [scripts/generate-cards.mjs](scripts/generate-cards.mjs) | renders 1200×630 social-preview cards per post (`npm run cards`, local-only) |
 | [scripts/generate-washes.mjs](scripts/generate-washes.mjs) | renders tiny pre-blurred accordion color fields (`npm run washes`, local-only) |

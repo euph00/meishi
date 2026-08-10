@@ -175,22 +175,31 @@ function renderTickerGroup(items) {
     .join('\n        ');
 }
 
-// Two identical groups make the -50% marquee loop seamless. CSS gives each
-// group a viewport-width floor, so two copies always cover the screen without
-// building an oversized compositor layer or measuring text at runtime.
+// The -50% marquee loop is only seamless while half the track is at least as
+// wide as the screen, so the group is repeated at build time (no runtime JS —
+// a late-loading script would pop content in after first paint). The copy
+// count adapts to a conservative width estimate of the content; duration
+// scales with the count so the speed stays at one group per 16s.
 function renderTicker(items) {
   needArray(items, 'ticker');
   if (items.length === 0) fail('ticker needs at least one item');
   const group = renderTickerGroup(items);
+  const estWidth = items.reduce((w, text) => {
+    const cjk = (String(text).match(/[぀-ヿ㐀-鿿]/g) || []).length;
+    return w + cjk * 16 + (String(text).length - cjk) * 9 + 56; // text + star + gaps
+  }, 0);
+  // half the track must clear ~4000px (4K fullscreen); even count keeps the
+  // two halves identical for the -50% seam
+  const groups = Math.min(48, Math.max(12, 2 * Math.ceil(4000 / Math.max(estWidth, 80))));
+  const duration = 8 * groups; // groups/2 × 16s
+  const copies = [`<ul class="ticker__group">\n        ${group}\n      </ul>`];
+  for (let i = 1; i < groups; i++) {
+    copies.push(`<ul class="ticker__group" aria-hidden="true">\n        ${group}\n      </ul>`);
+  }
   return `<span class="ticker__label" lang="ja">参加予定</span>
     <div class="ticker__viewport" tabindex="0" aria-label="Upcoming events">
-      <div class="ticker__track">
-        <ul class="ticker__group">
-          ${group}
-        </ul>
-        <ul class="ticker__group" aria-hidden="true">
-          ${group}
-        </ul>
+      <div class="ticker__track" style="--tick-duration: ${duration}s">
+        ${copies.join('\n        ')}
       </div>
     </div>`;
 }

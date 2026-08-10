@@ -200,13 +200,9 @@ orphans automatically.
     (animation-timeline: view())`, no-op elsewhere). `.hero` must keep
     `overflow: clip` (NOT `hidden` — that creates a scroll container and
     freezes the `view()` timeline).
-  - **Ticker rail / marquee** — `参加予定` stays fixed. The renderer emits
-    exactly two identical groups; CSS floors each group at the yellow
-    viewport's width and loops the track by `translateX(-50%)`. Keep it to two
-    groups: multiplying copies creates an oversized composited layer that can
-    render blank tiles during a production cold-font swap. The base loop is
-    16s, with CSS-only duration steps on ultrawide screens to preserve its
-    pace. Reduced-motion mode falls back to a manually swipeable static snap
+  - **Ticker rail / marquee** — `参加予定` stays fixed. The repeated seamless
+    marquee runs at every ordinary viewport size, scaled to one source group
+    per 16s. Reduced-motion mode falls back to a manually swipeable static snap
     rail.
   - **Work program** — native independent `<details>` allow zero, one, or
     several open pieces at every viewport size. JS adds reversible height
