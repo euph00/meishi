@@ -5,10 +5,11 @@ theatrical "Stage" language — paper / ink / one bold yellow, the four-pointed
 star motif, bilingual EN + JP, editorial serif display type — packaged as
 reusable, typed components you can drop into any React app.
 
-The CSS is lifted **verbatim** from the site's `src/style.css` (tokens, spacing,
-animations, reduced-motion rules), so the library and the site stay
-pixel-identical. Component boundaries and prop shapes follow the original
-Claude Design handoff that the site itself was built from.
+The package was extracted from the site's original CSS and preserves its core
+tokens, typography, motifs, and motion idiom. It is maintained independently;
+page-level portfolio compositions can evolve without making this package
+pixel-identical to production. Component boundaries and prop shapes follow the
+original Claude Design handoff that the site itself was built from.
 
 ## Install & use
 
@@ -82,12 +83,22 @@ function Gallery() {
 | `Contact` | Icon + underlined link | `icon`, `label`, `href`, `tone` (`ink`/`on-ink`) |
 | `SectionHeader` | Act eyebrow: star + label + rule + JP | `label`, `jp`, `draw` |
 | `DisplayTitle` | Big serif heading w/ yellow `<em>` swipe | `children` (mark word with `<em>`), `as`, `swipe` |
-| `WorkCard` | Framed artwork + caption | `title`, `meta`, `image`, `href`, `external` |
+| `WorkCard` | Standalone framed artwork + caption | `title`, `meta`, `image`, `href`, `external` |
 | `PostRow` | Blog index row | `date`, `tag`, `title`, `excerpt`, `href`, `draw` |
 | `Ticker` | Yellow marquee, JP auto-styled | `items`, `secondsPerGroup`, `groupsPerHalf`, `absolute` |
 
 Full typed signatures are in each component's `.d.ts` after `npm run build`, or
 in the source under [`src/components/`](src/components/).
+
+### Portfolio-specific compositions
+
+The deployed portfolio's “Recent Work” section is not the `WorkCard` component
+shown here. It is a page-level native `<details>` accordion generated from
+`content/site.json`, with independent multi-open behavior, animated disclosure,
+and committed 96×24 color-wash assets. `WorkCard` remains useful as the
+standalone expanded-art primitive, but this design-system package is not the
+source of truth for the production gallery interaction. Maintain that workflow
+in the repository root's [AGENTS.md](../AGENTS.md).
 
 ## Motion & accessibility
 

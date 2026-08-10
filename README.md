@@ -29,6 +29,11 @@ The dev server renders everything on the fly and live-reloads when content or
 templates change; `vite build` emits fully static HTML to `dist/`, so the
 deployed site needs no JavaScript to show content.
 
+Artwork rows use committed generated assets: `npm run washes` reduces each
+complete artwork—not a crop—to a pre-blurred 96×24 WebP color field. The build
+derives its filename from `works[].image` and fails if it is missing, the wrong
+size, or over 4KB. CI validates these files but never generates them.
+
 ## File map
 
 | Path | Role |
@@ -36,7 +41,9 @@ deployed site needs no JavaScript to show content.
 | [content/site.json](content/site.json) | **all editable content** (works, posts + bodies, ticker, catchline, contacts) |
 | [index.html](index.html) / [post.html](post.html) | page templates |
 | [scripts/render-content.js](scripts/render-content.js) | build-time renderer + content validation (incl. per-character catchline splitting, ticker repetition, per-post OG/Twitter meta) |
+| [scripts/artwork-washes.mjs](scripts/artwork-washes.mjs) | shared wash filename, dimension, and byte-limit contract |
 | [scripts/generate-cards.mjs](scripts/generate-cards.mjs) | renders 1200×630 social-preview cards per post (`npm run cards`, local-only) |
+| [scripts/generate-washes.mjs](scripts/generate-washes.mjs) | renders tiny pre-blurred accordion color fields (`npm run washes`, local-only) |
 | [public/cards/](public/cards/) | committed link-preview card images, one per post |
 | [vite.config.js](vite.config.js) | wires the renderer into dev/build; generates post pages |
 | [src/style.css](src/style.css) | design tokens, layout, all animation keyframes, reduced-motion rules |
@@ -44,6 +51,7 @@ deployed site needs no JavaScript to show content.
 | [src/nav.js](src/nav.js) | stage-sweep page transitions (index ⇄ posts) |
 | [src/post.js](src/post.js) | post page entry (transitions only) |
 | [public/artwork/](public/artwork/) | web-ready artwork (≤1600px WebP) |
+| [public/artwork/previews/](public/artwork/previews/) | committed 96×24 WebP color washes, derived from the complete artworks |
 | `art-originals/` | full-resolution sources (gitignored, not deployed) |
 | [.github/workflows/](.github/workflows/) | CI: build + deploy to Firebase Hosting |
 
@@ -65,6 +73,20 @@ of it is disabled under
 `prefers-reduced-motion`, and every page is fully readable with
 JavaScript off.
 
+## Artwork workflow
+
+Add the optimized full artwork under `public/artwork/`, add its `works` entry
+to `content/site.json`, then run `npm run washes`. Commit both the full artwork
+and generated file under `public/artwork/previews/`. The accordion uses only
+the tiny wash in its closed row; the initially expanded artwork loads eagerly,
+while other full images stay lazy until their panels are relevant.
+
+The wash generator uses the repository's existing Playwright dependency. Run
+`npx playwright install chromium` once on an authoring machine. It is not a CI
+step: both Firebase workflows run `npm ci && npm run build` against committed
+assets. See [AGENTS.md](AGENTS.md) for the complete add/remove checklist and
+local Chromium dependency note.
+
 ## Link previews
 
 Post pages ship Open Graph / Twitter Card metadata with canonical URLs and a
@@ -79,16 +101,21 @@ excerpt that doubles as the lede and preview description.
 
 The index HTML/CSS/JS shell is roughly 14KB gzipped before fonts and artwork.
 Fonts load only the weights in use; artwork ships as ≤1600px WebP with
-dimensions baked into the HTML (no layout shift) and lazy loading;
-`firebase.json` sets long-lived caching for hashed assets and no-cache for
-HTML.
+dimensions baked into the HTML (no layout shift) and lazy loading. Accordion
+rows use ≤4KB pre-blurred derivatives, with no runtime filters or need to fetch
+closed panels' full artwork. The current four washes total 2,680 bytes and
+decode to 36KB. `firebase.json` sets long-lived caching for hashed assets and
+no-cache for HTML.
 
 ## Develop
 
 ```bash
 npm install
+npx playwright install chromium  # once; only for cards/washes authoring
 npm run dev       # dev server
 npm run build     # validate content + build to dist/
+npm run washes    # regenerate artwork-row color washes
+npm run cards     # regenerate generated-post social cards
 npm run preview   # serve the production build
 ```
 

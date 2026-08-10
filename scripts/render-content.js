@@ -8,6 +8,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { imageSize } from 'image-size';
+import {
+  artworkWashUrl,
+  WASH_HEIGHT,
+  WASH_MAX_BYTES,
+  WASH_WIDTH,
+} from './artwork-washes.mjs';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 export const CONTENT_FILE = path.join(ROOT, 'content', 'site.json');
@@ -237,6 +243,23 @@ function renderWorks(works) {
       } catch {
         fail(`works[${i}].image — could not read dimensions of public${w.image}`);
       }
+      const wash = artworkWashUrl(w.image);
+      const washFile = path.join(ROOT, 'public', wash);
+      if (!fs.existsSync(washFile)) {
+        fail(`works[${i}].image — missing color wash at public${wash}; run npm run washes`);
+      }
+      let washDim;
+      try {
+        washDim = imageSize(fs.readFileSync(washFile));
+      } catch {
+        fail(`works[${i}].image — could not read color wash at public${wash}`);
+      }
+      if (washDim.width !== WASH_WIDTH || washDim.height !== WASH_HEIGHT) {
+        fail(`works[${i}].image — color wash must be ${WASH_WIDTH}×${WASH_HEIGHT}; run npm run washes`);
+      }
+      if (fs.statSync(washFile).size > WASH_MAX_BYTES) {
+        fail(`works[${i}].image — color wash exceeds ${WASH_MAX_BYTES} bytes; run npm run washes`);
+      }
       // optional "link" supplies the expanded piece's external source action
       // (e.g. its original Twitter/X post)
       if (w.link !== undefined) {
@@ -249,7 +272,7 @@ function renderWorks(works) {
       // set "meta" to override the whole "NN — MM.YYYY" label
       const meta = w.meta ?? `${String(i + 1).padStart(2, '0')} — ${w.date ?? w.year}`;
       const alt = w.alt ?? w.title;
-      return { ...w, i, dim, meta, alt };
+      return { ...w, i, dim, wash, meta, alt };
     });
 
   const figure = (w) => {
@@ -276,7 +299,7 @@ function renderWorks(works) {
       const titleLang = JP_RE.test(w.title) ? ' lang="ja"' : '';
       return `<details class="work-card"${w.i === 0 ? ' open' : ''}>
       <summary class="work-card__summary" data-reveal>
-        <span class="work-card__thumb" aria-hidden="true"><img src="${esc(w.image)}" alt="" width="${w.dim.width}" height="${w.dim.height}" loading="lazy" decoding="async"></span>
+        <span class="work-card__wash" aria-hidden="true"><img src="${esc(w.wash)}" alt="" width="${WASH_WIDTH}" height="${WASH_HEIGHT}" loading="lazy" decoding="async"></span>
         <span class="work-card__summary-copy">
           <span class="work-card__eyebrow"><span>${number}</span><span>${esc(w.date ?? w.year)}</span></span>
           <span class="work-card__title"${titleLang}>${esc(w.title)}</span>

@@ -30,3 +30,6 @@ dist-ssr
 
 # full-resolution artwork sources (downscaled copies live in public/artwork/)
 /art-originals/
+
+# public/artwork/previews/*-wash.webp files are generated but intentionally
+# committed; do not add that directory to this ignore file.

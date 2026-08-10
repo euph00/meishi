@@ -21,6 +21,10 @@ index.html  ────────┼─→ scripts/render-content.js ─→ d
 post.html   ────────┘   (via vite.config.js plugin)  dist/posts/<slug>.html
 src/*.css, src/*.js ──→ hashed bundles in dist/assets/
 public/* ────────────→ copied verbatim (artwork, favicon, emblem)
+
+content/site.json + public artwork ─→ npm run washes
+                                    └→ public/artwork/previews/*-wash.webp
+                                       (generated locally, committed)
 ```
 
 - `index.html` / `post.html` are templates with `<!-- content:... -->` /
@@ -31,6 +35,9 @@ public/* ────────────→ copied verbatim (artwork, favic
 - All injected text is HTML-escaped; write plain text in site.json, not HTML.
 - `posts/*.html` at the repo root is **generated build output** (gitignored).
   Never edit it — change `post.html` (layout) or `site.json` (content).
+- Artwork washes are also generated output, but unlike `dist/` they are
+  **committed source assets**. CI only validates them; it does not install a
+  browser or run either local image generator.
 
 ## content/site.json schema
 
@@ -55,8 +62,13 @@ public/* ────────────→ copied verbatim (artwork, favic
 - `alt` defaults to `title`.
 - The newest piece starts expanded. Every viewport uses the same independent
   program accordion (zero, one, or several pieces may be open), with reversible
-  height transitions when JS is available. Full art is never cropped; only the
-  small program previews use `object-fit: cover`.
+  height transitions when JS is available. Full art is never cropped. Each row
+  uses a generated 96×24 WebP color wash derived from the complete artwork
+  (not a crop); the build requires it and caps it at 4KB.
+- Wash URLs are derived automatically from `image`; there is no `wash` field in
+  `site.json`. `/artwork/piece.webp` maps to
+  `/artwork/previews/piece-wash.webp`. Path, dimensions, and size limits live in
+  `scripts/artwork-washes.mjs` and are shared by generator and validator.
 
 ### posts
 
@@ -79,6 +91,14 @@ public/* ────────────→ copied verbatim (artwork, favic
 
 ## Task recipes
 
+### Local generated-asset prerequisites
+
+Both `npm run washes` and `npm run cards` use the installed Playwright package
+and need a local Chromium once: `npx playwright install chromium`. On this
+machine Chromium also needs libasound (`sudo apt install libasound2t64`). These
+commands are local authoring tools; GitHub Actions deliberately runs only
+`npm ci && npm run build` against the committed outputs.
+
 ### Add artwork
 1. Downscale to ≤1600px on the long edge (Lanczos or similar) and encode as
    WebP quality ~90. Never ship the full-res original: multi-MB files are slow
@@ -87,33 +107,39 @@ public/* ────────────→ copied verbatim (artwork, favic
 3. Put the WebP in `public/artwork/` under a **new filename** (artwork is
    CDN-cached for 7 days — reusing a filename serves stale images).
 4. Add the `works` entry (usually prepend — newest first by convention).
-5. `npm run build` (validates), then `npm run preview` and check `/#work`.
+5. Run `npm run washes` and commit the generated 96×24 WebP under
+   `public/artwork/previews/`. It captures the full piece as a pre-blurred
+   color field, so accordion rows need neither full-image downloads nor a
+   runtime blur. The command regenerates washes for every current work but does
+   not delete orphaned files from removed works.
+6. `npm run build` (validates), then `npm run preview` and check `/#work`.
 
 ### Add a blog post
 1. Append a `posts` entry with `slug` and `body` (order doesn't matter —
    display is sorted by `date`).
 2. `npm run cards` to generate the post's 1200×630 social-preview card at
-   `public/cards/<slug>.png`, and commit the PNG. Requirements (local only —
-   CI never runs this): `npx playwright install chromium` once; on this
-   machine Chromium also needs libasound (`sudo apt install libasound2t64`).
-   If the card is missing the build still succeeds — the renderer just warns
-   and the post's link preview falls back to text-only. Re-run after
-   retitling a post.
+   `public/cards/<slug>.png`, and commit the PNG. If the card is missing the
+   build still succeeds — the renderer just warns and the post's link preview
+   falls back to text-only. Re-run after retitling a post.
 3. `npm run build`, then check `/posts/<slug>.html` in the preview: title,
    lede, meta line, body blocks, pull quotes, and the ← BACK link. Confirm
    the `og:` tags in the built file if the post will be shared.
 4. Check the row on the index page and its forward/back transition.
 
 ### Everything else
-Ticker items, catchline lines, contact links: edit the arrays in place.
-Remove any card/post/item by deleting its entry — numbering and sorting fix
-themselves.
+Ticker items, catchline lines, contact links: edit the arrays in place. Remove
+any card/post/item by deleting its entry — numbering and sorting fix
+themselves. When removing artwork, its full image and generated wash may also
+be deleted if nothing else references them; `npm run washes` does not prune
+orphans automatically.
 
 ## Commands
 
 - `npm run dev` — dev server; renders posts on the fly, reloads on
   `site.json` / `post.html` changes
 - `npm run build` — validate content + build to `dist/`
+- `npm run washes` — regenerate the tiny accordion color washes for all works
+- `npm run cards` — regenerate social cards for all generated posts
 - `npm run preview` — serve `dist/` locally
 
 ## Pre-deploy checklist
@@ -122,11 +148,14 @@ themselves.
 2. `npm run preview`, then click through: curtain intro plays and the hero
    text ripples in letter-by-letter; the ticker loops continuously at every
    ordinary viewport size; scrolling draws the section rules and plays the
-   yellow title swipes; artwork accordion rows expand independently and
-   `Original post ↗` opens in a new tab; a post row sweeps forward
-   and ← BACK sweeps back to the notes list.
-3. Narrow the window to ~390px: no horizontal scrolling anywhere.
-4. No image in `public/` over ~400KB.
+   yellow title swipes; every artwork row has a distinct visible color wash;
+   accordion rows expand and collapse independently; `Original post ↗` opens
+   in a new tab; a post row sweeps forward and ← BACK sweeps back to the notes
+   list.
+3. Check both ~390px and a wide desktop viewport: no horizontal scrolling,
+   caption/frame mismatch, or accordion-only scrollbar.
+4. Confirm new `public/artwork/previews/*-wash.webp` files are staged. The
+   build already enforces 96×24 and ≤4KB; full artwork should remain ≤400KB.
 
 ## Deploying
 
@@ -134,6 +163,9 @@ themselves.
   Firebase Hosting, project `meishi-site-f3315`). Commit freely; push only
   when the change should go live.
 - Pull requests get a temporary preview-channel deploy automatically.
+- Both Actions workflows intentionally run `npm ci && npm run build`, not the
+  browser-backed generators. Missing/invalid washes fail this build; missing
+  post cards only warn. Always commit generated assets before pushing.
 - Caching (set in `firebase.json`): HTML no-cache, `/assets/**` immutable
   (safe — Vite content-hashes them), `/artwork/**` 7 days, root SVGs 1 day.
   Consequence: never place unhashed files in `public/assets/` (that URL
@@ -174,7 +206,10 @@ themselves.
     rail.
   - **Work program** — native independent `<details>` allow zero, one, or
     several open pieces at every viewport size. JS adds reversible height
-    transitions; without JS the native accordion remains fully usable.
+    transitions; 96×24 pre-rendered color washes make the rows artwork-specific
+    without runtime filters or eager full-art downloads. The wash itself may
+    only animate compositor-cheap opacity; reduced-motion disables that
+    transition. Without JS the native accordion remains fully usable.
   - **Idle touches** — badge-star spin, footer emblem breathe, yellow star
     twinkle.
 - **Every animation must stay disabled under `prefers-reduced-motion`.** Two
@@ -207,12 +242,17 @@ themselves.
 - `?intro=0` query param skips the curtain intro (useful for quick checks).
 - The dev server and the built site behave identically for content, but only
   the build writes `posts/*.html` to disk.
+- `npm run washes` intentionally compresses the complete artwork into a 12×3
+  color sample, stretches it into a 96×24 strip, extends its edge pixels, and
+  bakes in blur/saturation before WebP encoding. Do not replace this with a
+  CSS `filter`, CSS background using the full artwork, or a recognizable crop:
+  the tiny committed strip is what keeps network, decode memory, and GPU work
+  bounded as the gallery grows.
 - **Design-experiment branches** (`proto/*`) are kept on purpose — don't
   delete them. Unmerged material that can be revisited: multi-slat sweep and
   curtain yellow-trim in `proto/stage-transitions`; followspot, stardust,
   card hover sparkle, and footer-emblem parallax in `proto/ambient-stage`.
 - Absolute URLs (OG tags, canonical links, card images) come from
   `SITE_ORIGIN` in `scripts/render-content.js` — change it in that one place
-  if the site ever moves to a custom domain. The site-wide (homepage) link
-  preview is deliberately not set up yet: it's waiting on the new physical
-  namecard design, which will become the card image.
+  if the site ever moves to a custom domain. The homepage preview is
+  `public/social-preview.png`; post previews are `public/cards/<slug>.png`.
