@@ -88,8 +88,6 @@ img { display: block; }
   0%, 100% { transform: scale(1); opacity: 1; filter: brightness(1); }
   50%      { transform: scale(.975); opacity: .93; filter: brightness(1.07); }
 }
-@keyframes tick { to { transform: translateX(-50%); } }
-
 /* "Typographic overture" — per-character overshoot-settle shared by the
    hero title, subtitle, and quote */
 @keyframes charIn {
@@ -434,8 +432,17 @@ img { display: block; }
 }
 .ticker__viewport {
   min-width: 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: none;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline-start: 18px;
   scrollbar-width: none;
+  touch-action: pan-x;
+}
+.ticker__viewport.is-auto {
+  overflow-x: hidden;
+  scroll-snap-type: none;
   touch-action: pan-y;
 }
 .ticker__viewport::-webkit-scrollbar { display: none; }
@@ -448,9 +455,6 @@ img { display: block; }
   align-items: center;
   height: 100%;
   width: max-content;
-  /* Duration is emitted by the renderer so speed remains one source group
-     per 16 seconds as the event list grows. */
-  animation: tick var(--tick-duration, 16s) linear infinite;
 }
 .ticker__group {
   height: 100%;
@@ -468,6 +472,7 @@ img { display: block; }
   display: flex;
   align-items: center;
   gap: 18px;
+  scroll-snap-align: start;
 }
 .ticker__en {
   font: 600 12px/1 var(--sans);
@@ -1193,7 +1198,6 @@ img { display: block; }
   .post-rise,
   .is-revealed,
   .star--badge, .watermark--finale, .twinkle,
-  .ticker__track,
   .h1-l, .sub-ch, .q-ch,
   .contacts > *,
   .hero__rule, .hero__foot::before,
@@ -1204,13 +1208,6 @@ img { display: block; }
   .hero__menu-mark, .work-card__summary, .work-card__summary::after,
   .work-card__wash, .work-card__toggle::before { transition: none; }
   .post-row:hover { transform: none; }
-  .ticker__viewport {
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
-    touch-action: pan-x;
-  }
-  .ticker__item { scroll-snap-align: start; }
   .ticker__group[aria-hidden="true"] { display: none; }
   /* text choreography must never leave content clipped/offset/transparent
      when animations are off */

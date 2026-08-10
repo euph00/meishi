@@ -1,6 +1,6 @@
-// Scroll reveal — progressive polish on top of already-visible markup.
-// Elements below 92% of the viewport at load are hidden, then revealed
-// once as they enter the viewport. If JS never runs, nothing is hidden.
+// Index-page interactions are progressive enhancements over usable markup.
+// If JS never runs, navigation, the work accordion, and the ticker rail all
+// remain available through their native HTML/overflow behavior.
 
 import { wireSweep } from './nav.js';
 
@@ -18,6 +18,72 @@ if (document.documentElement.classList.contains('arriving-back') && location.has
   }, 400);
 }
 wireSweep();
+
+// The ticker uses the viewport's native horizontal scroll offset instead of
+// transforming one very wide layer. Wait for final font metrics, clone only
+// enough groups to cover one complete loop, then advance at a fixed pixel
+// speed. Until this starts (and whenever motion is reduced or JS is absent),
+// the single semantic group remains a manually swipeable rail.
+const tickerViewport = document.querySelector('.ticker__viewport');
+const tickerTrack = tickerViewport?.querySelector('.ticker__track');
+const tickerSource = tickerTrack?.querySelector('.ticker__group');
+if (!reduceMotion && tickerViewport && tickerTrack && tickerSource) {
+  const SPEED = 96; // px/s — approximately one current source group per 16s
+  let sourceWidth = 0;
+  let position = 0;
+  let lastTime = 0;
+  let frameId = 0;
+
+  const syncTickerCopies = () => {
+    const wanted = Math.max(2, Math.ceil(1 + tickerViewport.clientWidth / sourceWidth));
+    const groups = Array.from(tickerTrack.querySelectorAll('.ticker__group'));
+    while (groups.length < wanted) {
+      const copy = tickerSource.cloneNode(true);
+      copy.setAttribute('aria-hidden', 'true');
+      tickerTrack.append(copy);
+      groups.push(copy);
+    }
+    while (groups.length > wanted) groups.pop().remove();
+    // A wider viewport can briefly clamp scrollLeft before its new copies are
+    // added. Restore the logical position after changing the track length.
+    tickerViewport.scrollLeft = position;
+  };
+
+  document.fonts.ready.then(() => {
+    sourceWidth = tickerSource.getBoundingClientRect().width;
+    if (!sourceWidth) return;
+    position = tickerViewport.scrollLeft % sourceWidth;
+
+    syncTickerCopies();
+    tickerViewport.classList.add('is-auto');
+    new ResizeObserver(syncTickerCopies).observe(tickerViewport);
+
+    const moveTicker = (time) => {
+      if (!lastTime) lastTime = time;
+      // Avoid a large jump when rAF resumes after a hidden/background tab.
+      const elapsed = Math.min(time - lastTime, 100);
+      lastTime = time;
+      position = (position + SPEED * elapsed / 1000) % sourceWidth;
+      tickerViewport.scrollLeft = position;
+      frameId = requestAnimationFrame(moveTicker);
+    };
+    const startTicker = () => {
+      if (frameId) return;
+      lastTime = 0;
+      frameId = requestAnimationFrame(moveTicker);
+    };
+    const stopTicker = () => {
+      cancelAnimationFrame(frameId);
+      frameId = 0;
+      lastTime = 0;
+    };
+
+    new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) startTicker();
+      else stopTicker();
+    }).observe(tickerViewport);
+  });
+}
 
 // The compact mobile program menu closes after choosing an in-page act.
 const heroMenu = document.querySelector('.hero__menu');

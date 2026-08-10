@@ -200,10 +200,16 @@ orphans automatically.
     (animation-timeline: view())`, no-op elsewhere). `.hero` must keep
     `overflow: clip` (NOT `hidden` — that creates a scroll container and
     freezes the `view()` timeline).
-  - **Ticker rail / marquee** — `参加予定` stays fixed. The repeated seamless
-    marquee runs at every ordinary viewport size, scaled to one source group
-    per 16s. Reduced-motion mode falls back to a manually swipeable static snap
-    rail.
+  - **Ticker rail / marquee** — `参加予定` stays fixed. The renderer emits one
+    semantic group; after `document.fonts.ready`, `main.js` measures it, adds
+    only enough `aria-hidden` copies to cover one loop, and advances the
+    viewport's native `scrollLeft` at 96px/s. A `ResizeObserver` adjusts the
+    copy count without changing position; an `IntersectionObserver` parks the
+    frame loop off-screen and resumes at the same position. Do not replace this
+    with a transform marquee: animating font-dependent `max-content` geometry
+    caused blank compositor tiles and visible resets on production mobile cold
+    loads. Reduced-motion and no-JS modes fall back to a manually swipeable
+    static snap rail.
   - **Work program** — native independent `<details>` allow zero, one, or
     several open pieces at every viewport size. JS adds reversible height
     transitions; 96×24 pre-rendered color washes make the rows artwork-specific

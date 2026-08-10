@@ -40,14 +40,14 @@ size, or over 4KB. CI validates these files but never generates them.
 | --- | --- |
 | [content/site.json](content/site.json) | **all editable content** (works, posts + bodies, ticker, catchline, contacts) |
 | [index.html](index.html) / [post.html](post.html) | page templates |
-| [scripts/render-content.js](scripts/render-content.js) | build-time renderer + content validation (incl. per-character catchline splitting, ticker repetition, per-post OG/Twitter meta) |
+| [scripts/render-content.js](scripts/render-content.js) | build-time renderer + content validation (incl. per-character catchline splitting, ticker source markup, per-post OG/Twitter meta) |
 | [scripts/artwork-washes.mjs](scripts/artwork-washes.mjs) | shared wash filename, dimension, and byte-limit contract |
 | [scripts/generate-cards.mjs](scripts/generate-cards.mjs) | renders 1200×630 social-preview cards per post (`npm run cards`, local-only) |
 | [scripts/generate-washes.mjs](scripts/generate-washes.mjs) | renders tiny pre-blurred accordion color fields (`npm run washes`, local-only) |
 | [public/cards/](public/cards/) | committed link-preview card images, one per post |
 | [vite.config.js](vite.config.js) | wires the renderer into dev/build; generates post pages |
 | [src/style.css](src/style.css) | design tokens, layout, all animation keyframes, reduced-motion rules |
-| [src/main.js](src/main.js) | index page: gallery/menu interactions, curtain cleanup, replayable scroll reveals |
+| [src/main.js](src/main.js) | index page: native-scroll ticker, gallery/menu interactions, curtain cleanup, replayable scroll reveals |
 | [src/nav.js](src/nav.js) | stage-sweep page transitions (index ⇄ posts) |
 | [src/post.js](src/post.js) | post page entry (transitions only) |
 | [public/artwork/](public/artwork/) | web-ready artwork (≤1600px WebP) |
