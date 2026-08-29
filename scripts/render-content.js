@@ -162,17 +162,93 @@ function renderCatchline(hero) {
   return `<span aria-hidden="true">${animated}</span><span class="sr-only">${esc(lines.join(' '))}</span>`;
 }
 
-function renderTickerGroup(items) {
-  return items
-    .map((text, i) => {
-      needString(text, `ticker[${i}]`);
-      const jp = JP_RE.test(text);
-      const span = jp
-        ? `<span class="ticker__jp" lang="ja">${esc(text)}</span>`
-        : `<span class="ticker__en">${esc(text)}</span>`;
-      return `<li class="ticker__item">${span}\n          ${star('ink', 12)}</li>`;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function needIsoDate(value, where) {
+  needString(value, where);
+  if (!ISO_DATE_RE.test(value)) fail(`${where} must use YYYY-MM-DD`);
+  const parsed = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(parsed.valueOf()) || parsed.toISOString().slice(0, 10) !== value) {
+    fail(`${where} must be a real calendar date`);
+  }
+  return value;
+}
+
+function validateTickerEvent(raw, i) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    fail(`ticker[${i}] must be an object with title and date`);
+  }
+  const title = needString(raw.title, `ticker[${i}].title`);
+  const date = needIsoDate(raw.date, `ticker[${i}].date`);
+  const endDate = raw.endDate === undefined ? null : needIsoDate(raw.endDate, `ticker[${i}].endDate`);
+  if (endDate && endDate < date) fail(`ticker[${i}].endDate must not be before date`);
+  return { title, date, endDate };
+}
+
+function dateParts(value) {
+  const [year, month, day] = value.split('-');
+  return { year, month, day };
+}
+
+function formatTickerDate(event) {
+  const start = dateParts(event.date);
+  if (!event.endDate) return `${start.day}.${start.month}.${start.year}`;
+  const end = dateParts(event.endDate);
+  if (start.year === end.year && start.month === end.month) {
+    return `${start.day}–${end.day}.${start.month}.${start.year}`;
+  }
+  if (start.year === end.year) {
+    return `${start.day}.${start.month}–${end.day}.${end.month}.${start.year}`;
+  }
+  return `${start.day}.${start.month}.${start.year}–${end.day}.${end.month}.${end.year}`;
+}
+
+function renderTickerGroup(events) {
+  return events
+    .map((event) => {
+      const jp = JP_RE.test(event.title);
+      const title = jp
+        ? `<span class="ticker__jp" lang="ja">${esc(event.title)}</span>`
+        : `<span class="ticker__en">${esc(event.title)}</span>`;
+      return `<li class="ticker__item">${title}<span class="ticker__date">${formatTickerDate(event)}</span>\n          ${star('ink', 12)}</li>`;
     })
     .join('\n        ');
+}
+
+function renderTickerDialog(events) {
+  const rows = events
+    .map((event, i) => {
+      const start = dateParts(event.date);
+      const end = event.endDate ? dateParts(event.endDate) : null;
+      const day = end
+        ? `<time datetime="${event.date}">${start.day}</time><span aria-hidden="true">–</span><time datetime="${event.endDate}">${end.day}</time>`
+        : `<time datetime="${event.date}">${start.day}</time>`;
+      const monthYear = end && (start.month !== end.month || start.year !== end.year)
+        ? `${start.month}.${start.year} — ${end.month}.${end.year}`
+        : `${start.month}.${start.year}`;
+      const lang = JP_RE.test(event.title) ? ' lang="ja"' : '';
+      return `<li class="ticker-dialog__event">
+          <span class="ticker-dialog__index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+          <span class="ticker-dialog__date">${day}<small>${monthYear}</small></span>
+          <span class="ticker-dialog__title"${lang}>${esc(event.title)}</span>
+        </li>`;
+    })
+    .join('\n        ');
+  return `<dialog class="ticker-dialog" id="ticker-events" aria-labelledby="ticker-events-title">
+      <div class="ticker-dialog__sheet">
+        <header class="ticker-dialog__header">
+          <div>
+            <span class="ticker-dialog__eyebrow">EVENT PROGRAMME <span lang="ja">参加予定</span></span>
+            <h2 id="ticker-events-title">Upcoming <em>dates</em></h2>
+          </div>
+          <button class="ticker-dialog__close" type="button" aria-label="Close upcoming events">Close <span aria-hidden="true">×</span></button>
+        </header>
+        <ol class="ticker-dialog__list">
+        ${rows}
+        </ol>
+        <p class="ticker-dialog__hint">Select the yellow ticker anytime to reopen this programme.</p>
+      </div>
+    </dialog>`;
 }
 
 // Render one semantic group. Once its fonts and layout are stable, main.js
@@ -180,15 +256,17 @@ function renderTickerGroup(items) {
 function renderTicker(items) {
   needArray(items, 'ticker');
   if (items.length === 0) fail('ticker needs at least one item');
-  const group = renderTickerGroup(items);
-  return `<span class="ticker__label" lang="ja">参加予定</span>
-    <div class="ticker__viewport" tabindex="0" aria-label="Upcoming events">
+  const events = items.map(validateTickerEvent).sort((a, b) => a.date.localeCompare(b.date));
+  const group = renderTickerGroup(events);
+  return `<button class="ticker__label" type="button" aria-haspopup="dialog" aria-controls="ticker-events" aria-expanded="false"><span lang="ja">参加予定</span><span class="ticker__label-mark" aria-hidden="true">＋</span></button>
+    <div class="ticker__viewport" tabindex="0" aria-label="Upcoming events ticker. Select to view all dates.">
       <div class="ticker__track">
         <ul class="ticker__group">
           ${group}
         </ul>
       </div>
-    </div>`;
+    </div>
+    ${renderTickerDialog(events)}`;
 }
 
 function renderContacts(contacts, variant) {

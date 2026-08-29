@@ -421,14 +421,32 @@ img { display: block; }
 .ticker__label {
   position: relative;
   z-index: 2;
+  min-width: 124px;
+  border: 0;
+  border-radius: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 9px;
   padding: 0 14px;
   background: var(--ink);
   color: var(--yellow);
   font: 500 11px/1 var(--jp-sans);
   letter-spacing: .18em;
   white-space: nowrap;
+  cursor: pointer;
+}
+.ticker__label-mark {
+  display: inline-block;
+  font: 400 15px/1 var(--sans);
+  letter-spacing: 0;
+  transition: transform .25s var(--ease-spring);
+}
+.ticker__label:hover .ticker__label-mark,
+.ticker__label:focus-visible .ticker__label-mark { transform: rotate(45deg); }
+.ticker__label:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: -4px;
 }
 .ticker__viewport {
   min-width: 0;
@@ -439,6 +457,7 @@ img { display: block; }
   scroll-padding-inline-start: 18px;
   scrollbar-width: none;
   touch-action: pan-x;
+  cursor: pointer;
 }
 .ticker__viewport.is-auto {
   overflow-x: hidden;
@@ -471,9 +490,10 @@ img { display: block; }
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 10px;
   scroll-snap-align: start;
 }
+.ticker__item .star { margin-left: 8px; }
 .ticker__en {
   font: 600 12px/1 var(--sans);
   letter-spacing: .14em;
@@ -484,8 +504,162 @@ img { display: block; }
   letter-spacing: .2em;
   white-space: nowrap;
 }
+.ticker__date {
+  font: 500 10px/1 var(--mono);
+  letter-spacing: .08em;
+  white-space: nowrap;
+  color: var(--ink-75);
+}
+
+/* Ticker event programme — native <dialog> keeps modal focus, Escape, and
+   screen-reader semantics while the square playbill treatment stays on-theme. */
+.ticker-dialog {
+  width: min(720px, calc(100% - 40px));
+  max-width: none;
+  max-height: min(760px, calc(100vh - 40px));
+  max-height: min(760px, calc(100dvh - 40px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 12px 12px 0 var(--yellow);
+  overflow: auto;
+}
+.ticker-dialog::backdrop { background: rgba(23, 21, 15, .78); }
+body:has(.ticker-dialog[open]) { overflow: hidden; }
+.ticker-dialog__sheet { min-height: 100%; }
+.ticker-dialog__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 20px;
+  padding: clamp(24px, 5vw, 42px);
+  border-bottom: 1px solid var(--ink);
+}
+.ticker-dialog__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  font: 500 10px/1 var(--mono);
+  letter-spacing: .22em;
+}
+.ticker-dialog__eyebrow span { color: var(--ink-60); }
+.ticker-dialog__header h2 {
+  font: 400 clamp(42px, 6vw, 64px)/.95 var(--serif);
+  letter-spacing: -.02em;
+}
+.ticker-dialog__header h2 em {
+  position: relative;
+  z-index: 0;
+  font-weight: 400;
+}
+.ticker-dialog__header h2 em::before {
+  content: '';
+  position: absolute;
+  left: -.03em;
+  right: -.03em;
+  bottom: .04em;
+  z-index: -1;
+  height: .24em;
+  background: var(--yellow);
+}
+.ticker-dialog__close {
+  min-height: 44px;
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--ink);
+  font: 500 10px/1 var(--mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ticker-dialog__close span { margin-left: 5px; font-size: 16px; }
+.ticker-dialog__close:hover,
+.ticker-dialog__close:focus-visible {
+  background: var(--ink);
+  color: var(--yellow);
+}
+.ticker-dialog__close:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+.ticker-dialog__list { margin: 0; padding: 0; list-style: none; }
+.ticker-dialog__event {
+  display: grid;
+  grid-template-columns: 34px 118px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  min-height: 88px;
+  padding: 14px clamp(24px, 5vw, 42px);
+  border-bottom: 1px solid var(--ink-25);
+}
+.ticker-dialog__event:last-child { border-bottom-color: var(--ink); }
+.ticker-dialog__index {
+  align-self: start;
+  padding-top: 7px;
+  color: var(--ink-60);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .12em;
+}
+.ticker-dialog__date {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 3px;
+  font-family: var(--serif);
+  font-size: 33px;
+  line-height: .9;
+  white-space: nowrap;
+}
+.ticker-dialog__date time { font: inherit; }
+.ticker-dialog__date small {
+  flex-basis: 100%;
+  margin-top: 7px;
+  color: var(--ink-60);
+  font: 500 9px/1 var(--mono);
+  letter-spacing: .14em;
+}
+.ticker-dialog__title {
+  font: 400 16px/1.5 var(--sans);
+  overflow-wrap: anywhere;
+}
+.ticker-dialog__title[lang="ja"] { font-family: var(--jp-sans); }
+.ticker-dialog__hint {
+  padding: 14px clamp(24px, 5vw, 42px) 16px;
+  color: var(--ink-60);
+  font: 500 9px/1.5 var(--mono);
+  letter-spacing: .1em;
+}
 @media (min-width: 700px) {
   .ticker { height: 44px; }
+}
+@media (max-width: 699px) {
+  .ticker__label { min-width: 108px; padding-inline: 10px; }
+  .ticker-dialog {
+    width: 100%;
+    max-height: 82vh;
+    max-height: 82dvh;
+    margin: auto 0 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    box-shadow: 0 -7px 0 var(--yellow);
+  }
+  .ticker-dialog__header { padding: 24px 20px 20px; }
+  .ticker-dialog__header h2 { font-size: clamp(36px, 12vw, 48px); }
+  .ticker-dialog__eyebrow { flex-wrap: wrap; gap: 7px 10px; }
+  .ticker-dialog__close { padding-inline: 10px; }
+  .ticker-dialog__event {
+    grid-template-columns: 24px 86px minmax(0, 1fr);
+    gap: 10px;
+    min-height: 78px;
+    padding: 12px 20px;
+  }
+  .ticker-dialog__date { font-size: 28px; }
+  .ticker-dialog__title { font-size: 14px; line-height: 1.45; }
+  .ticker-dialog__hint { padding-inline: 20px; }
 }
 
 /* ink curtains — fixed to the viewport so the intro plays full-screen
@@ -1205,7 +1379,7 @@ img { display: block; }
   .act__title em::before,
   .work-card__content { animation: none; }
   .post-row, .finale .contact, .hero__nav a,
-  .hero__menu-mark, .work-card__summary, .work-card__summary::after,
+  .hero__menu-mark, .ticker__label-mark, .work-card__summary, .work-card__summary::after,
   .work-card__wash, .work-card__toggle::before { transition: none; }
   .post-row:hover { transform: none; }
   .ticker__group[aria-hidden="true"] { display: none; }

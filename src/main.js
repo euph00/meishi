@@ -27,6 +27,10 @@ wireSweep();
 const tickerViewport = document.querySelector('.ticker__viewport');
 const tickerTrack = tickerViewport?.querySelector('.ticker__track');
 const tickerSource = tickerTrack?.querySelector('.ticker__group');
+const ticker = tickerViewport?.closest('.ticker');
+const tickerTrigger = ticker?.querySelector('.ticker__label');
+const tickerDialog = ticker?.querySelector('.ticker-dialog');
+const tickerDialogClose = tickerDialog?.querySelector('.ticker-dialog__close');
 if (!reduceMotion && tickerViewport && tickerTrack && tickerSource) {
   const SPEED = 96; // px/s — approximately one current source group per 16s
   let sourceWidth = 0;
@@ -78,10 +82,86 @@ if (!reduceMotion && tickerViewport && tickerTrack && tickerSource) {
       lastTime = 0;
     };
 
+    // A clickable moving target should settle before selection. Resume from the
+    // same logical scroll position when pointer or keyboard focus leaves.
+    tickerViewport.addEventListener('pointerenter', stopTicker);
+    tickerViewport.addEventListener('pointerleave', startTicker);
+    tickerViewport.addEventListener('focus', stopTicker);
+    tickerViewport.addEventListener('blur', startTicker);
+
     new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) startTicker();
       else stopTicker();
     }).observe(tickerViewport);
+  });
+}
+
+// The ticker is the compact preview; selecting either its fixed label or its
+// moving rail opens the complete event programme in a native modal dialog.
+// Native <dialog> supplies focus containment and Escape dismissal. We restore
+// focus explicitly so mouse, touch, and keyboard openings all return to one
+// predictable 44px target.
+if (ticker && tickerTrigger && tickerViewport && tickerDialog) {
+  let suppressRailClick = false;
+  let pointerStart = null;
+
+  const openTickerDialog = () => {
+    if (tickerDialog.open) return;
+    tickerTrigger.setAttribute('aria-expanded', 'true');
+    if (typeof tickerDialog.showModal === 'function') tickerDialog.showModal();
+    else tickerDialog.setAttribute('open', '');
+  };
+
+  const closeTickerDialog = () => {
+    if (!tickerDialog.open) return;
+    if (typeof tickerDialog.close === 'function') tickerDialog.close();
+    else {
+      tickerDialog.removeAttribute('open');
+      tickerDialog.dispatchEvent(new Event('close'));
+    }
+  };
+
+  ticker.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element) || event.target.closest('.ticker-dialog')) return;
+    if (event.target.closest('.ticker__viewport') && suppressRailClick) {
+      suppressRailClick = false;
+      return;
+    }
+    if (event.target.closest('.ticker__label, .ticker__viewport')) openTickerDialog();
+  });
+
+  tickerViewport.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    openTickerDialog();
+  });
+
+  // Reduced-motion/no-auto-scroll users can swipe the native rail. Do not turn
+  // the release after a deliberate drag into an accidental modal open.
+  tickerViewport.addEventListener('pointerdown', (event) => {
+    pointerStart = { x: event.clientX, y: event.clientY };
+    suppressRailClick = false;
+  });
+  tickerViewport.addEventListener('pointermove', (event) => {
+    if (!pointerStart) return;
+    if (Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y) > 8) {
+      suppressRailClick = true;
+    }
+  });
+  const finishRailPointer = () => {
+    pointerStart = null;
+    setTimeout(() => { suppressRailClick = false; }, 0);
+  };
+  tickerViewport.addEventListener('pointerup', finishRailPointer);
+  tickerViewport.addEventListener('pointercancel', finishRailPointer);
+
+  tickerDialogClose?.addEventListener('click', closeTickerDialog);
+  tickerDialog.addEventListener('click', (event) => {
+    if (event.target === tickerDialog) closeTickerDialog();
+  });
+  tickerDialog.addEventListener('close', () => {
+    tickerTrigger.setAttribute('aria-expanded', 'false');
+    tickerTrigger.focus({ preventScroll: true });
   });
 }
 

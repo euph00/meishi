@@ -20,7 +20,7 @@ JSON (bad content fails the build — nothing broken can deploy), HTML-escapes
 it, and injects it into two templates:
 
 - [index.html](index.html) — the main page (`<!-- content:... -->` slots for
-  contacts, catchline, ticker, work cards, post rows)
+  contacts, catchline, structured event ticker + programme dialog, work cards, post rows)
 - [post.html](post.html) — the blog post page (`<!-- post:... -->` slots);
   one static page is generated at `posts/<slug>.html` for every post with a
   `slug` (that directory is gitignored build output)
@@ -66,8 +66,9 @@ re-armed when they fully leave), section titles unveiled by a yellow
 paint-and-depart swipe, a hero that dims as you scroll past it
 (CSS scroll-driven, progressively enhanced), a continuous seamless event
 marquee across mobile and desktop,
-directional yellow-lined "stage sweep" transitions between the index and
-post pages (browser back/forward included), and quiet idle motion
+an accessible event-programme dialog opened from the ticker, directional
+yellow-lined "stage sweep" transitions between the index and post pages
+(browser back/forward included), and quiet idle motion
 (spinning badge stars, breathing footer emblem, twinkling accent stars). All
 of it is disabled under
 `prefers-reduced-motion`, and every page is fully readable with

@@ -44,7 +44,7 @@ content/site.json + public artwork ─→ npm run washes
 | Key | Shape | Notes |
 | --- | --- | --- |
 | `hero.catchline` | array of strings | one string per line of the hero quote; plain text only — the renderer splits it into per-character animated spans automatically (JP chars wrap freely, Latin words stay whole, closing punctuation never starts a line, and a hidden plain copy is kept for screen readers) |
-| `ticker` | array of strings | upcoming-event items only (`参加予定` is fixed UI); JP items are auto-detected and get JP font styling + `lang="ja"` |
+| `ticker` | array of `{title, date, endDate?}` | upcoming events only; dates use `YYYY-MM-DD`, `endDate` is optional for ranges, and display order is chronological. `参加予定` is fixed UI; JP titles are auto-detected and get JP font styling + `lang="ja"` |
 | `contacts` | `{label, href, icon}` | `icon`: `x` \| `mail` \| `branch`; rendered in hero **and** footer |
 | `works` | `{title, date, image, alt?, meta?, link?}` | see below |
 | `posts` | `{date, tag, title, excerpt, slug+body OR href}` | see below |
@@ -127,8 +127,9 @@ commands are local authoring tools; GitHub Actions deliberately runs only
 4. Check the row on the index page and its forward/back transition.
 
 ### Everything else
-Ticker items, catchline lines, contact links: edit the arrays in place. Remove
-any card/post/item by deleting its entry — numbering and sorting fix
+Ticker events, catchline lines, contact links: edit the arrays in place. Each
+ticker event keeps its title separate from its ISO date so the rail and popup
+can render it appropriately. Remove any card/post/item by deleting its entry — numbering and sorting fix
 themselves. When removing artwork, its full image and generated wash may also
 be deleted if nothing else references them; `npm run washes` does not prune
 orphans automatically.
@@ -200,7 +201,10 @@ orphans automatically.
     (animation-timeline: view())`, no-op elsewhere). `.hero` must keep
     `overflow: clip` (NOT `hidden` — that creates a scroll container and
     freezes the `view()` timeline).
-  - **Ticker rail / marquee** — `参加予定` stays fixed. The renderer emits one
+  - **Ticker rail / event programme** — `参加予定` stays fixed and is a native
+    button. Clicking it or the rail opens a native `<dialog>` with the complete
+    chronological event/date list; Escape, backdrop, and the close button dismiss
+    it and focus returns to the trigger. The renderer emits one
     semantic group; after `document.fonts.ready`, `main.js` measures it, adds
     only enough `aria-hidden` copies to cover one loop, and advances the
     viewport's native `scrollLeft` at 96px/s. A `ResizeObserver` adjusts the
@@ -208,8 +212,9 @@ orphans automatically.
     frame loop off-screen and resumes at the same position. Do not replace this
     with a transform marquee: animating font-dependent `max-content` geometry
     caused blank compositor tiles and visible resets on production mobile cold
-    loads. Reduced-motion and no-JS modes fall back to a manually swipeable
-    static snap rail.
+    loads. The rail pauses on hover/focus for reliable selection. Reduced-motion
+    and no-JS modes fall back to a manually swipeable static snap rail; the modal
+    is a JS enhancement and the event text remains present without it.
   - **Work program** — native independent `<details>` allow zero, one, or
     several open pieces at every viewport size. JS adds reversible height
     transitions; 96×24 pre-rendered color washes make the rows artwork-specific
