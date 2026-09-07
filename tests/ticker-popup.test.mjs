@@ -45,7 +45,7 @@ after(async () => {
 
 test('ticker data and rendered markup expose a semantic event programme', () => {
   const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/site.json'), 'utf8'));
-  assert.equal(content.ticker.length, 6);
+  assert.equal(content.ticker.length, 8);
   for (const [index, event] of content.ticker.entries()) {
     assert.equal(typeof event, 'object', `ticker[${index}] should be structured`);
     assert.equal(typeof event.title, 'string');
@@ -57,11 +57,14 @@ test('ticker data and rendered markup expose a semantic event programme', () => 
   const html = renderContent(template);
   assert.match(html, /<button[^>]+class="ticker__label"[^>]+aria-haspopup="dialog"/);
   assert.match(html, /<dialog[^>]+id="ticker-events"[^>]+aria-labelledby="ticker-events-title"/);
-  assert.equal((html.match(/class="ticker-dialog__event"/g) ?? []).length, 6);
+  assert.equal((html.match(/class="ticker-dialog__event"/g) ?? []).length, 8);
   assert.deepEqual(
     [...html.matchAll(/<time[^>]+datetime="([^"]+)"/g)].map((match) => match[1]),
-    ['2026-09-20', '2026-09-21', '2026-11-07', '2026-12-27', '2026-12-29', '2026-12-31', '2027-02-20']
+    ['2026-09-20', '2026-09-21', '2026-09-22', '2026-09-23', '2026-11-07', '2026-12-13', '2026-12-27', '2026-12-29', '2026-12-31', '2027-02-20']
   );
+  assert.match(html, /初後夜祭 in 岩手（DJイベント）/);
+  assert.match(html, /Hatsuboshi DJ FESTIVAL #HDF episode\.3「共鳴」/);
+  assert.match(html, /春咲暖1st Live『Light in Bloom』昼公演/);
   assert.match(html, /<small>09\.2026<\/small>/);
   assert.match(html, /<small>02\.2027<\/small>/);
   assert.doesNotMatch(html, /<small>[A-Z]{3} \d{4}<\/small>/);
@@ -79,7 +82,7 @@ test('ticker opens and dismisses the event programme accessibly', async () => {
   await trigger.click();
   assert.equal(await dialog.isVisible(), true);
   assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
-  assert.equal(await dialog.locator('.ticker-dialog__event').count(), 6);
+  assert.equal(await dialog.locator('.ticker-dialog__event').count(), 8);
 
   await dialog.locator('.ticker-dialog__close').click();
   assert.equal(await dialog.isVisible(), false);
