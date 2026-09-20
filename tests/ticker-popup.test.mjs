@@ -74,7 +74,7 @@ test('ticker data and rendered markup expose a semantic event programme', () => 
 test('past events are canonical, numeric, and rendered most-recent-first', () => {
   const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/site.json'), 'utf8'));
   assert.deepEqual(content.pastEvents, [
-    { title: 'あおわん・カンナヒカル（仮）夜の部', date: '2026-09-20' },
+    { title: 'カンナヒカル（仮）夜の部', date: '2026-09-20' },
   ]);
   assert.equal(content.ticker.some((event) => event.title.includes('カンナヒカル（仮）夜の部')), false);
 
@@ -93,7 +93,7 @@ test('past events are canonical, numeric, and rendered most-recent-first', () =>
   assert.match(html, /<section id="past-events" class="act act--past-events">/);
   assert.equal((html.match(/class="past-events__event"/g) ?? []).length, 1);
   assert.match(html, /<time datetime="2026-09-20">20<\/time><small>09\.2026<\/small>/);
-  assert.match(html, /あおわん・カンナヒカル（仮）夜の部/);
+  assert.match(html, /カンナヒカル（仮）夜の部/);
 });
 
 test('ticker opens and dismisses the event programme accessibly', async () => {
