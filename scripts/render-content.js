@@ -269,6 +269,42 @@ function renderTicker(items) {
     ${renderTickerDialog(events)}`;
 }
 
+function validatePastEvent(raw, i) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    fail(`pastEvents[${i}] must be an object with title and date`);
+  }
+  const title = needString(raw.title, `pastEvents[${i}].title`);
+  const date = needIsoDate(raw.date, `pastEvents[${i}].date`);
+  const endDate = raw.endDate === undefined ? null : needIsoDate(raw.endDate, `pastEvents[${i}].endDate`);
+  if (endDate && endDate < date) fail(`pastEvents[${i}].endDate must not be before date`);
+  return { title, date, endDate };
+}
+
+export function renderPastEvents(items) {
+  needArray(items, 'pastEvents');
+  const events = items.map(validatePastEvent).sort((a, b) => b.date.localeCompare(a.date));
+  const rows = events
+    .map((event) => {
+      const start = dateParts(event.date);
+      const end = event.endDate ? dateParts(event.endDate) : null;
+      const day = end
+        ? `<time datetime="${event.date}">${start.day}</time><span aria-hidden="true">–</span><time datetime="${event.endDate}">${end.day}</time>`
+        : `<time datetime="${event.date}">${start.day}</time>`;
+      const monthYear = end && (start.month !== end.month || start.year !== end.year)
+        ? `${start.month}.${start.year} — ${end.month}.${end.year}`
+        : `${start.month}.${start.year}`;
+      const lang = JP_RE.test(event.title) ? ' lang="ja"' : '';
+      return `<li class="past-events__event">
+        <span class="past-events__date">${day}<small>${monthYear}</small></span>
+        <span class="past-events__title"${lang}>${esc(event.title)}</span>
+      </li>`;
+    })
+    .join('\n      ');
+  return `<ol class="past-events__list">
+      ${rows}
+    </ol>`;
+}
+
 function renderContacts(contacts, variant) {
   needArray(contacts, 'contacts');
   if (contacts.length === 0) fail('contacts needs at least one entry');
@@ -531,6 +567,7 @@ export function renderContent(html) {
     'content:contacts:finale': () => renderContacts(c.contacts, 'finale'),
     'content:works': () => renderWorks(c.works),
     'content:posts': () => renderPosts(c.posts),
+    'content:past-events': () => renderPastEvents(c.pastEvents),
   };
   for (const [name, render] of Object.entries(slots)) {
     const marker = `<!-- ${name} -->`;

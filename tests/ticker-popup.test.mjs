@@ -6,7 +6,7 @@ import { after, before, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 
-import { renderContent } from '../scripts/render-content.js';
+import { renderContent, renderPastEvents } from '../scripts/render-content.js';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PORT = 4175;
@@ -45,7 +45,7 @@ after(async () => {
 
 test('ticker data and rendered markup expose a semantic event programme', () => {
   const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/site.json'), 'utf8'));
-  assert.equal(content.ticker.length, 10);
+  assert.equal(content.ticker.length, 9);
   for (const [index, event] of content.ticker.entries()) {
     assert.equal(typeof event, 'object', `ticker[${index}] should be structured`);
     assert.equal(typeof event.title, 'string');
@@ -57,10 +57,11 @@ test('ticker data and rendered markup expose a semantic event programme', () => 
   const html = renderContent(template);
   assert.match(html, /<button[^>]+class="ticker__label"[^>]+aria-haspopup="dialog"/);
   assert.match(html, /<dialog[^>]+id="ticker-events"[^>]+aria-labelledby="ticker-events-title"/);
-  assert.equal((html.match(/class="ticker-dialog__event"/g) ?? []).length, 10);
+  assert.equal((html.match(/class="ticker-dialog__event"/g) ?? []).length, 9);
+  const tickerDialogHtml = html.match(/<ol class="ticker-dialog__list">([\s\S]*?)<\/ol>/)?.[1] ?? '';
   assert.deepEqual(
-    [...html.matchAll(/<time[^>]+datetime="([^"]+)"/g)].map((match) => match[1]),
-    ['2026-09-20', '2026-09-21', '2026-09-22', '2026-09-23', '2026-11-07', '2026-11-07', '2026-11-08', '2026-12-13', '2026-12-20', '2026-12-27', '2026-12-29', '2026-12-31', '2027-02-20']
+    [...tickerDialogHtml.matchAll(/<time[^>]+datetime="([^"]+)"/g)].map((match) => match[1]),
+    ['2026-09-21', '2026-09-22', '2026-09-23', '2026-11-07', '2026-11-07', '2026-11-08', '2026-12-13', '2026-12-20', '2026-12-27', '2026-12-29', '2026-12-31', '2027-02-20']
   );
   assert.match(html, /初後夜祭 in 岩手（DJイベント）/);
   assert.match(html, /Hatsuboshi DJ FESTIVAL #HDF episode\.3「共鳴」/);
@@ -68,6 +69,31 @@ test('ticker data and rendered markup expose a semantic event programme', () => 
   assert.match(html, /<small>09\.2026<\/small>/);
   assert.match(html, /<small>02\.2027<\/small>/);
   assert.doesNotMatch(html, /<small>[A-Z]{3} \d{4}<\/small>/);
+});
+
+test('past events are canonical, numeric, and rendered most-recent-first', () => {
+  const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/site.json'), 'utf8'));
+  assert.deepEqual(content.pastEvents, [
+    { title: 'あおわん・カンナヒカル（仮）夜の部', date: '2026-09-20' },
+  ]);
+  assert.equal(content.ticker.some((event) => event.title.includes('カンナヒカル（仮）夜の部')), false);
+
+  const archive = renderPastEvents([
+    { title: 'Earlier event', date: '2026-08-01' },
+    { title: 'Latest event', date: '2026-10-02' },
+    { title: 'Kanna event', date: '2026-09-20' },
+  ]);
+  assert.deepEqual(
+    [...archive.matchAll(/class="past-events__title"[^>]*>([^<]+)</g)].map((match) => match[1]),
+    ['Latest event', 'Kanna event', 'Earlier event']
+  );
+
+  const template = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const html = renderContent(template);
+  assert.match(html, /<section id="past-events" class="act act--past-events">/);
+  assert.equal((html.match(/class="past-events__event"/g) ?? []).length, 1);
+  assert.match(html, /<time datetime="2026-09-20">20<\/time><small>09\.2026<\/small>/);
+  assert.match(html, /あおわん・カンナヒカル（仮）夜の部/);
 });
 
 test('ticker opens and dismisses the event programme accessibly', async () => {
@@ -82,7 +108,7 @@ test('ticker opens and dismisses the event programme accessibly', async () => {
   await trigger.click();
   assert.equal(await dialog.isVisible(), true);
   assert.equal(await trigger.getAttribute('aria-expanded'), 'true');
-  assert.equal(await dialog.locator('.ticker-dialog__event').count(), 10);
+  assert.equal(await dialog.locator('.ticker-dialog__event').count(), 9);
 
   await dialog.locator('.ticker-dialog__close').click();
   assert.equal(await dialog.isVisible(), false);

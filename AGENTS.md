@@ -45,6 +45,7 @@ content/site.json + public artwork ─→ npm run washes
 | --- | --- | --- |
 | `hero.catchline` | array of strings | one string per line of the hero quote; plain text only — the renderer splits it into per-character animated spans automatically (JP chars wrap freely, Latin words stay whole, closing punctuation never starts a line, and a hidden plain copy is kept for screen readers) |
 | `ticker` | array of `{title, date, endDate?}` | upcoming events only; dates use `YYYY-MM-DD`, `endDate` is optional for ranges, and display order is chronological. `参加予定` is fixed UI; JP titles are auto-detected and get JP font styling + `lang="ja"` |
+| `pastEvents` | array of `{title, date, endDate?}` | completed-event archive; dates use `YYYY-MM-DD`, optional ranges use `endDate`, and the compact section sorts newest-first with visible numeric dates |
 | `contacts` | `{label, href, icon}` | `icon`: `x` \| `mail` \| `branch`; rendered in hero **and** footer |
 | `works` | `{title, date, image, alt?, meta?, link?}` | see below |
 | `posts` | `{date, tag, title, excerpt, slug+body OR href}` | see below |
