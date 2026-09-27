@@ -24,6 +24,8 @@ const ICONS = {
   x: { id: 'ic-x', size: { hero: 16, finale: 13 } },
   mail: { id: 'ic-mail', size: { hero: 17, finale: 14 } },
   branch: { id: 'ic-branch', size: { hero: 17, finale: 14 } },
+  calendar: { id: 'ic-calendar', size: { hero: 17, finale: 14 } },
+  discord: { id: 'ic-discord', size: { hero: 18, finale: 15 } },
 };
 
 // Hiragana, katakana, or CJK ideographs → JP ticker styling + lang="ja"
