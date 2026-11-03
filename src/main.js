@@ -27,10 +27,7 @@ wireSweep();
 const tickerViewport = document.querySelector('.ticker__viewport');
 const tickerTrack = tickerViewport?.querySelector('.ticker__track');
 const tickerSource = tickerTrack?.querySelector('.ticker__group');
-const ticker = tickerViewport?.closest('.ticker');
-const tickerTrigger = ticker?.querySelector('.ticker__label');
-const tickerDialog = ticker?.querySelector('.ticker-dialog');
-const tickerDialogClose = tickerDialog?.querySelector('.ticker-dialog__close');
+const upcomingSection = document.getElementById('upcoming-events');
 if (!reduceMotion && tickerViewport && tickerTrack && tickerSource) {
   const SPEED = 96; // px/s — approximately one current source group per 16s
   let sourceWidth = 0;
@@ -96,73 +93,60 @@ if (!reduceMotion && tickerViewport && tickerTrack && tickerSource) {
   });
 }
 
-// The ticker is the compact preview; selecting either its fixed label or its
-// moving rail opens the complete event programme in a native modal dialog.
-// Native <dialog> supplies focus containment and Escape dismissal. We restore
-// focus explicitly so mouse, touch, and keyboard openings all return to one
-// predictable 44px target.
-if (ticker && tickerTrigger && tickerViewport && tickerDialog) {
+// Native details keep both event lists independently usable without JS.
+// Ticker and index links expand the destination before scrolling and place
+// keyboard focus on its summary, never into a modal or a hidden list.
+const eventSections = new Map(['upcoming-events', 'past-events'].map((id) => [id, document.getElementById(id)]));
+const visitEventSection = (id, updateHistory = true) => {
+  const section = eventSections.get(id);
+  const details = section?.querySelector('details');
+  const summary = details?.querySelector('summary');
+  if (!details || !summary) return;
+  details.open = true;
+  if (updateHistory && location.hash !== `#${id}`) history.pushState(null, '', `#${id}`);
+  summary.focus({ preventScroll: true });
+  section.scrollIntoView({ behavior: reduceMotion ? 'instant' : 'smooth', block: 'start' });
+};
+document.addEventListener('click', (event) => {
+  if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const link = event.target instanceof Element ? event.target.closest('a[href^="#"]') : null;
+  const id = link?.getAttribute('href')?.slice(1);
+  if (!eventSections.has(id)) return;
+  event.preventDefault();
+  visitEventSection(id);
+});
+const visitEventHash = () => {
+  const id = location.hash.slice(1);
+  if (eventSections.has(id)) visitEventSection(id, false);
+};
+window.addEventListener('hashchange', visitEventHash);
+if (eventSections.has(location.hash.slice(1))) requestAnimationFrame(visitEventHash);
+
+if (tickerViewport && upcomingSection) {
   let suppressRailClick = false;
   let pointerStart = null;
-
-  const openTickerDialog = () => {
-    if (tickerDialog.open) return;
-    tickerTrigger.setAttribute('aria-expanded', 'true');
-    if (typeof tickerDialog.showModal === 'function') tickerDialog.showModal();
-    else tickerDialog.setAttribute('open', '');
-  };
-
-  const closeTickerDialog = () => {
-    if (!tickerDialog.open) return;
-    if (typeof tickerDialog.close === 'function') tickerDialog.close();
-    else {
-      tickerDialog.removeAttribute('open');
-      tickerDialog.dispatchEvent(new Event('close'));
-    }
-  };
-
-  ticker.addEventListener('click', (event) => {
-    if (!(event.target instanceof Element) || event.target.closest('.ticker-dialog')) return;
-    if (event.target.closest('.ticker__viewport') && suppressRailClick) {
-      suppressRailClick = false;
-      return;
-    }
-    if (event.target.closest('.ticker__label, .ticker__viewport')) openTickerDialog();
+  tickerViewport.addEventListener('click', () => {
+    if (!suppressRailClick) visitEventSection('upcoming-events');
+    suppressRailClick = false;
   });
-
   tickerViewport.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
     event.preventDefault();
-    openTickerDialog();
+    visitEventSection('upcoming-events');
   });
-
-  // Reduced-motion/no-auto-scroll users can swipe the native rail. Do not turn
-  // the release after a deliberate drag into an accidental modal open.
+  // A swipe is scrolling the rail, not activating its destination.
   tickerViewport.addEventListener('pointerdown', (event) => {
     pointerStart = { x: event.clientX, y: event.clientY };
     suppressRailClick = false;
   });
   tickerViewport.addEventListener('pointermove', (event) => {
-    if (!pointerStart) return;
-    if (Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y) > 8) {
-      suppressRailClick = true;
-    }
+    if (pointerStart && Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y) > 8) suppressRailClick = true;
   });
-  const finishRailPointer = () => {
+  tickerViewport.addEventListener('pointerup', () => {
     pointerStart = null;
     setTimeout(() => { suppressRailClick = false; }, 0);
-  };
-  tickerViewport.addEventListener('pointerup', finishRailPointer);
-  tickerViewport.addEventListener('pointercancel', finishRailPointer);
-
-  tickerDialogClose?.addEventListener('click', closeTickerDialog);
-  tickerDialog.addEventListener('click', (event) => {
-    if (event.target === tickerDialog) closeTickerDialog();
   });
-  tickerDialog.addEventListener('close', () => {
-    tickerTrigger.setAttribute('aria-expanded', 'false');
-    tickerTrigger.focus({ preventScroll: true });
-  });
+  tickerViewport.addEventListener('pointercancel', () => { pointerStart = null; suppressRailClick = true; });
 }
 
 // The compact mobile program menu closes after choosing an in-page act.

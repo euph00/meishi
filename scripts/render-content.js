@@ -217,40 +217,9 @@ function renderTickerGroup(events) {
     .join('\n        ');
 }
 
-function renderTickerDialog(events) {
-  const rows = events
-    .map((event, i) => {
-      const start = dateParts(event.date);
-      const end = event.endDate ? dateParts(event.endDate) : null;
-      const day = end
-        ? `<time datetime="${event.date}">${start.day}</time><span aria-hidden="true">–</span><time datetime="${event.endDate}">${end.day}</time>`
-        : `<time datetime="${event.date}">${start.day}</time>`;
-      const monthYear = end && (start.month !== end.month || start.year !== end.year)
-        ? `${start.month}.${start.year} — ${end.month}.${end.year}`
-        : `${start.month}.${start.year}`;
-      const lang = JP_RE.test(event.title) ? ' lang="ja"' : '';
-      return `<li class="ticker-dialog__event">
-          <span class="ticker-dialog__index" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
-          <span class="ticker-dialog__date">${day}<small>${monthYear}</small></span>
-          <span class="ticker-dialog__title"${lang}>${esc(event.title)}</span>
-        </li>`;
-    })
-    .join('\n        ');
-  return `<dialog class="ticker-dialog" id="ticker-events" aria-labelledby="ticker-events-title">
-      <div class="ticker-dialog__sheet">
-        <header class="ticker-dialog__header">
-          <div>
-            <span class="ticker-dialog__eyebrow">EVENT PROGRAMME <span lang="ja">参加予定</span></span>
-            <h2 id="ticker-events-title">Upcoming <em>dates</em></h2>
-          </div>
-          <button class="ticker-dialog__close" type="button" aria-label="Close upcoming events">Close <span aria-hidden="true">×</span></button>
-        </header>
-        <ol class="ticker-dialog__list">
-        ${rows}
-        </ol>
-        <p class="ticker-dialog__hint">Select the yellow ticker anytime to reopen this programme.</p>
-      </div>
-    </dialog>`;
+function renderUpcomingEvents(items) {
+  needArray(items, 'ticker');
+  return renderEventList(items.map(validateTickerEvent).sort((a, b) => a.date.localeCompare(b.date)));
 }
 
 // Render one semantic group. Once its fonts and layout are stable, main.js
@@ -260,15 +229,14 @@ function renderTicker(items) {
   if (items.length === 0) fail('ticker needs at least one item');
   const events = items.map(validateTickerEvent).sort((a, b) => a.date.localeCompare(b.date));
   const group = renderTickerGroup(events);
-  return `<button class="ticker__label" type="button" aria-haspopup="dialog" aria-controls="ticker-events" aria-expanded="false"><span lang="ja">参加予定</span><span class="ticker__label-mark" aria-hidden="true">＋</span></button>
-    <div class="ticker__viewport" tabindex="0" aria-label="Upcoming events ticker. Select to view all dates.">
+  return `<a class="ticker__label" href="#upcoming-events"><span lang="ja">参加予定</span><span class="ticker__label-mark" aria-hidden="true">↓</span></a>
+    <div class="ticker__viewport" tabindex="0" role="link" aria-label="View upcoming events">
       <div class="ticker__track">
         <ul class="ticker__group">
           ${group}
         </ul>
       </div>
-    </div>
-    ${renderTickerDialog(events)}`;
+    </div>`;
 }
 
 function validatePastEvent(raw, i) {
@@ -285,6 +253,10 @@ function validatePastEvent(raw, i) {
 export function renderPastEvents(items) {
   needArray(items, 'pastEvents');
   const events = items.map(validatePastEvent).sort((a, b) => b.date.localeCompare(a.date));
+  return renderEventList(events);
+}
+
+function renderEventList(events) {
   const rows = events
     .map((event) => {
       const start = dateParts(event.date);
@@ -296,13 +268,13 @@ export function renderPastEvents(items) {
         ? `${start.month}.${start.year} — ${end.month}.${end.year}`
         : `${start.month}.${start.year}`;
       const lang = JP_RE.test(event.title) ? ' lang="ja"' : '';
-      return `<li class="past-events__event">
-        <span class="past-events__date">${day}<small>${monthYear}</small></span>
-        <span class="past-events__title"${lang}>${esc(event.title)}</span>
+      return `<li class="event-list__event">
+        <span class="event-list__date">${day}<small>${monthYear}</small></span>
+        <span class="event-list__title"${lang}>${esc(event.title)}</span>
       </li>`;
     })
     .join('\n      ');
-  return `<ol class="past-events__list">
+  return `<ol class="event-list__list">
       ${rows}
     </ol>`;
 }
@@ -570,6 +542,7 @@ export function renderContent(html) {
     'content:contacts:finale': () => renderContacts(c.contacts, 'finale'),
     'content:works': () => renderWorks(c.works),
     'content:posts': () => renderPosts(c.posts),
+    'content:upcoming-events': () => renderUpcomingEvents(c.ticker),
     'content:past-events': () => renderPastEvents(c.pastEvents),
   };
   for (const [name, render] of Object.entries(slots)) {

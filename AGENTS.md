@@ -129,8 +129,8 @@ commands are local authoring tools; GitHub Actions deliberately runs only
 
 ### Everything else
 Ticker events, catchline lines, contact links: edit the arrays in place. Each
-ticker event keeps its title separate from its ISO date so the rail and popup
-can render it appropriately. Remove any card/post/item by deleting its entry — numbering and sorting fix
+ticker event keeps its title separate from its ISO date so the rail and inline
+Upcoming Events section can render it appropriately. Remove any card/post/item by deleting its entry — numbering and sorting fix
 themselves. When removing artwork, its full image and generated wash may also
 be deleted if nothing else references them; `npm run washes` does not prune
 orphans automatically.
@@ -202,20 +202,19 @@ orphans automatically.
     (animation-timeline: view())`, no-op elsewhere). `.hero` must keep
     `overflow: clip` (NOT `hidden` — that creates a scroll container and
     freezes the `view()` timeline).
-  - **Ticker rail / event programme** — `参加予定` stays fixed and is a native
-    button. Clicking it or the rail opens a native `<dialog>` with the complete
-    chronological event/date list; Escape, backdrop, and the close button dismiss
-    it and focus returns to the trigger. The renderer emits one
-    semantic group; after `document.fonts.ready`, `main.js` measures it, adds
-    only enough `aria-hidden` copies to cover one loop, and advances the
-    viewport's native `scrollLeft` at 96px/s. A `ResizeObserver` adjusts the
-    copy count without changing position; an `IntersectionObserver` parks the
-    frame loop off-screen and resumes at the same position. Do not replace this
-    with a transform marquee: animating font-dependent `max-content` geometry
-    caused blank compositor tiles and visible resets on production mobile cold
-    loads. The rail pauses on hover/focus for reliable selection. Reduced-motion
-    and no-JS modes fall back to a manually swipeable static snap rail; the modal
-    is a JS enhancement and the event text remains present without it.
+  - **Ticker rail / event sections** — `参加予定` is a link to `#upcoming-events`.
+    Clicking it or activating the rail expands the Upcoming Events section,
+    scrolls to it, and focuses its summary. Upcoming and Past Events are native
+    independent `<details>` sections, collapsed by default, using the same
+    numeric-date row style. Upcoming is rendered from `ticker` in chronological
+    order; Past from `pastEvents` newest-first. Index links and direct hashes
+    expand their destination; without JS the native summaries remain usable.
+    The renderer emits one semantic ticker group; after `document.fonts.ready`,
+    `main.js` adds only enough `aria-hidden` copies to cover one loop and advances
+    native `scrollLeft` at 96px/s. Resize adjusts coverage; off-screen motion
+    pauses. Hover/focus pauses for selection; dragging the rail does not navigate.
+    Reduced-motion/no-JS modes retain a manually swipeable rail. Do not restore
+    the former modal or replace native scrolling with a transform marquee.
   - **Work program** — native independent `<details>` allow zero, one, or
     several open pieces at every viewport size. JS adds reversible height
     transitions; 96×24 pre-rendered color washes make the rows artwork-specific
