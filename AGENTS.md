@@ -205,8 +205,9 @@ orphans automatically.
   - **Ticker rail / event sections** — `参加予定` is a link to `#upcoming-events`.
     Clicking it or activating the rail expands the Upcoming Events section,
     scrolls to it, and focuses its summary. Upcoming and Past Events are native
-    independent `<details>` sections, collapsed by default, using the same
-    numeric-date row style. Upcoming is rendered from `ticker` in chronological
+    independent `<details>` sections: Upcoming starts expanded and Past collapsed,
+    using the same numeric-date row style with prominent 13px full-ink month/year
+    labels. Upcoming is rendered from `ticker` in chronological
     order; Past from `pastEvents` newest-first. Index links and direct hashes
     expand their destination; without JS the native summaries remain usable.
     Event lists use reversible 480ms-open/420ms-close height-and-opacity motion

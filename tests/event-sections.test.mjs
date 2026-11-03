@@ -20,12 +20,12 @@ before(async () => {
 });
 after(async () => { await browser?.close(); server?.kill('SIGTERM'); });
 
-test('canonical upcoming and past lists are inline, ordered and collapsed by default', () => {
+test('canonical upcoming and past lists are inline, ordered with upcoming expanded by default', () => {
   const html = renderContent(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8'));
   assert.doesNotMatch(html, /<dialog|aria-haspopup="dialog"/);
   assert.ok(html.indexOf('id="upcoming-events"') < html.indexOf('id="past-events"'));
   for (const id of ['upcoming-events', 'past-events']) {
-    assert.match(html, new RegExp(`<section id="${id}"[\\s\\S]*?<details class="event-section">\\s*<summary`));
+    assert.match(html, new RegExp(`<section id="${id}"[\\s\\S]*?<details class="event-section"${id === 'upcoming-events' ? ' open' : ''}>\\s*<summary`));
   }
   const upcoming = html.match(/<section id="upcoming-events"[\s\S]*?<\/section>/)[0];
   assert.equal((upcoming.match(/class="event-list__event"/g) ?? []).length, content.ticker.length);
@@ -45,7 +45,7 @@ for (const width of [1280, 390]) {
     await page.goto(`${ORIGIN}/?intro=0`);
     const upcoming = page.locator('#upcoming-events details');
     const past = page.locator('#past-events details');
-    assert.equal(await upcoming.getAttribute('open'), null);
+    assert.equal(await upcoming.getAttribute('open'), '');
     assert.equal(await past.getAttribute('open'), null);
     await page.locator('.ticker__label').click();
     assert.equal(await upcoming.evaluate(x=>x.open), true);
@@ -97,6 +97,7 @@ for (const width of [320,390,768,1280]) {
     const page = await ctx.newPage(); await page.goto(`${ORIGIN}/?intro=0`);
     for (const id of ['upcoming-events','past-events']) {
       const section = page.locator(`#${id}`);
+      if (await section.locator('details').evaluate(d=>d.open)) await section.locator('summary').click();
       const geometry = await section.evaluate(s => {
         const summary=s.querySelector('summary'), title=s.querySelector('h2'), toggle=s.querySelector('.event-section__toggle');
         return {bottom:parseFloat(getComputedStyle(s).paddingBottom),top:parseFloat(getComputedStyle(s).paddingTop),
@@ -128,7 +129,7 @@ for (const width of [320,390,1280]) {
     const page=await ctx.newPage();await page.goto(`${ORIGIN}/?intro=0`);
     for (const id of ['upcoming-events','past-events']) {
       const result=await page.locator(`#${id} details`).evaluate(d=>{
-        const s=d.querySelector('summary');s.click();
+        const s=d.querySelector('summary');if(d.open){s.click();d.querySelector('.event-section__content').getAnimations()[0].finish();}s.click();
         const c=d.querySelector('.event-section__content');
         const a=c?.getAnimations()[0];
         if(!a)return {animated:false};
@@ -166,6 +167,7 @@ test('in-flight event motion settles cleanly on resize or reduced-motion changes
   const ctx=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'no-preference'});
   const page=await ctx.newPage();await page.goto(`${ORIGIN}/?intro=0`);
   await page.locator('#upcoming-events summary').evaluate(s=>{
+    if(s.parentElement.open){s.click();s.parentElement.querySelector('.event-section__content').getAnimations()[0].finish();}
     s.click();s.parentElement.querySelector('.event-section__content').getAnimations()[0].pause();
   });
   await page.setViewportSize({width:320,height:844});
@@ -208,8 +210,10 @@ test('in-flight event motion settles cleanly on resize or reduced-motion changes
 test('native sections remain usable without JavaScript', async () => {
   const ctx = await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
   const page = await ctx.newPage(); await page.goto(`${ORIGIN}/?intro=0`);
-  await page.locator('#upcoming-events summary').click();
   assert.equal(await page.locator('#upcoming-events details').getAttribute('open'), '');
+  await page.locator('#upcoming-events summary').click();
+  assert.equal(await page.locator('#upcoming-events details').getAttribute('open'), null);
+  await page.locator('#upcoming-events summary').click();
   assert.equal(await page.locator('#upcoming-events .event-list__event').count(), content.ticker.length);
   await ctx.close();
 });
@@ -223,3 +227,22 @@ test('direct event anchors expand their section and rail click navigates without
   assert.equal(await page.locator('dialog').count(), 0);
   await page.close();
 });
+
+for (const width of [320,390,1280]) {
+  test(`event month and year are prominent and fit at ${width}px`, async () => {
+    const ctx=await browser.newContext({viewport:{width,height:844},reducedMotion:'reduce'});
+    const page=await ctx.newPage();await page.goto(`${ORIGIN}/?intro=0`);
+    for(const id of ['upcoming-events','past-events']) {
+      const section=page.locator(`#${id}`);
+      if(!await section.locator('details').evaluate(d=>d.open))await section.locator('summary').click();
+      const dates=await section.locator('.event-list__date small').evaluateAll(els=>els.map(e=>{
+        const s=getComputedStyle(e),r=e.getBoundingClientRect(),p=e.closest('.event-list__date').getBoundingClientRect();
+        return {size:parseFloat(s.fontSize),color:s.color,ink:getComputedStyle(document.body).color,fits:r.right<=p.right+1,overflow:e.scrollWidth>e.clientWidth};
+      }));
+      assert.ok(dates.length>0);
+      for(const d of dates){assert.ok(d.size>=13,JSON.stringify(d));assert.equal(d.color,d.ink);assert.equal(d.fits,true);assert.equal(d.overflow,false);}
+    }
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await ctx.close();
+  });
+}

@@ -974,9 +974,9 @@ img { display: block; }
 .event-list__date small {
   flex-basis: 100%;
   margin-top: 7px;
-  color: var(--ink-60);
-  font: 500 9px/1 var(--mono);
-  letter-spacing: .14em;
+  color: var(--ink);
+  font: 600 13px/1.2 var(--mono);
+  letter-spacing: .08em;
 }
 .event-list__title {
   font: 400 clamp(16px, 1.7vw, 20px)/1.45 var(--sans);
