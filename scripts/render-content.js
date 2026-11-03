@@ -478,6 +478,7 @@ function renderPostBody(body, where) {
 
 function renderPosts(posts) {
   needArray(posts, 'posts');
+  if (posts.length === 0) return '<p class="label-mono">No posts yet.</p>';
   const checked = posts.map((p, i) => validatePost(p, i));
   // newest first, regardless of array order
   const sorted = [...checked].sort((a, b) => b.date.localeCompare(a.date));
