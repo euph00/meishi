@@ -606,7 +606,8 @@ img { display: block; }
 .event-section__toggle::before, .event-section__toggle::after { content: ''; position: absolute; background: var(--ink); }
 .event-section__toggle::before { width: 24px; height: 1px; left: 4px; top: 16px; }
 .event-section__toggle::after { width: 1px; height: 24px; left: 16px; top: 4px; }
-.event-section[open] .event-section__toggle::after { display: none; }
+.event-section__content { display: flow-root; }
+.event-section[open]:not(.is-collapsing) .event-section__toggle::after { display: none; }
 .event-section[open] .event-list__list { margin-top: clamp(24px, 4vh, 40px); }
 .act--events { scroll-margin-top: 16px; }
 

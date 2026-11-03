@@ -122,6 +122,89 @@ for (const width of [320,390,768,1280]) {
   });
 }
 
+for (const width of [320,390,1280]) {
+  test(`event expansion and folding animate reversibly at ${width}px`, async () => {
+    const ctx=await browser.newContext({viewport:{width,height:844},reducedMotion:'no-preference'});
+    const page=await ctx.newPage();await page.goto(`${ORIGIN}/?intro=0`);
+    for (const id of ['upcoming-events','past-events']) {
+      const result=await page.locator(`#${id} details`).evaluate(d=>{
+        const s=d.querySelector('summary');s.click();
+        const c=d.querySelector('.event-section__content');
+        const a=c?.getAnimations()[0];
+        if(!a)return {animated:false};
+        a.pause();a.currentTime=a.effect.getTiming().duration/2;
+        const halfway=c.getBoundingClientRect().height;
+        const end=parseFloat(a.effect.getKeyframes().at(-1).height);
+        s.click();const close=c.getAnimations()[0];close.pause();close.currentTime=close.effect.getTiming().duration/2;
+        const duringClose={open:d.open,clipped:getComputedStyle(c).overflow,from:parseFloat(close.effect.getKeyframes()[0].height)};
+        s.click();const reopen=c.getAnimations()[0];reopen.finish();
+        return {animated:true,halfway,end,duringClose};
+      });
+      assert.equal(result.animated,true);
+      assert.ok(result.halfway>0 && result.halfway<result.end);
+      assert.ok(Math.abs(result.halfway-result.duringClose.from)<2);
+      assert.equal(result.duringClose.open,true);
+      assert.ok(['hidden','clip'].includes(result.duringClose.clipped));
+      await page.waitForFunction(id=>{const c=document.querySelector(`#${id} .event-section__content`);return c.style.height===''&&c.getAnimations().length===0},id);
+      const details=page.locator(`#${id} details`);
+      assert.equal(await details.evaluate(d=>d.open),true);
+      await details.locator('summary').evaluate(s=>s.click());
+      await page.waitForFunction(id=>!document.querySelector(`#${id} details`).open,id);
+      assert.equal(await details.locator('.event-section__content').getAttribute('style'),'');
+      assert.equal(await details.locator('.event-section__content').evaluate(c=>c.inert),false);
+    }
+    await page.locator('.ticker__label').click();
+    await page.waitForFunction(()=>document.querySelector('#upcoming-events .event-section__content').style.height==='');
+    await page.setViewportSize({width:width===320?390:320,height:844});
+    assert.equal(await page.locator('#upcoming-events .event-section__content').evaluate(c=>c.clientHeight>=c.scrollHeight),true);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    await ctx.close();
+  });
+}
+
+test('in-flight event motion settles cleanly on resize or reduced-motion changes', async () => {
+  const ctx=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'no-preference'});
+  const page=await ctx.newPage();await page.goto(`${ORIGIN}/?intro=0`);
+  await page.locator('#upcoming-events summary').evaluate(s=>{
+    s.click();s.parentElement.querySelector('.event-section__content').getAnimations()[0].pause();
+  });
+  await page.setViewportSize({width:320,height:844});
+  await page.waitForFunction(()=>document.querySelector('#upcoming-events .event-section__content').style.height==='');
+  assert.equal(await page.locator('#upcoming-events details').evaluate(d=>d.open),true);
+  await page.locator('#upcoming-events summary').evaluate(s=>{
+    s.click();s.parentElement.querySelector('.event-section__content').getAnimations()[0].pause();
+  });
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.waitForFunction(()=>!document.querySelector('#upcoming-events details').open);
+  assert.equal(await page.locator('#upcoming-events .event-section__content').evaluate(c=>c.getAnimations().length),0);
+  await page.locator('#upcoming-events summary').press('Enter');
+  assert.equal(await page.locator('#upcoming-events details').evaluate(d=>d.open),true);
+  assert.equal(await page.locator('#upcoming-events .event-section__content').evaluate(c=>c.getAnimations().length),0);
+  await page.evaluate(() => {
+    window.eventScrollCalls = [];
+    const nativeScrollIntoView = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function(options) {
+      if (this.matches('#upcoming-events, #past-events')) window.eventScrollCalls.push({id:this.id, options});
+      return nativeScrollIntoView.call(this, options);
+    };
+  });
+  await page.locator('.ticker__label').click();
+  assert.deepEqual(await page.evaluate(()=>window.eventScrollCalls.at(-1)), {
+    id:'upcoming-events', options:{behavior:'instant',block:'start'}
+  });
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.locator('.ticker__label').click();
+  assert.deepEqual(await page.evaluate(()=>window.eventScrollCalls.at(-1)), {
+    id:'upcoming-events', options:{behavior:'smooth',block:'start'}
+  });
+  await page.evaluate(()=>{ location.hash='#past-events'; });
+  await page.waitForFunction(()=>window.eventScrollCalls.at(-1)?.id==='past-events');
+  assert.deepEqual(await page.evaluate(()=>window.eventScrollCalls.at(-1)), {
+    id:'past-events', options:{behavior:'smooth',block:'start'}
+  });
+  await ctx.close();
+});
+
 test('native sections remain usable without JavaScript', async () => {
   const ctx = await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
   const page = await ctx.newPage(); await page.goto(`${ORIGIN}/?intro=0`);

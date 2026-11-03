@@ -97,15 +97,75 @@ if (!reduceMotion && tickerViewport && tickerTrack && tickerSource) {
 // Ticker and index links expand the destination before scrolling and place
 // keyboard focus on its summary, never into a modal or a hidden list.
 const eventSections = new Map(['upcoming-events', 'past-events'].map((id) => [id, document.getElementById(id)]));
+const eventMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const eventTransitions = new Map();
+const settleEvent = (details, open) => {
+  const content = details.querySelector('.event-section__content');
+  const state = eventTransitions.get(details);
+  // Hide before cancelling a filled closing animation: no full-height flash.
+  details.open = open;
+  if (state?.animation) {
+    state.animation.onfinish = null;
+    state.animation.cancel();
+  }
+  content.style.removeProperty('height');
+  content.style.removeProperty('overflow');
+  content.inert = false;
+  details.classList.remove('is-collapsing');
+  eventTransitions.delete(details);
+};
+const setEventOpen = (details, open) => {
+  const content = details.querySelector('.event-section__content');
+  if (!content) { details.open = open; return; }
+  const prior = eventTransitions.get(details);
+  if ((prior?.target ?? details.open) === open) return;
+  // Sample before cancelling, so a second tap reverses from the visible frame.
+  const height = details.open ? content.getBoundingClientRect().height : 0;
+  const opacity = details.open ? getComputedStyle(content).opacity : '0';
+  if (prior?.animation) {
+    prior.animation.onfinish = null;
+    prior.animation.cancel();
+  }
+  details.open = true;
+  details.classList.toggle('is-collapsing', !open);
+  content.inert = !open;
+  if (eventMotion.matches || !content.animate) { settleEvent(details, open); return; }
+  // Measure natural height, not a previous in-flight fixed height. flow-root
+  // includes the list's leading margin so that gap also folds without a snap.
+  content.style.removeProperty('height');
+  const endHeight = open ? content.scrollHeight : 0;
+  content.style.height = `${height}px`;
+  content.style.overflow = 'hidden';
+  const animation = content.animate(
+    [{height:`${height}px`, opacity}, {height:`${endHeight}px`, opacity:open ? 1 : 0}],
+    {duration:open ? 480 : 420, easing:open ? 'cubic-bezier(.16, 1, .3, 1)' : 'cubic-bezier(.4, 0, .2, 1)', fill:'both'}
+  );
+  eventTransitions.set(details, {target:open, animation});
+  animation.onfinish = () => settleEvent(details, open);
+};
+for (const section of eventSections.values()) {
+  const details = section?.querySelector('details');
+  details?.querySelector('summary')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    setEventOpen(details, !(eventTransitions.get(details)?.target ?? details.open));
+  });
+}
+const settleEventTransitions = () => {
+  for (const [details, state] of eventTransitions) settleEvent(details, state.target);
+};
+// Mobile reflow and a live reduced-motion preference change must not leave
+// stale pixel heights or animations running against the user's preference.
+window.addEventListener('resize', settleEventTransitions);
+eventMotion.addEventListener('change', () => { if (eventMotion.matches) settleEventTransitions(); });
 const visitEventSection = (id, updateHistory = true) => {
   const section = eventSections.get(id);
   const details = section?.querySelector('details');
   const summary = details?.querySelector('summary');
   if (!details || !summary) return;
-  details.open = true;
+  setEventOpen(details, true);
   if (updateHistory && location.hash !== `#${id}`) history.pushState(null, '', `#${id}`);
   summary.focus({ preventScroll: true });
-  section.scrollIntoView({ behavior: reduceMotion ? 'instant' : 'smooth', block: 'start' });
+  section.scrollIntoView({ behavior: eventMotion.matches ? 'instant' : 'smooth', block: 'start' });
 };
 document.addEventListener('click', (event) => {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;

@@ -209,6 +209,10 @@ orphans automatically.
     numeric-date row style. Upcoming is rendered from `ticker` in chronological
     order; Past from `pastEvents` newest-first. Index links and direct hashes
     expand their destination; without JS the native summaries remain usable.
+    Event lists use reversible 480ms-open/420ms-close height-and-opacity motion
+    matching the work accordion. A flow-root wrapper includes the leading gap;
+    settled panels return to natural height. Reduced motion is immediate, and
+    resizing or enabling reduced motion settles any in-flight transition.
     The renderer emits one semantic ticker group; after `document.fonts.ready`,
     `main.js` adds only enough `aria-hidden` copies to cover one loop and advances
     native `scrollLeft` at 96px/s. Resize adjusts coverage; off-screen motion
