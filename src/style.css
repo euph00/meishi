@@ -937,10 +937,14 @@ img { display: block; }
 /* ============================================================
    Upcoming programme and past event archive
    ============================================================ */
+/* A collapsed disclosure is a compact heading, not a full-height act.
+   Keep the same rhythm whether closed or open; the list supplies its own gap. */
 .act--events {
-  padding-top: clamp(56px, 8vh, 88px);
-  padding-bottom: clamp(64px, 9vh, 96px);
+  padding-top: clamp(28px, 4vh, 44px);
+  padding-bottom: clamp(20px, 3vh, 32px);
 }
+/* Do not stack a full act's leading space after a compact disclosure. */
+.act--events + .act--notes { padding-top: clamp(28px, 4vh, 44px); }
 .event-list__list {
   max-width: 780px;
   margin: 0;

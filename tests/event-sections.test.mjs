@@ -68,6 +68,60 @@ for (const width of [1280, 390]) {
   });
 }
 
+test('event headers replay the same title and divider animations as other sections', async () => {
+  const ctx = await browser.newContext({viewport:{width:390,height:844},reducedMotion:'no-preference'});
+  const page = await ctx.newPage();
+  await page.addInitScript(() => {
+    window.eventReveals = [];
+    document.addEventListener('animationstart', e => {
+      const id = e.target.closest?.('.act')?.id;
+      if (id) window.eventReveals.push({id,name:e.animationName});
+    });
+  });
+  await page.goto(`${ORIGIN}/?intro=0`);
+  for (const id of ['upcoming-events','past-events']) {
+    await page.locator(`#${id}`).scrollIntoViewIfNeeded();
+    await page.waitForFunction(id => ['ruleDraw','actEmSwipe','revealFade'].every(name =>
+      window.eventReveals.some(e => e.id===id && e.name===name)), id, {timeout:3000});
+    await page.locator('#top').scrollIntoViewIfNeeded();
+    await page.waitForFunction(id => document.querySelector(`#${id} .act__title`).classList.contains('js-reveal'), id);
+    await page.locator(`#${id}`).scrollIntoViewIfNeeded();
+    await page.waitForFunction(id => window.eventReveals.filter(e=>e.id===id && e.name==='actEmSwipe').length >= 2, id);
+  }
+  await ctx.close();
+});
+
+for (const width of [320,390,768,1280]) {
+  test(`event disclosure spacing and geometry stay compact at ${width}px`, async () => {
+    const ctx = await browser.newContext({viewport:{width,height:844},reducedMotion:'reduce'});
+    const page = await ctx.newPage(); await page.goto(`${ORIGIN}/?intro=0`);
+    for (const id of ['upcoming-events','past-events']) {
+      const section = page.locator(`#${id}`);
+      const geometry = await section.evaluate(s => {
+        const summary=s.querySelector('summary'), title=s.querySelector('h2'), toggle=s.querySelector('.event-section__toggle');
+        return {bottom:parseFloat(getComputedStyle(s).paddingBottom),top:parseFloat(getComputedStyle(s).paddingTop),
+          trailing:s.getBoundingClientRect().bottom-summary.getBoundingClientRect().bottom,
+          overlap:title.querySelector('em').getBoundingClientRect().right > toggle.getBoundingClientRect().left,
+          summaryHeight:summary.getBoundingClientRect().height};
+      });
+      assert.ok(geometry.bottom<=32, `excess bottom padding: ${JSON.stringify(geometry)}`);
+      assert.ok(geometry.top<=44);
+      assert.ok(geometry.trailing<=33);
+      assert.equal(geometry.overlap,false);
+      assert.ok(geometry.summaryHeight>=44);
+      await section.locator('summary').click();
+      assert.equal(await section.locator('details').evaluate(x=>x.open),true);
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+      assert.deepEqual(await section.evaluate(s=>s.getAnimations({subtree:true}).map(a=>a.animationName)),[]);
+      await section.locator('summary').press('Space');
+      assert.equal(await section.locator('details').evaluate(x=>x.open),false);
+    }
+    const gapToNotes = await page.evaluate(() => document.querySelector('#notes .act__header').getBoundingClientRect().top - document.querySelector('#past-events summary').getBoundingClientRect().bottom);
+    assert.ok(gapToNotes<=80, `excess inter-section whitespace before Notes: ${gapToNotes}px`);
+    await ctx.close();
+  });
+}
+
 test('native sections remain usable without JavaScript', async () => {
   const ctx = await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
   const page = await ctx.newPage(); await page.goto(`${ORIGIN}/?intro=0`);
