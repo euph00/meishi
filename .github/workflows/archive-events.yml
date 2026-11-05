@@ -1,0 +1,56 @@
+name: Archive elapsed events
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: meishi-production
+  cancel-in-progress: false
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - id: rollover
+        run: |
+          node scripts/archive-events.mjs
+          if git diff --quiet -- content/site.json; then
+            printf 'changed=false\n' >> "$GITHUB_OUTPUT"
+          else
+            printf 'changed=true\n' >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.rollover.outputs.changed == 'true'
+        run: npm ci && node --test tests/event-rollover.test.mjs && npm run build
+      - name: Reject an outdated checkout
+        if: steps.rollover.outputs.changed == 'true'
+        run: |
+          git fetch origin master
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/master)"
+      # Deploy first: failure leaves the old source eligible for retry next hour.
+      # GITHUB_TOKEN pushes do not retrigger the ordinary push deployment.
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        if: steps.rollover.outputs.changed == 'true'
+        with:
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MEISHI_SITE_F3315 }}
+          channelId: live
+          projectId: meishi-site-f3315
+      - name: Commit only the published rollover
+        if: steps.rollover.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- content/site.json
+          git commit -m 'Archive elapsed events'
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          printf '::add-mask::%s\n' "$auth"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" push origin HEAD:master

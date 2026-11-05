@@ -12,20 +12,24 @@
     {
       "title": "初後夜祭 in 横浜",
       "date": "2026-11-07",
-      "endDate": "2026-11-08"
+      "endDate": "2026-11-08",
+      "endsAt": "2026-11-08T05:00:00+09:00"
     },
     {
       "title": "#ツイまつり 2026冬",
       "date": "2026-12-12",
-      "endDate": "2026-12-13"
+      "endDate": "2026-12-13",
+      "endsAt": "2026-12-13T06:00:00+09:00"
     },
     {
       "title": "Hatsuboshi DJ FESTIVAL #HDF episode.3「共鳴」",
-      "date": "2026-12-13"
+      "date": "2026-12-13",
+      "endsAt": "2026-12-13T20:00:00+09:00"
     },
     {
       "title": "P_NIGHT!! vol.27",
-      "date": "2026-12-18"
+      "date": "2026-12-18",
+      "endsAt": "2026-12-18T23:00:00+09:00"
     },
     {
       "title": "tuki. × 星街すいせい「星降る晩餐会」",
@@ -46,10 +50,16 @@
     },
     {
       "title": "YOASOBI “SUPER PLANET” Singapore",
-      "date": "2027-02-20"
+      "date": "2027-02-20",
+      "timeZone": "Asia/Singapore"
     }
   ],
   "pastEvents": [
+    {
+      "title": "標 CROSS F@DE",
+      "date": "2026-11-05",
+      "endsAt": "2026-11-05T23:00:00+09:00"
+    },
     {
       "title": "初後夜祭 in 岩手（DJイベント）",
       "date": "2026-09-22",

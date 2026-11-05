@@ -165,6 +165,18 @@ orphans automatically.
   Firebase Hosting, project `meishi-site-f3315`). Commit freely; push only
   when the change should go live.
 - Pull requests get a temporary preview-channel deploy automatically.
+- Euph authorizes **elapsed-event rollover-only** production publication without
+  asking again (2026-11-05). `.github/workflows/archive-events.yml` checks hourly
+  at minute17 UTC (GitHub may delay schedules), moves elapsed `ticker` entries
+  into `pastEvents`, builds, commits only `content/site.json`, and deploys only
+  when entries moved. Other content/design publications still require approval.
+- `node scripts/archive-events.mjs` performs the same idempotent rollover locally.
+  Optional event `endsAt` is an explicit offset-bearing timestamp on the final
+  event date; otherwise archive after `endDate ?? date` ends in `timeZone`
+  (default `Asia/Tokyo`; Singapore events use `Asia/Singapore`). Overnight and
+  multi-day entries stay until their final end. Archival never asserts attendance
+  or payment. The pure implementation and CLI are tested in
+  `tests/event-rollover.test.mjs`. Do not add unrelated events or restore posts.
 - Both Actions workflows intentionally run `npm ci && npm run build`, not the
   browser-backed generators. Missing/invalid washes fail this build; missing
   post cards only warn. Always commit generated assets before pushing.

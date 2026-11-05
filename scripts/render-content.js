@@ -219,6 +219,7 @@ function renderTickerGroup(events) {
 
 function renderUpcomingEvents(items) {
   needArray(items, 'ticker');
+  if (items.length === 0) return '<p class="event-list__empty">No upcoming events.</p>';
   return renderEventList(items.map(validateTickerEvent).sort((a, b) => a.date.localeCompare(b.date)));
 }
 
@@ -226,7 +227,7 @@ function renderUpcomingEvents(items) {
 // adds only enough aria-hidden copies to cover a complete native-scroll loop.
 function renderTicker(items) {
   needArray(items, 'ticker');
-  if (items.length === 0) fail('ticker needs at least one item');
+  if (items.length === 0) return '<a class="ticker__label" href="#upcoming-events">No upcoming events</a>';
   const events = items.map(validateTickerEvent).sort((a, b) => a.date.localeCompare(b.date));
   const group = renderTickerGroup(events);
   return `<a class="ticker__label" href="#upcoming-events"><span lang="ja">参加予定</span><span class="ticker__label-mark" aria-hidden="true">↓</span></a>
@@ -532,8 +533,7 @@ export function renderPostPages() {
   return pages;
 }
 
-export function renderContent(html) {
-  const c = loadContent();
+export function renderContent(html, c = loadContent()) {
   const slots = {
     'content:social-preview': () => renderSocialPreview(),
     'content:catchline': () => renderCatchline(c.hero),
