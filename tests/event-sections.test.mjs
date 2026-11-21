@@ -80,12 +80,14 @@ test('event headers replay the same title and divider animations as other sectio
   });
   await page.goto(`${ORIGIN}/?intro=0`);
   for (const id of ['upcoming-events','past-events']) {
-    await page.locator(`#${id}`).scrollIntoViewIfNeeded();
+    // Center the header under test, not a section whose height grows with its events.
+    const header = page.locator(`#${id} .act__header`);
+    await header.scrollIntoViewIfNeeded();
     await page.waitForFunction(id => ['ruleDraw','actEmSwipe','revealFade'].every(name =>
       window.eventReveals.some(e => e.id===id && e.name===name)), id, {timeout:3000});
     await page.locator('#top').scrollIntoViewIfNeeded();
     await page.waitForFunction(id => document.querySelector(`#${id} .act__title`).classList.contains('js-reveal'), id);
-    await page.locator(`#${id}`).scrollIntoViewIfNeeded();
+    await header.scrollIntoViewIfNeeded();
     await page.waitForFunction(id => window.eventReveals.filter(e=>e.id===id && e.name==='actEmSwipe').length >= 2, id);
   }
   await ctx.close();
